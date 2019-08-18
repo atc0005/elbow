@@ -2,9 +2,14 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
+
+// TODO: What other option do I have here other than using a global?
+var fileMatches []string
 
 func main() {
 
@@ -21,8 +26,26 @@ func main() {
 	// does not follow symbolic links.
 	err := filepath.Walk(root, processPath)
 	if err != nil {
-		fmt.Println("error:", err)
+		log.Println("error:", err)
 	}
+
+	// We need to first collect the entire list of files and then prune
+	// all BUT the youngest three. Here with the prototype we can just
+	// focus on files 4-10, but our real target is based on the file's
+	// date/time values.
+
+	// TODO: Sort prior to this point Skip the first three files from the
+	// list. By this point they should have already been sorted based on age.
+	// TODO: How do you make the starting point dynamic based on command-line
+	// option chosen?
+	pruneFilesStartPoint := 2
+	for _, file := range fileMatches[pruneFilesStartPoint:] {
+		log.Println("Removing test file:", file)
+		if err := os.Remove(file); err != nil {
+			log.Fatal(fmt.Sprintf("Failed to remove %s: %s", file, err))
+		}
+	}
+
 }
 
 // WalkFunc is the type of the function called for each file or directory
@@ -51,11 +74,29 @@ func processPath(path string, info os.FileInfo, err error) error {
 
 	// make sure we're not working with the root directory itself
 	if path != "." {
+
+		// ignore directories
+		// Q: Why `return nil` instead of negating (`if ! info.IsDir(){}`)
+		// and processing inside the brackets?
 		if info.IsDir() {
-			fmt.Println("Directory:", path)
-		} else {
-			fmt.Println("File:", path)
+			return nil
 		}
+
+		// process specific files
+		// TODO: This should be specified by command-line
+		ext := filepath.Ext(path)
+
+		if strings.ToLower(ext) == ".test" {
+			log.Printf("Adding %s to fileMatches\n", path)
+			// Created test files via:
+			// touch {1..10}.test
+			fileMatches = append(fileMatches, path)
+
+			return nil
+		}
+
+		log.Println("Skipping file:", path)
+
 	}
 
 	return nil
