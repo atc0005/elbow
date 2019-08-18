@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: What other option do I have here other than using a global?
-var fileMatches []string
+var fileMatches []os.FileInfo
 
 func main() {
 
@@ -52,14 +52,13 @@ func main() {
 	// option chosen?
 	pruneFilesStartPoint := 2
 	for _, file := range fileMatches[pruneFilesStartPoint:] {
-		log.Println("Removing test file:", file)
-		if err := os.Remove(file); err != nil {
-			log.Fatal(fmt.Sprintf("Failed to remove %s: %s", file, err))
+		log.Println("Removing test file:", file.Name())
+		if err := os.Remove(file.Name()); err != nil {
+			log.Fatal(fmt.Errorf("Failed to remove %s: %s", file, err))
 		}
 	}
 
 }
-
 
 func processPath(path string, info os.FileInfo, err error) error {
 
@@ -86,7 +85,11 @@ func processPath(path string, info os.FileInfo, err error) error {
 			log.Printf("Adding %s to fileMatches\n", path)
 			// Created test files via:
 			// touch {1..10}.test
-			fileMatches = append(fileMatches, path)
+			fileInfo, err := os.Stat(path)
+			if err != nil {
+				return fmt.Errorf("Unable to stat %s: %s", path, err)
+			}
+			fileMatches = append(fileMatches, fileInfo)
 
 			return nil
 		}
