@@ -29,6 +29,18 @@ func main() {
 		log.Println("error:", err)
 	}
 
+	/*
+
+		// https://stackoverflow.com/questions/46746862/list-files-in-a-directory-sorted-by-creation-time
+
+		files, err := ioutil.ReadDir(path)
+		// TODO: handle the error!
+		sort.Slice(files, func(i,j int) bool{
+			return files[i].ModTime().Before(files[j].ModTime())
+		})
+
+	*/
+
 	// We need to first collect the entire list of files and then prune
 	// all BUT the youngest three. Here with the prototype we can just
 	// focus on files 4-10, but our real target is based on the file's
