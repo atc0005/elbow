@@ -60,21 +60,7 @@ func main() {
 
 }
 
-// WalkFunc is the type of the function called for each file or directory
-// visited by Walk. The path argument contains the argument to Walk as a
-// prefix; that is, if Walk is called with "dir", which is a directory
-// containing the file "a", the walk function will be called with argument
-// "dir/a". The info argument is the os.FileInfo for the named path.
 
-// If there was a problem walking to the file or directory named by path, the
-// incoming error will describe the problem and the function can decide how to
-// handle that error (and Walk will not descend into that directory). In the
-// case of an error, the info argument will be nil. If an error is returned,
-// processing stops. The sole exception is when the function returns the
-// special value SkipDir. If the function returns SkipDir when invoked on a
-// directory, Walk skips the directory's contents entirely. If the function
-// returns SkipDir when invoked on a non-directory file, Walk skips the
-// remaining files in the containing directory.
 func processPath(path string, info os.FileInfo, err error) error {
 
 	// If an error is received, return it. If we return a non-nil error, this
@@ -88,8 +74,6 @@ func processPath(path string, info os.FileInfo, err error) error {
 	if path != "." {
 
 		// ignore directories
-		// Q: Why `return nil` instead of negating (`if ! info.IsDir(){}`)
-		// and processing inside the brackets?
 		if info.IsDir() {
 			return nil
 		}
