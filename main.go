@@ -1,9 +1,13 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
+
+	"github.com/peterbourgon/ff"
 )
 
 // TODO: What other option do I have here other than using globals?
@@ -25,7 +29,35 @@ func main() {
 
 	*/
 
+	fs := flag.NewFlagSet("elbow", flag.ExitOnError)
+	var (
+		flagStartPath     = fs.String("path", "", "path to process")
+		flagFilePattern   = fs.String("pattern", "", "file pattern to match against")
+		flagFileExtension = fs.String("ext", "", "file extension to match against to limit search")
+		flagRemove        = fs.Bool("remove", false, "remove matched files")
+		flagRecurse       = fs.Bool("recurse", false, "recurse into subdirectories")
+		flagKeep          = fs.Int("keep", 0, "keep specified number of matching files")
+		flagKeepOldest    = fs.Bool("keep-oldest", false, "keep oldest files instead of newer")
+		_                 = fs.String("config", "", "config file (optional)")
+	)
+
+	ff.Parse(fs, os.Args[1:],
+		ff.WithConfigFileFlag("config"),
+		ff.WithConfigFileParser(ff.PlainParser),
+		ff.WithEnvVarPrefix("ELBOW"),
+	)
+
+	fmt.Printf("startPath: %q\n", *flagStartPath)
+	fmt.Printf("filePattern: %q\n", *flagFilePattern)
+	fmt.Printf("fileExtension: %q\n", *flagFileExtension)
+	fmt.Printf("remove: %v\n", *flagRemove)
+	fmt.Printf("recurse: %v\n", *flagRecurse)
+	fmt.Printf("keep: %v\n", *flagKeep)
+	fmt.Printf("keepOldest: %v\n", *flagKeepOldest)
+
 	log.Println("Processing path:", config.StartPath)
+
+	os.Exit(0)
 
 	//
 	// TODO: Refactor filepath.Walk() call below; split into at least two
