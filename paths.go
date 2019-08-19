@@ -29,9 +29,7 @@ func crawlPath(path string, info os.FileInfo, err error) error {
 		// TODO: This should be specified by command-line
 		ext := filepath.Ext(path)
 
-		//fileExtensionsToPrune := ".test"
-		fileExtensionsToPrune := ".tmp"
-		if strings.ToLower(ext) == fileExtensionsToPrune {
+		if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
 			log.Printf("Adding %s to fileMatches\n", path)
 			// Created test files via:
 			// touch {1..10}.test

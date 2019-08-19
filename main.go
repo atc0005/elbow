@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 )
 
-// TODO: What other option do I have here other than using a global?
+// TODO: What other option do I have here other than using globals?
 var matches FileMatches
+
+var config = NewConfig()
 
 func main() {
 
@@ -24,14 +25,7 @@ func main() {
 
 	*/
 
-	// TODO: Replace this hard-coded path with a value from command-line
-	path, ok := os.LookupEnv("TEMP")
-	if !ok {
-		log.Fatal("Unable to retrieve TEMP environment variable")
-	}
-	root := filepath.FromSlash(path)
-
-	log.Println("Processing path:", root)
+	log.Println("Processing path:", config.StartPath)
 
 	//
 	// TODO: Refactor filepath.Walk() call below; split into at least two
@@ -46,7 +40,7 @@ func main() {
 	// are walked in lexical order, which makes the output deterministic but
 	// means that for very large directories Walk can be inefficient. Walk
 	// does not follow symbolic links.
-	err := filepath.Walk(root, crawlPath)
+	err := filepath.Walk(config.StartPath, crawlPath)
 	if err != nil {
 		log.Println("error:", err)
 	}
