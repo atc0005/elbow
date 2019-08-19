@@ -4,6 +4,11 @@ Elbow, Elbow grease.
 
 ## Purpose
 
+Prune content matching specific patterns, either in a single directory or
+recursively through a directory tree. The primary goal is to use this
+application from a cron job to perform routine pruning of generated files that
+would otherwise completely clog a filesystem.
+
 ## Setup test environment
 
 1. cd /path/to/create/test/files
