@@ -5,31 +5,55 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/integrii/flaggy"
 )
 
 // Config represents a collection of configuration settings for this
 // application. Config is created as early as possible upon application
 // startup.
 type Config struct {
-	// 1) [string] File pattern to match on
-	// 2) [string] Starting path for processing
-	// 3) [bool] Recursive search
-	// 4) [int] Number of files to keep
-	// 5) [bool] KeepOldest (false, default)
-
 	FilePattern     string
 	FileExtensions  []string
 	StartPath       string
 	RecursiveSearch bool
 	FilesToKeep     int
 	KeepOldest      bool
+	Remove          bool
 }
 
 // NewConfig returns a newly created Config object.
 func NewConfig() Config {
 
-	config := Config{}
-	config.Set()
+	// Explicitly initialize with intended defaults
+	config := Config{
+		StartPath:       "",
+		FilePattern:     "",
+		FileExtensions:  []string{},
+		FilesToKeep:     0,
+		RecursiveSearch: false,
+		KeepOldest:      false,
+		Remove:          false,
+	}
+
+	flaggy.SetName("Elbow")
+	flaggy.SetDescription("Prune content matching specific patterns, either in a single directory or recursively through a directory tree.")
+
+	flaggy.DefaultParser.ShowHelpOnUnexpected = true
+
+	// Add flags
+	flaggy.String(&config.StartPath, "p", "path", "Path to process")
+	flaggy.String(&config.FilePattern, "fp", "pattern", "File pattern to match against")
+	flaggy.StringSlice(&config.FileExtensions, "e", "extension", "Limit search to specified file extension")
+	flaggy.Int(&config.FilesToKeep, "k", "keep", "Keep specified number of matching files")
+	flaggy.Bool(&config.RecursiveSearch, "r", "recurse", "Perform recursive search into subdirectories")
+	flaggy.Bool(&config.KeepOldest, "ko", "keep-old", "Keep oldest files instead of newer")
+	flaggy.Bool(&config.Remove, "rm", "remove", "Remove matched files")
+
+	// Parse the flag
+	flaggy.Parse()
+
+	//config.Set()
 
 	return config
 }
