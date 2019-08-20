@@ -29,6 +29,19 @@ func main() {
 	config = NewConfig()
 	fmt.Printf("%+v\n", config)
 
+	// TODO: Print error message and exit since (evidently) the target
+	// starting path does not exist.
+	//
+	// https://gist.github.com/mattes/d13e273314c3b3ade33f
+	//
+	// if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
+	// 	// path/to/whatever does not exist
+	// }
+
+	// if _, err := os.Stat("/path/to/whatever"); !os.IsNotExist(err) {
+	// 	// path/to/whatever exists
+	// }
+
 	log.Println("Processing path:", config.StartPath)
 
 	os.Exit(0)
