@@ -26,7 +26,18 @@ func main() {
 
 	*/
 
-	config = NewConfig()
+	// create default configuration so that we can compare against it to
+	// determine whether the user has provided flags
+	defaultConfig := NewConfig()
+	//fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
+
+	appName := "Elbow"
+	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
+
+	config := NewConfig().SetupFlags(appName, appDesc)
+	//fmt.Printf("Our configuration:\t%+v\n", config)
+
+
 	fmt.Printf("%+v\n", config)
 
 	// TODO: Print error message and exit since (evidently) the target
