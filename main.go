@@ -3,14 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"path/filepath"
 	"reflect"
+
+	"github.com/integrii/flaggy"
 )
 
 // TODO: What other option do I have here other than using globals?
 var matches FileMatches
-
 var config *Config
 
 func main() {
@@ -48,28 +48,21 @@ func main() {
 
 	if reflect.DeepEqual(*defaultConfig, *config) {
 		log.Println("User did not provide command-line flags; current configuration matches default settings")
+		flaggy.ShowHelpAndExit("Required command-line options not provided.")
 	} else {
-		log.Println("User provided command-line flags")
+		log.Println("User provided command-line flags, proceeding ...")
 	}
 
 	//fmt.Printf("%+v\n", *config)
 
-	// TODO: Print error message and exit since (evidently) the target
-	// starting path does not exist.
-	//
-	// https://gist.github.com/mattes/d13e273314c3b3ade33f
-	//
-	// if _, err := os.Stat("/path/to/whatever"); os.IsNotExist(err) {
-	// 	// path/to/whatever does not exist
-	// }
-
-	// if _, err := os.Stat("/path/to/whatever"); !os.IsNotExist(err) {
-	// 	// path/to/whatever exists
-	// }
+	// Confirm that requested path actually exists
+	if !pathExists(config.StartPath) {
+		log.Fatalf("Error processing requested path: %q", config.StartPath)
+	}
 
 	log.Println("Processing path:", config.StartPath)
 
-	os.Exit(0)
+	//os.Exit(0)
 
 	//
 	// TODO: Refactor filepath.Walk() call below; split into at least two

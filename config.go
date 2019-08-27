@@ -22,7 +22,6 @@ type Config struct {
 	Remove          bool
 }
 
-
 // NOTE: I've found multiple examples that all return a pointer in order to
 // support "chaining" where the new config feeds directly into the next
 // method
@@ -65,7 +64,6 @@ func NewConfig() *Config {
 
 }
 
-
 // SetupFlags applies settings provided by command-line flags
 // TODO: Pull out
 func (c *Config) SetupFlags(appName string, appDesc string) *Config {
@@ -90,7 +88,6 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	return c
 
 }
-
 
 // Set is a helper method used to configure various values for the application
 // Config object.

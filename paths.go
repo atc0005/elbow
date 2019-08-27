@@ -8,6 +8,22 @@ import (
 	"strings"
 )
 
+func pathExists(path string) bool {
+
+	// Make sure path isn't empty
+	if strings.TrimSpace(path) == "" {
+		return false
+	}
+
+	// https://gist.github.com/mattes/d13e273314c3b3ade33f
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		return true
+	}
+
+	return false
+
+}
+
 func crawlPath(path string, info os.FileInfo, err error) error {
 
 	// If an error is received, return it. If we return a non-nil error, this
