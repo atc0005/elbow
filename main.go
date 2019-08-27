@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"reflect"
 
@@ -30,6 +31,8 @@ func main() {
 	// create default configuration so that we can compare against it to
 	// determine whether the user has provided flags
 	defaultConfig := NewConfig()
+
+	// DEBUG
 	fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
 
 	appName := "Elbow"
@@ -47,9 +50,13 @@ func main() {
 	// }
 
 	if reflect.DeepEqual(*defaultConfig, *config) {
+		// DEBUG
 		log.Println("User did not provide command-line flags; current configuration matches default settings")
+
+		// KEEP
 		flaggy.ShowHelpAndExit("Required command-line options not provided.")
 	} else {
+		// DEBUG
 		log.Println("User provided command-line flags, proceeding ...")
 	}
 
@@ -60,6 +67,7 @@ func main() {
 		log.Fatalf("Error processing requested path: %q", config.StartPath)
 	}
 
+	// INFO
 	log.Println("Processing path:", config.StartPath)
 
 	//os.Exit(0)
@@ -86,22 +94,44 @@ func main() {
 	// reference types to begin with?
 	matches.sortByModTimeAsc()
 
-	pruneFilesStartPoint := 2
-	for _, file := range matches[pruneFilesStartPoint:] {
-		//log.Println("Removing test file:", file.Name())
-		//if err := os.Remove(file.Name()); err != nil {
-		//log.Fatal(fmt.Errorf("Failed to remove %s: %s", file, err))
-		//}
+	// DEBUG
+	log.Printf("Length of matches slice: %d", len(matches))
 
-		//fmt.Println("Details of file ...")
-		//fmt.Printf("%T / %+v\n", file, file)
-		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
-		fmt.Printf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
-			file.Path,
-			file.Name(),
-			file.Size(),
-			file.ModTime().Format("2006-01-02 15:04:05"))
+	//pruneFilesStartPoint := 2
+	if len(matches) <= 0 {
 
+		// INFO
+		fmt.Printf("No matches found in path %q for %v",
+			config.StartPath, config.FilePattern)
+
+		// TODO: Not finding something is a valid outcome, so "normal" exit
+		// code?
+		os.Exit(0)
+	}
+
+	// TODO: Is it safe to allow use of the default 0 value here?
+	//
+	// Do we keep the oldest or the newest files (limited to
+	// config.FilesToKeep) ?
+	var filesToPrune FileMatches
+	if config.KeepOldest {
+		filesToPrune = matches[config.FilesToKeep:]
+	} else {
+		filesToPrune = matches[:config.FilesToKeep]
+	}
+
+	// Prune specified files, do NOT ignore errors
+	filesRemoved, err := cleanPath(filesToPrune, false)
+
+	// Show what we WERE able to successfully remove
+	fmt.Println("%d files successfully removed:", len(filesRemoved))
+	for _, file := range filesRemoved {
+		fmt.Println("*", file)
+	}
+
+	// Determine if we need to display error, exit with unsuccessful error code
+	if err != nil {
+		log.Fatalf("Errors encountered while processing %s: %s", config.StartPath, err)
 	}
 
 }

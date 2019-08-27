@@ -8,6 +8,44 @@ import (
 	"strings"
 )
 
+// cleanPath receives a slice of FileMatch objects and removes each file. Any
+// errors encountered while removing files may optionally be ignored (default
+// is to return immediately upon first error). The total number of files
+// successfully removed is returned along with an error code (nil if no errors
+// were encountered).
+func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
+
+	// DEBUG
+	for _, file := range filesToPrune {
+
+		//fmt.Println("Details of file ...")
+		//fmt.Printf("%T / %+v\n", file, file)
+		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
+		log.Printf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
+			file.Path,
+			file.Name(),
+			file.Size(),
+			file.ModTime().Format("2006-01-02 15:04:05"))
+	}
+
+	for _, file := range files {
+
+		// TODO: Accumulate successful removals, return that with an error code
+
+		//log.Println("Removing test file:", file.Name())
+		//if err := os.Remove(file.Name()); err != nil {
+		//log.Fatal(fmt.Errorf("Failed to remove %s: %s", file, err))
+		//}
+	}
+
+
+	// TODO: Flesh this out
+	return 0, nil
+
+
+}
+
+
 func pathExists(path string) bool {
 
 	// Make sure path isn't empty
