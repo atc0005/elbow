@@ -10,7 +10,7 @@ import (
 // TODO: What other option do I have here other than using globals?
 var matches FileMatches
 
-var config Config
+var config *Config
 
 func main() {
 
@@ -29,16 +29,23 @@ func main() {
 	// create default configuration so that we can compare against it to
 	// determine whether the user has provided flags
 	defaultConfig := NewConfig()
-	//fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
+	fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
 
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
-	config := NewConfig().SetupFlags(appName, appDesc)
-	//fmt.Printf("Our configuration:\t%+v\n", config)
+	config = NewConfig().SetupFlags(appName, appDesc)
+	fmt.Printf("Our configuration:\t%+v\n", config)
 
+	// TODO: How can I reliably compare these?
+	//  invalid operation: *defaultConfig != *config (struct containing []string cannot be compared)
+	// if *defaultConfig != *config {
+	// 	log.Println("User specified command-line options")
+	// } else {
+	// 	log.Println("User did not provide any command-line flags")
+	// }
 
-	fmt.Printf("%+v\n", config)
+	//fmt.Printf("%+v\n", *config)
 
 	// TODO: Print error message and exit since (evidently) the target
 	// starting path does not exist.
