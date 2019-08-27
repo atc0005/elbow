@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 )
 
 // TODO: What other option do I have here other than using globals?
@@ -44,6 +45,12 @@ func main() {
 	// } else {
 	// 	log.Println("User did not provide any command-line flags")
 	// }
+
+	if reflect.DeepEqual(*defaultConfig, *config) {
+		log.Println("User did not provide command-line flags; current configuration matches default settings")
+	} else {
+		log.Println("User provided command-line flags")
+	}
 
 	//fmt.Printf("%+v\n", *config)
 
