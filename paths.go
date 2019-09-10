@@ -16,11 +16,13 @@ import (
 func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
 
 	// DEBUG
-	for _, file := range filesToPrune {
+	for _, file := range files {
 
 		//fmt.Println("Details of file ...")
 		//fmt.Printf("%T / %+v\n", file, file)
 		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
+
+		// DEBUG
 		log.Printf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
 			file.Path,
 			file.Name(),
@@ -28,23 +30,40 @@ func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
 			file.ModTime().Format("2006-01-02 15:04:05"))
 	}
 
+	// NOTE: I considered cloning the existing slice and just removing
+	// elements matching failed removals, but wasn't 100% sure of costs
+	// involved. This might still be the best way to go, so noting the
+	// idea here for future review.
+	// https://yourbasic.org/golang/delete-element-slice/
+	// https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang
+	// https://github.com/golang/go/wiki/SliceTricks
+	var successfulRemovals FileMatches
+	var failedRemovals FileMatches
+
 	for _, file := range files {
 
-		// TODO: Accumulate successful removals, return that with an error code
+		log.Println("Removing test file:", file.Name())
+		err := os.Remove(file.Name())
+		if err != nil {
+			log.Println(fmt.Errorf("Failed to remove %s: %s", file, err))
 
-		//log.Println("Removing test file:", file.Name())
-		//if err := os.Remove(file.Name()); err != nil {
-		//log.Fatal(fmt.Errorf("Failed to remove %s: %s", file, err))
-		//}
+			// Record failed removal, proceed to the next file
+			failedRemovals = append(failedRemovals, file)
+			continue
+		}
+
+		// Record successful removal
+		successfulRemovals = append(successfulRemovals, file)
 	}
 
+	// DEBUG
+	for _, file := range failedRemovals {
+		log.Println("Failed to remove:", file)
+	}
 
-	// TODO: Flesh this out
-	return 0, nil
-
+	return successfulRemovals, nil
 
 }
-
 
 func pathExists(path string) bool {
 

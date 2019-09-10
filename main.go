@@ -11,6 +11,7 @@ import (
 )
 
 // TODO: What other option do I have here other than using globals?
+// Use closures?
 var matches FileMatches
 var config *Config
 
@@ -30,6 +31,8 @@ func main() {
 
 	// create default configuration so that we can compare against it to
 	// determine whether the user has provided flags
+	//
+	// TODO: Is this needed? We'll have to validate the flags either way?
 	defaultConfig := NewConfig()
 
 	// DEBUG
@@ -69,6 +72,19 @@ func main() {
 
 	// INFO
 	log.Println("Processing path:", config.StartPath)
+
+	// TODO: Branch at this point based off of whether the recursive option
+	// was chosen.
+	if config.RecursiveSearch {
+		// DEBUG
+		log.Println("Recursive option is enabled")
+		log.Printf("%v", config)
+		os.Exit(0)
+	}
+
+	// If RecursiveSearch is not enabled, process just the provided StartPath
+	// NOTE: The same cleanPath() function is used in either case, the
+	// difference is in how the FileMatches slice is populated
 
 	//os.Exit(0)
 
