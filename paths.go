@@ -85,6 +85,11 @@ func pathExists(path string) bool {
 // They indicate a need to pass a pointer. Isn't a slice already a reference type?
 func crawlPath(matches FileMatches) filepath.WalkFunc {
 
+	// By using a closure, we are granted access to the enclosing function's
+	// variables, in this case the `matches` variable. The flaviocopes guide
+	// mentions using a pointer, but our variable is a reference type already,
+	// so we shouldn't have to pass a pointer to it in order to modify the
+	// contents of the slice.
 	return func(path string, info os.FileInfo, err error) error {
 
 		// If an error is received, return it. If we return a non-nil error, this
