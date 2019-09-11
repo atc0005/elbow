@@ -13,7 +13,6 @@ import (
 
 // TODO: What other option do I have here other than using globals?
 // Use closures?
-var matches FileMatches
 var config *Config
 
 func main() {
@@ -74,6 +73,8 @@ func main() {
 	// INFO
 	log.Println("Processing path:", config.StartPath)
 
+	var matches FileMatches
+
 	// TODO: Branch at this point based off of whether the recursive option
 	// was chosen.
 	if config.RecursiveSearch {
@@ -81,20 +82,13 @@ func main() {
 		log.Println("Recursive option is enabled")
 		log.Printf("%v", config)
 
-		//
-		// TODO: Refactor filepath.Walk() call below; split into at least two
-		// functions, one to do what is being done now (recursive work), another
-		// to use `ioutil.ReadDir(path)` to gather matches from specific
-		// directory.
-		//
-
 		// Walk walks the file tree rooted at root, calling crawlPath for each
 		// file or directory in the tree, including root. All errors that arise
 		// visiting files and directories are filtered by crawlPath. The files
 		// are walked in lexical order, which makes the output deterministic but
 		// means that for very large directories Walk can be inefficient. Walk
 		// does not follow symbolic links.
-		err := filepath.Walk(config.StartPath, crawlPath)
+		err := filepath.Walk(config.StartPath, crawlPath(matches))
 		if err != nil {
 			log.Println("error:", err)
 		}
@@ -104,15 +98,16 @@ func main() {
 		// If RecursiveSearch is not enabled, process just the provided StartPath
 		// NOTE: The same cleanPath() function is used in either case, the
 		// difference is in how the FileMatches slice is populated
-		err := filepath.Walk(config.StartPath, crawlPath)
-		if err != nil {
-			log.Println("error:", err)
-		}
-
-		// FIXME: Invalid scope? Shadows the global variable?
-		matches, err := ioutil.ReadDir(config.StartPath)
+		files, err := ioutil.ReadDir(config.StartPath)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
+		// FileMatch objects
+		for _, file := range files {
+			fileMatch := FileMatch{FileInfo: file, Path: config.StartPath}
+			matches = append(matches, fileMatch)
 		}
 	}
 
