@@ -140,7 +140,7 @@ func main() {
 	filesRemoved, err := cleanPath(filesToPrune, false)
 
 	// Show what we WERE able to successfully remove
-	fmt.Println("%d files successfully removed:", len(filesRemoved))
+	fmt.Printf("%d files successfully removed:", len(filesRemoved))
 	for _, file := range filesRemoved {
 		fmt.Println("*", file)
 	}
