@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -79,32 +80,43 @@ func main() {
 		// DEBUG
 		log.Println("Recursive option is enabled")
 		log.Printf("%v", config)
-		os.Exit(0)
-	}
 
-	// If RecursiveSearch is not enabled, process just the provided StartPath
-	// NOTE: The same cleanPath() function is used in either case, the
-	// difference is in how the FileMatches slice is populated
+		//
+		// TODO: Refactor filepath.Walk() call below; split into at least two
+		// functions, one to do what is being done now (recursive work), another
+		// to use `ioutil.ReadDir(path)` to gather matches from specific
+		// directory.
+		//
+
+		// Walk walks the file tree rooted at root, calling crawlPath for each
+		// file or directory in the tree, including root. All errors that arise
+		// visiting files and directories are filtered by crawlPath. The files
+		// are walked in lexical order, which makes the output deterministic but
+		// means that for very large directories Walk can be inefficient. Walk
+		// does not follow symbolic links.
+		err := filepath.Walk(config.StartPath, crawlPath)
+		if err != nil {
+			log.Println("error:", err)
+		}
+
+	} else {
+
+		// If RecursiveSearch is not enabled, process just the provided StartPath
+		// NOTE: The same cleanPath() function is used in either case, the
+		// difference is in how the FileMatches slice is populated
+		err := filepath.Walk(config.StartPath, crawlPath)
+		if err != nil {
+			log.Println("error:", err)
+		}
+
+		// FIXME: Invalid scope? Shadows the global variable?
+		matches, err := ioutil.ReadDir(config.StartPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	//os.Exit(0)
-
-	//
-	// TODO: Refactor filepath.Walk() call below; split into at least two
-	// functions, one to do what is being done now (recursive work), another
-	// to use `ioutil.ReadDir(path)` to gather matches from specific
-	// directory.
-	//
-
-	// Walk walks the file tree rooted at root, calling crawlPath for each
-	// file or directory in the tree, including root. All errors that arise
-	// visiting files and directories are filtered by crawlPath. The files
-	// are walked in lexical order, which makes the output deterministic but
-	// means that for very large directories Walk can be inefficient. Walk
-	// does not follow symbolic links.
-	err := filepath.Walk(config.StartPath, crawlPath)
-	if err != nil {
-		log.Println("error:", err)
-	}
 
 	// TODO: Does this in-place attempt at sorting work because slices are
 	// reference types to begin with?

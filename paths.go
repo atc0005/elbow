@@ -125,6 +125,8 @@ func crawlPath(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return fmt.Errorf("Unable to stat %s: %s", path, err)
 			}
+
+			// FIXME: Use of global variable
 			matches = append(matches, fileMatch)
 
 			return nil
