@@ -1,3 +1,6 @@
 *.test
 testing/
 *.exe
+
+# When building on non-Windows platform
+elbow
