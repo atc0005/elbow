@@ -80,7 +80,7 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
 	// Add flags
 	flaggy.String(&c.StartPath, "p", "path", "Path to process")
-	flaggy.String(&c.FilePattern, "fp", "pattern", "File pattern to match against")
+	flaggy.String(&c.FilePattern, "fp", "pattern", "Substring pattern to compare filenames against. Wildcards are not supported.")
 	flaggy.StringSlice(&c.FileExtensions, "e", "extension", "Limit search to specified file extension. Specify as needed to match multiple required extensions.")
 	flaggy.Int(&c.FilesToKeep, "k", "keep", "Keep specified number of matching files")
 	flaggy.Bool(&c.RecursiveSearch, "r", "recurse", "Perform recursive search into subdirectories")

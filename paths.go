@@ -14,7 +14,7 @@ import (
 // is to return immediately upon first error). The total number of files
 // successfully removed is returned along with an error code (nil if no errors
 // were encountered).
-func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
+func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (FileMatches, error) {
 
 	// DEBUG
 	for _, file := range files {
@@ -41,12 +41,35 @@ func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
 	var successfulRemovals FileMatches
 	var failedRemovals FileMatches
 
+	if !config.Remove {
+
+		// INFO
+		log.Println("File removal not enabled.")
+
+		// DEBUG
+		log.Println("listing what WOULD be removed")
+		log.Println("----------------------------")
+		for _, file := range files {
+			log.Println("*", file.Name())
+		}
+
+		// Nothing to show for this, but since neither of the FileMatches
+		// slices have been touched we can return them
+		return successfulRemovals, nil
+	}
+
 	for _, file := range files {
 
-		log.Println("Removing test file:", file.Name())
-		err := os.Remove(file.Name())
+		filename := file.Name()
+
+		// INFO
+		log.Println("Removing file:", filename)
+
+		//
+		err := os.Remove(filename)
+
 		if err != nil {
-			log.Println(fmt.Errorf("Failed to remove %s: %s", file, err))
+			log.Println(fmt.Errorf("Failed to remove %s: %s", filename, err))
 
 			// Record failed removal, proceed to the next file
 			failedRemovals = append(failedRemovals, file)
@@ -59,7 +82,7 @@ func cleanPath(files FileMatches, ignoreErrors bool) (FileMatches, error) {
 
 	// DEBUG
 	for _, file := range failedRemovals {
-		log.Println("Failed to remove:", file)
+		log.Println("Failed to remove:", file.Name())
 	}
 
 	return successfulRemovals, nil
@@ -87,12 +110,10 @@ func processPath(config *Config) (FileMatches, error) {
 	var matches FileMatches
 	var err error
 
-	// TODO: Branch at this point based off of whether the recursive option
-	// was chosen.
 	if config.RecursiveSearch {
 		// DEBUG
 		log.Println("Recursive option is enabled")
-		log.Printf("%v", config)
+		//log.Printf("%v", config)
 
 		// Walk walks the file tree rooted at root, calling the anonymous function
 		// for each file or directory in the tree, including root. All errors that
@@ -117,10 +138,18 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
-				if hasValidExtension(path, config) {
-					fileMatch := FileMatch{FileInfo: info, Path: path}
-					matches = append(matches, fileMatch)
+				if !hasValidExtension(path, config) {
+					return nil
 				}
+
+				if !hasValidFilenamePattern(path, config) {
+					return nil
+				}
+
+				// If we made it to this point, then we must assume that the file
+				// has met all criteria to be removed by this application.
+				fileMatch := FileMatch{FileInfo: info, Path: path}
+				matches = append(matches, fileMatch)
 
 			}
 
@@ -150,10 +179,24 @@ func processPath(config *Config) (FileMatches, error) {
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
 		// FileMatch objects
 		for _, file := range files {
-			if hasValidExtension(file.Name(), config) {
-				fileMatch := FileMatch{FileInfo: file, Path: config.StartPath}
-				matches = append(matches, fileMatch)
+
+			filename := file.Name()
+
+			// Apply validity checks against filename. If validity fails,
+			// go to the next file in the list.
+
+			if !hasValidExtension(filename, config) {
+				continue
 			}
+
+			if !hasValidFilenamePattern(filename, config) {
+				continue
+			}
+
+			// If we made it to this point, then we must assume that the file
+			// has met all criteria to be removed by this application.
+			fileMatch := FileMatch{FileInfo: file, Path: filename}
+			matches = append(matches, fileMatch)
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 )
 
 // FileMatch represents a superset of statistics (including os.FileInfo) for a
@@ -40,6 +41,31 @@ func hasValidExtension(filename string, config *Config) bool {
 		return true
 	}
 
+	// DEBUG
+	log.Println("hasValidExtension: returning false for:", filename)
+
+	log.Printf("hasValidExtension: returning false (%q not in %q)",
+		ext, config.FileExtensions)
+	return false
+}
+
+func hasValidFilenamePattern(filename string, config *Config) bool {
+
+	if strings.TrimSpace(config.FilePattern) == "" {
+		// DEBUG
+		log.Println("No FilePattern has been specified!")
+		log.Printf("Considering %s safe for removal\n", filename)
+		return true
+	}
+
+	// Search for substring
+	if strings.Contains(filename, config.FilePattern) {
+		return true
+	}
+
+	// DEBUG
+	log.Printf("hasValidFilenamePattern: returning false (%q does not contain %q)",
+		filename, config.FilePattern)
 	return false
 }
 

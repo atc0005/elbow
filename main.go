@@ -89,12 +89,12 @@ func main() {
 	// DEBUG
 	log.Printf("Length of matches slice: %d\n", len(matches))
 
-	//pruneFilesStartPoint := 2
+	// Early exit if no matching files were found.
 	if len(matches) <= 0 {
 
 		// INFO
-		fmt.Printf("No matches found in path %q for %v\n",
-			config.StartPath, config.FilePattern)
+		fmt.Printf("No matches found in path %q for files with substring pattern of %q and with extensions %v\n",
+			config.StartPath, config.FilePattern, config.FileExtensions)
 
 		// TODO: Not finding something is a valid outcome, so "normal" exit
 		// code?
@@ -127,12 +127,13 @@ func main() {
 	log.Printf("%d items to prune", len(filesToPrune))
 
 	// Prune specified files, do NOT ignore errors
-	filesRemoved, err := cleanPath(filesToPrune, false)
+	filesRemoved, err := cleanPath(filesToPrune, false, config)
 
 	// Show what we WERE able to successfully remove
-	log.Printf("%d files successfully removed\n", len(filesRemoved))
+	log.Printf("%d files successfully removed:\n", len(filesRemoved))
+	log.Println("----------------------------")
 	for _, file := range filesRemoved {
-		fmt.Println("*", file)
+		log.Println("*", file.Name())
 	}
 
 	// Determine if we need to display error, exit with unsuccessful error code
