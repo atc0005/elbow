@@ -114,11 +114,13 @@ func main() {
 	if config.KeepOldest {
 		// DEBUG
 		log.Println("Keeping older files")
+		log.Println("start at specified number to keep, go until end of slice")
 		filesToPrune = matches[config.FilesToKeep:]
 	} else {
 		// DEBUG
 		log.Println("Keeping newer files")
-		filesToPrune = matches[:config.FilesToKeep]
+		log.Println("start at beginning, go until specified number to keep")
+		filesToPrune = matches[:(len(matches) - config.FilesToKeep)]
 	}
 
 	// DEBUG, INFO?
