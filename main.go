@@ -109,7 +109,7 @@ func main() {
 
 	// DEBUG
 	log.Printf("%d total items in matches", len(matches))
-	log.Printf("%d total items to keep per config.FilesToKeep", config.FilesToKeep)
+	log.Printf("%d items to keep per config.FilesToKeep", config.FilesToKeep)
 
 	if config.KeepOldest {
 		// DEBUG
