@@ -113,7 +113,7 @@ func main() {
 	}
 
 	// Prune specified files, do NOT ignore errors
-	filesRemoved, err := cleanPath(filesToPrune, true)
+	filesRemoved, err := cleanPath(filesToPrune, false)
 
 	// Show what we WERE able to successfully remove
 	log.Printf("%d files successfully removed\n", len(filesRemoved))
