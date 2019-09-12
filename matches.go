@@ -21,7 +21,7 @@ type FileMatch struct {
 // that we're working with a slice?
 type FileMatches []FileMatch
 
-func isSafeToRemoveFile(filename string, config *Config) bool {
+func hasValidExtension(filename string, config *Config) bool {
 
 	// NOTE: We do NOT compare extensions insensitively. We can add that
 	// functionality in the future if needed.

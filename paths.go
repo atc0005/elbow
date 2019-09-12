@@ -117,7 +117,7 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
-				if isSafeToRemoveFile(path, config) {
+				if hasValidExtension(path, config) {
 					fileMatch := FileMatch{FileInfo: info, Path: path}
 					matches = append(matches, fileMatch)
 				}
@@ -150,7 +150,7 @@ func processPath(config *Config) (FileMatches, error) {
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
 		// FileMatch objects
 		for _, file := range files {
-			if isSafeToRemoveFile(file.Name(), config) {
+			if hasValidExtension(file.Name(), config) {
 				fileMatch := FileMatch{FileInfo: file, Path: config.StartPath}
 				matches = append(matches, fileMatch)
 			}
