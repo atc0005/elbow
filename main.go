@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"reflect"
 
 	"github.com/integrii/flaggy"
@@ -74,6 +72,7 @@ func main() {
 	log.Println("Processing path:", config.StartPath)
 
 	var matches FileMatches
+	var err error
 
 	// TODO: Branch at this point based off of whether the recursive option
 	// was chosen.
@@ -82,13 +81,7 @@ func main() {
 		log.Println("Recursive option is enabled")
 		log.Printf("%v", config)
 
-		// Walk walks the file tree rooted at root, calling crawlPath for each
-		// file or directory in the tree, including root. All errors that arise
-		// visiting files and directories are filtered by crawlPath. The files
-		// are walked in lexical order, which makes the output deterministic but
-		// means that for very large directories Walk can be inefficient. Walk
-		// does not follow symbolic links.
-		err := filepath.Walk(config.StartPath, crawlPath(matches))
+		matches, err = crawlPath(config)
 		if err != nil {
 			log.Println("error:", err)
 		}
@@ -98,17 +91,16 @@ func main() {
 		// If RecursiveSearch is not enabled, process just the provided StartPath
 		// NOTE: The same cleanPath() function is used in either case, the
 		// difference is in how the FileMatches slice is populated
-		files, err := ioutil.ReadDir(config.StartPath)
+
+		// DEBUG
+		log.Println("Recursive option is NOT enabled")
+		log.Printf("%v", config)
+
+		matches, err = processPath(config)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("error:", err)
 		}
 
-		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
-		// FileMatch objects
-		for _, file := range files {
-			fileMatch := FileMatch{FileInfo: file, Path: config.StartPath}
-			matches = append(matches, fileMatch)
-		}
 	}
 
 	//os.Exit(0)

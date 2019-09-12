@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -81,16 +82,65 @@ func pathExists(path string) bool {
 
 }
 
-// https://flaviocopes.com/go-list-files/
-// They indicate a need to pass a pointer. Isn't a slice already a reference type?
-func crawlPath(matches FileMatches) filepath.WalkFunc {
+func processPath(config *Config) (FileMatches, error) {
 
-	// By using a closure, we are granted access to the enclosing function's
-	// variables, in this case the `matches` variable. The flaviocopes guide
-	// mentions using a pointer, but our variable is a reference type already,
-	// so we shouldn't have to pass a pointer to it in order to modify the
-	// contents of the slice.
-	return func(path string, info os.FileInfo, err error) error {
+	var matches FileMatches
+
+	// If RecursiveSearch is not enabled, process just the provided StartPath
+	// NOTE: The same cleanPath() function is used in either case, the
+	// difference is in how the FileMatches slice is populated
+	files, err := ioutil.ReadDir(config.StartPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
+	// FileMatch objects
+	for _, file := range files {
+
+		fileName := file.Name()
+
+		ext := filepath.Ext(fileName)
+
+		if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
+
+			log.Printf("Adding %s to fileMatches\n", fileName)
+			// Created test files via:
+			// touch {1..10}.test
+			fileInfo, err := os.Stat(fileName)
+
+			// Explicit initialization
+			fileMatch := FileMatch{FileInfo: fileInfo, Path: fileName}
+
+			if err != nil {
+				return nil, fmt.Errorf("Unable to stat %s: %s", fileName, err)
+			}
+
+			matches = append(matches, fileMatch)
+		}
+
+	}
+
+	return matches, err
+}
+
+func crawlPath(config *Config) (FileMatches, error) {
+
+	var matches FileMatches
+
+	// Walk walks the file tree rooted at root, calling the anonymous function
+	// for each file or directory in the tree, including root. All errors that
+	// arise visiting files and directories are filtered by the anonymous
+	// function. The files are walked in lexical order, which makes the output
+	// deterministic but means that for very large directories Walk can be
+	// inefficient. Walk does not follow symbolic links.
+	err := filepath.Walk(config.StartPath, func(path string, info os.FileInfo, err error) error {
+
+		// By using a closure, we are granted access to the enclosing function's
+		// variables, in this case the `matches` variable. The flaviocopes guide
+		// mentions using a pointer, but our variable is a reference type already,
+		// so we shouldn't have to pass a pointer to it in order to modify the
+		// contents of the slice.
 
 		// If an error is received, return it. If we return a non-nil error, this
 		// will stop the filepath.Walk() function from continuing to walk the
@@ -108,7 +158,6 @@ func crawlPath(matches FileMatches) filepath.WalkFunc {
 			}
 
 			// process specific files
-			// TODO: This should be specified by command-line
 			ext := filepath.Ext(path)
 
 			if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
@@ -146,5 +195,7 @@ func crawlPath(matches FileMatches) filepath.WalkFunc {
 		}
 
 		return nil
-	}
+	})
+
+	return matches, err
 }
