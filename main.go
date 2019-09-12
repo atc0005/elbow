@@ -87,13 +87,13 @@ func main() {
 	matches.sortByModTimeAsc()
 
 	// DEBUG
-	log.Printf("Length of matches slice: %d", len(matches))
+	log.Printf("Length of matches slice: %d\n", len(matches))
 
 	//pruneFilesStartPoint := 2
 	if len(matches) <= 0 {
 
 		// INFO
-		fmt.Printf("No matches found in path %q for %v",
+		fmt.Printf("No matches found in path %q for %v\n",
 			config.StartPath, config.FilePattern)
 
 		// TODO: Not finding something is a valid outcome, so "normal" exit
@@ -116,7 +116,7 @@ func main() {
 	filesRemoved, err := cleanPath(filesToPrune, false)
 
 	// Show what we WERE able to successfully remove
-	fmt.Printf("%d files successfully removed:", len(filesRemoved))
+	fmt.Printf("%d files successfully removed\n", len(filesRemoved))
 	for _, file := range filesRemoved {
 		fmt.Println("*", file)
 	}
