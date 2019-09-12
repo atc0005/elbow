@@ -124,7 +124,7 @@ func main() {
 	}
 
 	// DEBUG, INFO?
-	log.Printf("%d items to prune:", len(filesToPrune))
+	log.Printf("%d items to prune", len(filesToPrune))
 
 	// Prune specified files, do NOT ignore errors
 	filesRemoved, err := cleanPath(filesToPrune, false)
