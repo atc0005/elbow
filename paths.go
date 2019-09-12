@@ -86,9 +86,6 @@ func processPath(config *Config) (FileMatches, error) {
 
 	var matches FileMatches
 
-	// If RecursiveSearch is not enabled, process just the provided StartPath
-	// NOTE: The same cleanPath() function is used in either case, the
-	// difference is in how the FileMatches slice is populated
 	files, err := ioutil.ReadDir(config.StartPath)
 	if err != nil {
 		log.Fatal(err)
