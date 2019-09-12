@@ -82,117 +82,116 @@ func pathExists(path string) bool {
 
 }
 
+// TODO: Not happy with this function name. This function is intended to
+// evaluate passed files in order to either add them to a list of valid
+// matches for removal or ignore them. This function is used by crawlPath()
+// and by the flatPath logic processing in processPath()
+func getMatch(fileName string, matches *FileMatches) error {
+
+	ext := filepath.Ext(fileName)
+
+	if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
+
+		// DEBUG
+		log.Printf("%s has a valid extension for removal\n", fileName)
+
+		fileInfo, err := os.Stat(fileName)
+		if err != nil {
+			return fmt.Errorf("Unable to stat %s: %s", fileName, err)
+		}
+
+		// unknown field 'os.FileInfo' in struct literal of type FileMatch (but does have FileInfo)
+		//fileMatch := FileMatch{os.FileInfo: fileInfo, Path: path}
+
+		// Positional initialization
+		//fileMatch := FileMatch{fileInfo, path}
+
+		// "If we need to refer to an embedded field directly, the type
+		// name of the field, ignoring the package qualifier, serves as a
+		// field name"
+		// https://golang.org/doc/effective_go.html#embedding
+		//
+		// Explicit initialization
+		// Explicit initialization
+		fileMatch := FileMatch{FileInfo: fileInfo, Path: fileName}
+
+		*matches = append(*matches, fileMatch)
+	}
+
+	return nil
+
+}
+
 func processPath(config *Config) (FileMatches, error) {
 
 	var matches FileMatches
+	var err error
 
-	files, err := ioutil.ReadDir(config.StartPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// TODO: Branch at this point based off of whether the recursive option
+	// was chosen.
+	if config.RecursiveSearch {
+		// DEBUG
+		log.Println("Recursive option is enabled")
+		log.Printf("%v", config)
 
-	// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
-	// FileMatch objects
-	for _, file := range files {
+		// Walk walks the file tree rooted at root, calling the anonymous function
+		// for each file or directory in the tree, including root. All errors that
+		// arise visiting files and directories are filtered by the anonymous
+		// function. The files are walked in lexical order, which makes the output
+		// deterministic but means that for very large directories Walk can be
+		// inefficient. Walk does not follow symbolic links.
+		err = filepath.Walk(config.StartPath, func(path string, info os.FileInfo, err error) error {
 
-		fileName := file.Name()
-
-		ext := filepath.Ext(fileName)
-
-		if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
-
-			log.Printf("Adding %s to fileMatches\n", fileName)
-			// Created test files via:
-			// touch {1..10}.test
-			fileInfo, err := os.Stat(fileName)
-
-			// Explicit initialization
-			fileMatch := FileMatch{FileInfo: fileInfo, Path: fileName}
-
+			// If an error is received, return it. If we return a non-nil error, this
+			// will stop the filepath.Walk() function from continuing to walk the
+			// path, and your main function will immediately move to the next line.
 			if err != nil {
-				return nil, fmt.Errorf("Unable to stat %s: %s", fileName, err)
+				return err
 			}
 
-			matches = append(matches, fileMatch)
-		}
+			// make sure we're not working with the root directory itself
+			if path != "." {
 
-	}
-
-	return matches, err
-}
-
-func crawlPath(config *Config) (FileMatches, error) {
-
-	var matches FileMatches
-
-	// Walk walks the file tree rooted at root, calling the anonymous function
-	// for each file or directory in the tree, including root. All errors that
-	// arise visiting files and directories are filtered by the anonymous
-	// function. The files are walked in lexical order, which makes the output
-	// deterministic but means that for very large directories Walk can be
-	// inefficient. Walk does not follow symbolic links.
-	err := filepath.Walk(config.StartPath, func(path string, info os.FileInfo, err error) error {
-
-		// By using a closure, we are granted access to the enclosing function's
-		// variables, in this case the `matches` variable. The flaviocopes guide
-		// mentions using a pointer, but our variable is a reference type already,
-		// so we shouldn't have to pass a pointer to it in order to modify the
-		// contents of the slice.
-
-		// If an error is received, return it. If we return a non-nil error, this
-		// will stop the filepath.Walk() function from continuing to walk the
-		// path, and your main function will immediately move to the next line.
-		if err != nil {
-			return err
-		}
-
-		// make sure we're not working with the root directory itself
-		if path != "." {
-
-			// ignore directories
-			if info.IsDir() {
-				return nil
-			}
-
-			// process specific files
-			ext := filepath.Ext(path)
-
-			if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
-				log.Printf("Adding %s to fileMatches\n", path)
-				// Created test files via:
-				// touch {1..10}.test
-				fileInfo, err := os.Stat(path)
-
-				// unknown field 'os.FileInfo' in struct literal of type FileMatch (but does have FileInfo)
-				//fileMatch := FileMatch{os.FileInfo: fileInfo, Path: path}
-
-				// Positional initialization
-				//fileMatch := FileMatch{fileInfo, path}
-
-				// "If we need to refer to an embedded field directly, the type
-				// name of the field, ignoring the package qualifier, serves as a
-				// field name"
-				// https://golang.org/doc/effective_go.html#embedding
-				//
-				// Explicit initialization
-				fileMatch := FileMatch{FileInfo: fileInfo, Path: path}
-
-				if err != nil {
-					return fmt.Errorf("Unable to stat %s: %s", path, err)
+				// ignore directories
+				if info.IsDir() {
+					return nil
 				}
 
-				// FIXME: Use of global variable
-				matches = append(matches, fileMatch)
+				getMatch(path, &matches)
 
-				return nil
+				log.Println("Skipping file:", path)
+
 			}
 
-			log.Println("Skipping file:", path)
+			return err
+		})
 
+	} else {
+
+		// If RecursiveSearch is not enabled, process just the provided StartPath
+		// NOTE: The same cleanPath() function is used in either case, the
+		// difference is in how the FileMatches slice is populated
+
+		// DEBUG
+		log.Println("Recursive option is NOT enabled")
+		log.Printf("%v", config)
+
+		files, err := ioutil.ReadDir(config.StartPath)
+
+		// TODO: Do we really want to exit early at this point if there are
+		// failures evaluating some of the files?
+		// Is it possible to partially evaluate some of the files?
+		// TODO: Wrap error?
+		if err != nil {
+			log.Fatal("Error from ioutil.ReadDir():", err)
 		}
 
-		return nil
-	})
+		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
+		// FileMatch objects
+		for _, file := range files {
+			getMatch(file.Name(), &matches)
+		}
+	}
 
 	return matches, err
 }

@@ -71,36 +71,11 @@ func main() {
 	// INFO
 	log.Println("Processing path:", config.StartPath)
 
-	var matches FileMatches
-	var err error
+	matches, err := processPath(config)
 
-	// TODO: Branch at this point based off of whether the recursive option
-	// was chosen.
-	if config.RecursiveSearch {
-		// DEBUG
-		log.Println("Recursive option is enabled")
-		log.Printf("%v", config)
-
-		matches, err = crawlPath(config)
-		if err != nil {
-			log.Println("error:", err)
-		}
-
-	} else {
-
-		// If RecursiveSearch is not enabled, process just the provided StartPath
-		// NOTE: The same cleanPath() function is used in either case, the
-		// difference is in how the FileMatches slice is populated
-
-		// DEBUG
-		log.Println("Recursive option is NOT enabled")
-		log.Printf("%v", config)
-
-		matches, err = processPath(config)
-		if err != nil {
-			log.Println("error:", err)
-		}
-
+	// TODO: How to handle errors from gathering removal candidates?
+	if err != nil {
+		log.Println("error:", err)
 	}
 
 	//os.Exit(0)
