@@ -9,10 +9,6 @@ import (
 	"github.com/integrii/flaggy"
 )
 
-// TODO: What other option do I have here other than using globals?
-// Use closures?
-var config *Config
-
 func main() {
 
 	/*
@@ -39,7 +35,7 @@ func main() {
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
-	config = NewConfig().SetupFlags(appName, appDesc)
+	config := NewConfig().SetupFlags(appName, appDesc)
 	fmt.Printf("Our configuration:\t%+v\n", config)
 
 	// TODO: How can I reliably compare these?
