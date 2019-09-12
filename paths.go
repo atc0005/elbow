@@ -82,46 +82,6 @@ func pathExists(path string) bool {
 
 }
 
-// TODO: Not happy with this function name. This function is intended to
-// evaluate passed files in order to either add them to a list of valid
-// matches for removal or ignore them. This function is used by crawlPath()
-// and by the flatPath logic processing in processPath()
-func getMatch(fileName string, matches *FileMatches) error {
-
-	ext := filepath.Ext(fileName)
-
-	if inFileExtensionsPatterns(strings.ToLower(ext), config.FileExtensions) {
-
-		// DEBUG
-		log.Printf("%s has a valid extension for removal\n", fileName)
-
-		fileInfo, err := os.Stat(fileName)
-		if err != nil {
-			return fmt.Errorf("Unable to stat %s: %s", fileName, err)
-		}
-
-		// unknown field 'os.FileInfo' in struct literal of type FileMatch (but does have FileInfo)
-		//fileMatch := FileMatch{os.FileInfo: fileInfo, Path: path}
-
-		// Positional initialization
-		//fileMatch := FileMatch{fileInfo, path}
-
-		// "If we need to refer to an embedded field directly, the type
-		// name of the field, ignoring the package qualifier, serves as a
-		// field name"
-		// https://golang.org/doc/effective_go.html#embedding
-		//
-		// Explicit initialization
-		// Explicit initialization
-		fileMatch := FileMatch{FileInfo: fileInfo, Path: fileName}
-
-		*matches = append(*matches, fileMatch)
-	}
-
-	return nil
-
-}
-
 func processPath(config *Config) (FileMatches, error) {
 
 	var matches FileMatches
@@ -157,9 +117,10 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
-				getMatch(path, &matches)
-
-				log.Println("Skipping file:", path)
+				if isSafeToRemoveFile(path, config) {
+					fileMatch := FileMatch{FileInfo: info, Path: path}
+					matches = append(matches, fileMatch)
+				}
 
 			}
 
@@ -189,7 +150,10 @@ func processPath(config *Config) (FileMatches, error) {
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
 		// FileMatch objects
 		for _, file := range files {
-			getMatch(file.Name(), &matches)
+			if isSafeToRemoveFile(file.Name(), config) {
+				fileMatch := FileMatch{FileInfo: file, Path: config.StartPath}
+				matches = append(matches, fileMatch)
+			}
 		}
 	}
 

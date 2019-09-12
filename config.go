@@ -53,9 +53,14 @@ func NewConfig() *Config {
 	// Note: We compare against the default values in order to determine
 	// whether the user has specified a particular flag
 	return &Config{
-		StartPath:       "",
-		FilePattern:     "",
-		FileExtensions:  []string{},
+		StartPath:   "",
+		FilePattern: "",
+		// NOTE: This creates an empty slice (not nil since there is an
+		// underlying array of zero length) FileExtensions:  []string{},
+		//
+		// Leave at default value of nil slice instead by not providing a
+		// value here
+		// FileExtensions:  []string,
 		FilesToKeep:     0,
 		RecursiveSearch: false,
 		KeepOldest:      false,
@@ -76,7 +81,7 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// Add flags
 	flaggy.String(&c.StartPath, "p", "path", "Path to process")
 	flaggy.String(&c.FilePattern, "fp", "pattern", "File pattern to match against")
-	flaggy.StringSlice(&c.FileExtensions, "e", "extension", "Limit search to specified file extension")
+	flaggy.StringSlice(&c.FileExtensions, "e", "extension", "Limit search to specified file extension. Specify as needed to match multiple required extensions.")
 	flaggy.Int(&c.FilesToKeep, "k", "keep", "Keep specified number of matching files")
 	flaggy.Bool(&c.RecursiveSearch, "r", "recurse", "Perform recursive search into subdirectories")
 	flaggy.Bool(&c.KeepOldest, "ko", "keep-old", "Keep oldest files instead of newer")
@@ -129,14 +134,4 @@ func GetStartPath() (string, error) {
 func GetFileExtensionsPattern() ([]string, error) {
 	// TODO: Hard-coded test values for now
 	return []string{".tmp", ".test"}, nil
-}
-
-// Helper function to emulate Python's `if "x" in list:` functionality
-func inFileExtensionsPatterns(ext string, exts []string) bool {
-	for _, pattern := range exts {
-		if ext == pattern {
-			return true
-		}
-	}
-	return false
 }

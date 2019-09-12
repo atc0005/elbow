@@ -50,6 +50,8 @@ func main() {
 	// 	log.Println("User did not provide any command-line flags")
 	// }
 
+	// TODO: Is this even needed? Shouldn't I instead focus on whether the
+	// values that are set (default or not) actually validate?
 	if reflect.DeepEqual(*defaultConfig, *config) {
 		// DEBUG
 		log.Println("User did not provide command-line flags; current configuration matches default settings")

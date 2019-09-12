@@ -1,7 +1,9 @@
 package main
 
 import (
+	"log"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -18,6 +20,39 @@ type FileMatch struct {
 // FileMatch objects? It seems that by hiding this it makes it harder to see
 // that we're working with a slice?
 type FileMatches []FileMatch
+
+func isSafeToRemoveFile(filename string, config *Config) bool {
+
+	// NOTE: We do NOT compare extensions insensitively. We can add that
+	// functionality in the future if needed.
+	ext := filepath.Ext(filename)
+
+	if len(config.FileExtensions) == 0 {
+		// DEBUG
+		log.Println("No extension limits have been set!")
+		log.Printf("Considering %s safe for removal\n", filename)
+		return true
+	}
+
+	if inFileExtensionsPatterns(ext, config.FileExtensions) {
+		// DEBUG
+		log.Printf("%s has a valid extension for removal\n", filename)
+		return true
+	}
+
+	return false
+}
+
+// inFileExtensionsPatterns is a helper function to emulate Python's `if "x"
+// in list:` functionality
+func inFileExtensionsPatterns(ext string, exts []string) bool {
+	for _, pattern := range exts {
+		if ext == pattern {
+			return true
+		}
+	}
+	return false
+}
 
 // TODO: Two methods, or one method with a boolean flag determining behavior?
 func (fm FileMatches) sortByModTimeAsc() {
