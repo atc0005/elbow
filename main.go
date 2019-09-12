@@ -106,11 +106,20 @@ func main() {
 	// Do we keep the oldest or the newest files (limited to
 	// config.FilesToKeep) ?
 	var filesToPrune FileMatches
+
+	log.Printf("%d total items in matches", len(matches))
 	if config.KeepOldest {
+		// DEBUG
+		log.Println("Keeping older files")
 		filesToPrune = matches[config.FilesToKeep:]
 	} else {
+		// DEBUG
+		log.Println("Keeping newer files")
 		filesToPrune = matches[:config.FilesToKeep]
 	}
+
+	// DEBUG, INFO?
+	log.Printf("%d items to prune:", len(filesToPrune))
 
 	// Prune specified files, do NOT ignore errors
 	filesRemoved, err := cleanPath(filesToPrune, false)
