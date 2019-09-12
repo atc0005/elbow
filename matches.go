@@ -14,6 +14,9 @@ type FileMatch struct {
 }
 
 // FileMatches is a slice of FileMatch objects
+// TODO: Do I really need to abstract the fact that FileMatches is a slide of
+// FileMatch objects? It seems that by hiding this it makes it harder to see
+// that we're working with a slice?
 type FileMatches []FileMatch
 
 // TODO: Two methods, or one method with a boolean flag determining behavior?
