@@ -90,6 +90,13 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// Parse the flags
 	flaggy.Parse()
 
+	// https://github.com/atc0005/elbow/issues/2#issuecomment-524032239
+	//
+	// For flags, you can easily just check the value after calling
+	// flaggy.Parse(). If the value is set to something other than the
+	// default, then the caller supplied it. If it was the default value (set
+	// by you or the language), then it was not used.
+
 	return c
 
 }

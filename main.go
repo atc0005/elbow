@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"reflect"
 
 	"github.com/integrii/flaggy"
 )
@@ -27,16 +26,16 @@ func main() {
 	// determine whether the user has provided flags
 	//
 	// TODO: Is this needed? We'll have to validate the flags either way?
-	defaultConfig := NewConfig()
+	//defaultConfig := NewConfig()
 
 	// DEBUG
-	fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
+	//fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
 
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
 	config := NewConfig().SetupFlags(appName, appDesc)
-	fmt.Printf("Our configuration:\t%+v\n", config)
+	//fmt.Printf("Our configuration:\t%+v\n", config)
 
 	// TODO: How can I reliably compare these?
 	//  invalid operation: *defaultConfig != *config (struct containing []string cannot be compared)
@@ -48,22 +47,22 @@ func main() {
 
 	// TODO: Is this even needed? Shouldn't I instead focus on whether the
 	// values that are set (default or not) actually validate?
-	if reflect.DeepEqual(*defaultConfig, *config) {
-		// DEBUG
-		log.Println("User did not provide command-line flags; current configuration matches default settings")
+	// if reflect.DeepEqual(*defaultConfig, *config) {
+	// 	// DEBUG
+	// 	log.Println("User did not provide command-line flags; current configuration matches default settings")
 
-		// KEEP
-		flaggy.ShowHelpAndExit("Required command-line options not provided.")
-	} else {
-		// DEBUG
-		log.Println("User provided command-line flags, proceeding ...")
-	}
+	// 	// KEEP
+	// 	flaggy.ShowHelpAndExit("Required command-line options not provided.")
+	// } else {
+	// 	// DEBUG
+	// 	log.Println("User provided command-line flags, proceeding ...")
+	// }
 
 	//fmt.Printf("%+v\n", *config)
 
 	// Confirm that requested path actually exists
 	if !pathExists(config.StartPath) {
-		log.Fatalf("Error processing requested path: %q", config.StartPath)
+		flaggy.ShowHelpAndExit(fmt.Sprintf("Error processing requested path: %q", config.StartPath))
 	}
 
 	// INFO
