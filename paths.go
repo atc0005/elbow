@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // PathPruningResults represents the number of files that were successfully
@@ -18,40 +18,27 @@ type PathPruningResults struct {
 }
 
 // cleanPath receives a slice of FileMatch objects and removes each file. Any
-// errors encountered while removing files may optionally be ignored (default
-// is to return immediately upon first error). The total number of files
-// successfully removed is returned along with an error code (nil if no errors
-// were encountered).
-func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPruningResults, error) {
+// errors encountered while removing files may optionally be ignored via
+// command-line flag(default is to return immediately upon first error). The
+// total number of files successfully removed is returned along with an error
+// code (nil if no errors were encountered).
+func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
-	// DEBUG
 	for _, file := range files {
-
-		//fmt.Println("Details of file ...")
-		//fmt.Printf("%T / %+v\n", file, file)
-		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
-
-		// DEBUG
-		log.Printf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
-			file.Path,
-			file.Name(),
-			file.Size(),
-			file.ModTime().Format("2006-01-02 15:04:05"))
+		log.WithFields(logrus.Fields{
+			"fullpath":        strings.TrimSpace(file.Path),
+			"shortpath":       file.Name(),
+			"size":            file.Size(),
+			"modified":        file.ModTime().Format("2006-01-02 15:04:05"),
+			"removal_enabled": config.Remove,
+		}).Debug("Matching file")
 	}
 
 	var removalResults PathPruningResults
 
 	if !config.Remove {
 
-		// INFO
-		log.Println("File removal not enabled.")
-
-		// DEBUG
-		log.Println("listing what WOULD be removed")
-		log.Println("----------------------------")
-		for _, file := range files {
-			log.Println("*", file.Name())
-		}
+		log.Info("File removal not enabled, not removing files")
 
 		// Nothing to show for this yet, but since the initial state reflects
 		// that we can return it as-is
@@ -62,26 +49,33 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 
 		filename := file.Name()
 
-		// INFO
-		log.Println("Removing file:", filename)
+		log.WithFields(logrus.Fields{
+			"removal_enabled": config.Remove,
+			"file":            filename,
+		}).Info("Removing file", filename)
 
 		err := os.Remove(filename)
-
 		if err != nil {
-			log.Println(fmt.Errorf("Failed to remove %s: %s", filename, err))
+			log.WithFields(logrus.Fields{
+				"file": file,
+			}).Errorf("Error encountered while removing file: %s", err)
 
 			// Record failed removal, proceed to the next file
 			removalResults.FailedRemovals = append(removalResults.FailedRemovals, file)
+
+			// Confirm that we should ignore errors (likely enabled)
+			if !config.IgnoreErrors {
+				remainingFiles := len(files) - len(removalResults.FailedRemovals) - len(removalResults.SuccessfulRemovals)
+				log.Debugf("Abandoning removal of %d remaining files", remainingFiles)
+				break
+			}
+
+			log.Debug("Ignoring error as requested")
 			continue
 		}
 
 		// Record successful removal
 		removalResults.SuccessfulRemovals = append(removalResults.SuccessfulRemovals, file)
-	}
-
-	// DEBUG
-	for _, file := range removalResults.FailedRemovals {
-		log.Println("Failed to remove:", file.Name())
 	}
 
 	return removalResults, nil
@@ -92,11 +86,15 @@ func pathExists(path string) bool {
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
+		log.Debugf("path is empty string")
 		return false
 	}
 
 	// https://gist.github.com/mattes/d13e273314c3b3ade33f
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		log.WithFields(logrus.Fields{
+			"path": path,
+		}).Debug("path found")
 		return true
 	}
 
@@ -109,10 +107,11 @@ func processPath(config *Config) (FileMatches, error) {
 	var matches FileMatches
 	var err error
 
+	log.WithFields(logrus.Fields{
+		"resursive_search": config.RecursiveSearch,
+	}).Debugf("Recursive search: %t", config.RecursiveSearch)
+
 	if config.RecursiveSearch {
-		// DEBUG
-		log.Println("Recursive option is enabled")
-		//log.Printf("%v", config)
 
 		// Walk walks the file tree rooted at root, calling the anonymous function
 		// for each file or directory in the tree, including root. All errors that
@@ -137,10 +136,14 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
+				// ignore invalid extensions (only applies if user chose one
+				// or more extensions to match against)
 				if !hasValidExtension(path, config) {
 					return nil
 				}
 
+				// ignore invalid filename patterns (only applies if user
+				// specified a filename pattern)
 				if !hasValidFilenamePattern(path, config) {
 					return nil
 				}
@@ -161,22 +164,18 @@ func processPath(config *Config) (FileMatches, error) {
 		// NOTE: The same cleanPath() function is used in either case, the
 		// difference is in how the FileMatches slice is populated
 
-		// DEBUG
-		log.Println("Recursive option is NOT enabled")
-		log.Printf("%v", config)
-
 		// err is already declared earlier at a higher scope, so do not
 		// redeclare here
 		var files []os.FileInfo
 		files, err = ioutil.ReadDir(config.StartPath)
 
-		// TODO: Do we really want to exit early at this point if there are
-		// failures evaluating some of the files?
-		// Is it possible to partially evaluate some of the files?
-		// TODO: Wrap error?
-		// if err != nil {
-		// 	log.Fatal("Error from ioutil.ReadDir():", err)
-		// }
+		if err != nil {
+			// TODO: Do we really want to exit early at this point if there are
+			// failures evaluating some of the files?
+			// Is it possible to partially evaluate some of the files?
+			// TODO: Wrap error?
+			log.Errorf("Error from ioutil.ReadDir(): %s", err)
+		}
 
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
 		// FileMatch objects
@@ -187,10 +186,14 @@ func processPath(config *Config) (FileMatches, error) {
 			// Apply validity checks against filename. If validity fails,
 			// go to the next file in the list.
 
+			// ignore invalid extensions (only applies if user chose one
+			// or more extensions to match against)
 			if !hasValidExtension(filename, config) {
 				continue
 			}
 
+			// ignore invalid filename patterns (only applies if user
+			// specified a filename pattern)
 			if !hasValidFilenamePattern(filename, config) {
 				continue
 			}

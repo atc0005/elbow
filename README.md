@@ -9,6 +9,8 @@ Elbow, Elbow grease.
   - [Examples](#examples)
     - [Overview](#overview)
     - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
+    - [... keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
+    - [... log in JSON format, use log file](#log-in-json-format-use-log-file)
     - [Build and run from test area, no options](#build-and-run-from-test-area-no-options)
   - [References](#references)
     - [Configuration object](#configuration-object)
@@ -60,19 +62,36 @@ problem that this tool seeks to solve in a simple way.
 
 ### Prune `.war` files from each branch recursively, keep newest 2
 
-```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "-master-" --keep 2 --recurse --remove
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "-masterqa-" --keep 2 --recurse --remove
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "-masterdev-" --keep 2 --recurse --remove
-```
+Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-master-" -k 2 -r
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-masterqa-" -k 2 -r
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-masterdev-" -k 2 -r
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-master-" --keep 2 --recurse --remove
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
 ```
 
-Leave off `--remove` to display what *would* be removed.
+### ... keep oldest 1, debug logging, ignore errors, use syslog
+
+Note: Leave off `--remove` to display what *would* be removed.
+
+```ShellSession
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+```
+
+### ... log in JSON format, use log file
+
+- These examples attempt to create a log file in the current directory, which is `/tmp` in this case.
+- The default logging format is `text` unless overridden; here we specify `json`.
+- We attempt to enable syslog logging. This currently fails gracefully on Windows.
+- We ignore file removal errors and proceed to the next matching file.
+
+```ShellSession
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --log-format json --use-syslog --log-file testing-master-build-removals.txt
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterqa-build-removals.txt
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
+```
 
 ### Build and run from test area, no options
 
