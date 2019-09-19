@@ -32,8 +32,7 @@ func newLogger() (*logrus.Logger) {
 		// https://github.com/sirupsen/logrus/blob/master/hooks/syslog/README.md
 		// Seems to require `log.AddHook(hook)`` vs `log.Hooks.Add(hook)`
 		logger.AddHook(hook)
-	}
-	else {
+	} else {
 		logger.Warn("Unable to connect to syslog socket:", err)
 	}
 
