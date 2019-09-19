@@ -17,6 +17,10 @@ type Config struct {
 	FilesToKeep     int
 	KeepOldest      bool
 	Remove          bool
+	LogFormat       string
+	LogFile         string
+	LogLevel        string
+	UseSyslog       bool
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
@@ -37,6 +41,13 @@ func NewConfig() *Config {
 		RecursiveSearch: false,
 		KeepOldest:      false,
 		Remove:          false,
+
+		// All of these will require "x in y" type validation
+		LogFormat: "text",
+		LogFile:   "",
+		LogLevel:  "info",
+
+		UseSyslog: false,
 	}
 
 }
