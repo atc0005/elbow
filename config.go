@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/integrii/flaggy"
 )
 
@@ -69,4 +71,19 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
 	return c
 
+}
+
+// String() satisfies the Stringer{} interface. This is intended for non-JSON
+// formatting if using the TextFormatter logrus formatter.
+func (c *Config) String() string {
+	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, FilesToKeep=%d, KeepOldest=%t, Remove=%t",
+
+		c.FilePattern,
+		c.FileExtensions,
+		c.StartPath,
+		c.RecursiveSearch,
+		c.FilesToKeep,
+		c.KeepOldest,
+		c.Remove,
+	)
 }

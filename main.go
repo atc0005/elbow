@@ -2,36 +2,50 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/integrii/flaggy"
+
+	// Use `log` if we are going to override the default `log`, otherwise
+	// import without an "override" if we want to use the `logrus` name.
+	// https://godoc.org/github.com/sirupsen/logrus
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
 
-	// DEBUG
-	// TODO: Enable this once leveled logging has been implemented.
-	//defaultConfig := NewConfig()
-	//fmt.Printf("Default configuration:\t%+v\n", defaultConfig)
+	log := NewLogger()
+
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&logrus.JSONFormatter{})
+
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+
+	// TODO: Accept command-line parameter to determine this level
+	log.SetLevel(logrus.DebugLevel)
+
+	defaultConfig := NewConfig()
+	log.WithFields(logrus.Fields{
+		"defaultConfig": defaultConfig,
+	}).Debug("Default configuration")
 
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
 	config := NewConfig().SetupFlags(appName, appDesc)
 
-	// DEBUG
-	// TODO: Enable this once leveled logging has been implemented.
-	//fmt.Printf("Our configuration:\t%+v\n", config)
+	log.WithFields(logrus.Fields{
+		"config": config,
+	}).Debug("Our configuration")
 
-	// DEBUG
-	log.Println("Confirm that requested path actually exists")
+	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
 		flaggy.ShowHelpAndExit(fmt.Sprintf("Error processing requested path: %q", config.StartPath))
 	}
 
-	// INFO
-	log.Println("Processing path:", config.StartPath)
+	log.Info("Processing path:", config.StartPath)
 
 	matches, err := processPath(config)
 
@@ -47,16 +61,18 @@ func main() {
 	// number of files while pruning the others)
 	matches.sortByModTimeAsc()
 
-	// DEBUG
-	log.Printf("Length of matches slice: %d\n", len(matches))
+	log.Debugf("Length of matches slice: %d", len(matches))
 
-	// DEBUG
-	log.Println("Early exit if no matching files were found.")
+	log.Debugf("Early exit if no matching files were found.")
 	if len(matches) <= 0 {
 
-		// INFO
-		fmt.Printf("No matches found in path %q for files with substring pattern of %q and with extensions %v\n",
+		noMatchesMessage := fmt.Sprintf("No matches found in path %q for files with substring pattern of %q and with extensions %v",
 			config.StartPath, config.FilePattern, config.FileExtensions)
+
+		// TODO: How to handle duplicate output to the console from both
+		// commands?
+		log.Info(noMatchesMessage)
+		fmt.Println(noMatchesMessage)
 
 		// TODO: Not finding something is a valid outcome, so "normal" exit
 		// code?
@@ -66,48 +82,45 @@ func main() {
 	var filesToPrune FileMatches
 
 	// DEBUG
-	log.Printf("%d total items in matches", len(matches))
-	log.Printf("%d items to keep per config.FilesToKeep", config.FilesToKeep)
+	log.Debugf("%d total items in matches", len(matches))
+	log.Debugf("%d items to keep per config.FilesToKeep", config.FilesToKeep)
 
 	if config.KeepOldest {
 		// DEBUG
-		log.Println("Keeping older files")
-		log.Println("start at specified number to keep, go until end of slice")
+		log.Debug("Keeping older files")
+		log.Debug("start at specified number to keep, go until end of slice")
 		filesToPrune = matches[config.FilesToKeep:]
 	} else {
 		// DEBUG
-		log.Println("Keeping newer files")
-		log.Println("start at beginning, go until specified number to keep")
+		log.Debug("Keeping newer files")
+		log.Debug("start at beginning, go until specified number to keep")
 		filesToPrune = matches[:(len(matches) - config.FilesToKeep)]
 	}
 
-	// DEBUG, INFO?
-	log.Printf("%d items to prune", len(filesToPrune))
+	log.Info("%d items to prune", len(filesToPrune))
 
-	log.Println("Prune specified files, do NOT ignore errors")
+	log.Info("Prune specified files, do NOT ignore errors")
 	// TODO: Add support for ignoring errors (though I cannot immediately
 	// think of a good reason to do so)
 	removalResults, err := cleanPath(filesToPrune, false, config)
 
 	// Show what we WERE able to successfully remove
 	// TODO: Refactor this into a function to handle displaying results?
-	log.Printf("%d files successfully removed\n", len(removalResults.SuccessfulRemovals))
-	log.Println("----------------------------")
+	log.Infof("%d files successfully removed", len(removalResults.SuccessfulRemovals))
 	for _, file := range removalResults.SuccessfulRemovals {
-		log.Println("*", file.Name())
+		log.Info(file.Name())
 	}
 
-	log.Printf("%d files failed to remove\n", len(removalResults.FailedRemovals))
-	log.Println("----------------------------")
+	log.Info("%d files failed to remove", len(removalResults.FailedRemovals))
 	for _, file := range removalResults.FailedRemovals {
 		log.Println("*", file.Name())
 	}
 
-	// Determine if we need to display error, exit with unsuccessful error code
 	if err != nil {
-		log.Fatalf("Errors encountered while processing %s: %s", config.StartPath, err)
+		log.Errorf("Errors encountered while processing %s: %s", config.StartPath, err)
+		os.Exit(1)
 	}
 
-	log.Printf("%s successfully completed.", appName)
+	log.Infof("%s successfully completed.", appName)
 
 }
