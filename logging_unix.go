@@ -37,5 +37,5 @@ func newLogger() (*logrus.Logger) {
 	}
 
 	// FIXME: Is this what I should be returning here?
-	return &logger
+	return logger
 }
