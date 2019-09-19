@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewLogger() *logrus.Logger {
+func newLogger() *logrus.Logger {
 
 	// Stub to cover Windows builds
 	return logrus.New()

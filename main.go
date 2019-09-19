@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	log := NewLogger()
+	log := newLogger()
 
 	// Log as JSON instead of the default ASCII formatter.
 	log.SetFormatter(&logrus.JSONFormatter{})
