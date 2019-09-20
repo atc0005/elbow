@@ -14,12 +14,14 @@ type Config struct {
 	FileExtensions  []string
 	StartPath       string
 	RecursiveSearch bool
-	FilesToKeep     int
+	NumFilesToKeep  int
 	KeepOldest      bool
 	Remove          bool
 	LogFormat       string
+	validLogFormats []string
 	LogFile         string
 	LogLevel        string
+	validLogLevels  []string
 	UseSyslog       bool
 }
 
@@ -37,17 +39,34 @@ func NewConfig() *Config {
 		// Leave at default value of nil slice instead by not providing a
 		// value here
 		// FileExtensions:  []string,
-		FilesToKeep:     0,
+		NumFilesToKeep:  0,
 		RecursiveSearch: false,
 		KeepOldest:      false,
 		Remove:          false,
 
 		// All of these will require "x in y" type validation
-		LogFormat: "text",
-		LogFile:   "",
-		LogLevel:  "info",
+		LogFormat:       "text",
+		validLogFormats: []string{"text", "json"},
+
+		LogLevel: "info",
+
+		// Intended to be optional
+		LogFile: "",
 
 		UseSyslog: false,
+
+		// TODO: How else to handle this?
+		// https://godoc.org/github.com/sirupsen/logrus#Level
+		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
+		validLogLevels: []string{
+			"panic",
+			"fatal",
+			"error",
+			"warn",
+			"info",
+			"debug",
+			"trace",
+		},
 	}
 
 }
@@ -65,7 +84,7 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	flaggy.String(&c.StartPath, "p", "path", "Path to process")
 	flaggy.String(&c.FilePattern, "fp", "pattern", "Substring pattern to compare filenames against. Wildcards are not supported.")
 	flaggy.StringSlice(&c.FileExtensions, "e", "extension", "Limit search to specified file extension. Specify as needed to match multiple required extensions.")
-	flaggy.Int(&c.FilesToKeep, "k", "keep", "Keep specified number of matching files")
+	flaggy.Int(&c.NumFilesToKeep, "k", "keep", "Keep specified number of matching files")
 	flaggy.Bool(&c.RecursiveSearch, "r", "recurse", "Perform recursive search into subdirectories")
 	flaggy.Bool(&c.KeepOldest, "ko", "keep-old", "Keep oldest files instead of newer")
 	flaggy.Bool(&c.Remove, "rm", "remove", "Remove matched files")
@@ -84,17 +103,63 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
 }
 
+// Validate verifies all struct fields have been provided accceptable
+func (c *Config) Validate() bool {
+
+	// FilePattern is optional
+
+	// FileExtensions is optional
+	// Discovered files are checked against FileExtensions later
+
+	if len(c.StartPath) == 0 {
+		return false
+	}
+
+	// RecursiveSearch is optional
+
+	// NumFilesToKeep is optional, but if specified we should make sure it is
+	// a non-negative number. AFAIK, this is not currently enforced any other
+	// way.
+	if c.NumFilesToKeep < 0 {
+		return false
+	}
+
+	// KeepOldest is optional
+
+	// Remove is optional
+
+	if !inList(c.LogFormat, c.validLogFormats) {
+		return false
+	}
+
+	// LogFile is optional
+	// TODO: String validation if it is set?
+
+	if !inList(c.LogLevel, c.validLogLevels) {
+		return false
+	}
+
+	// UseSyslog is optional
+
+	// Optimist
+	return true
+
+}
+
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, FilesToKeep=%d, KeepOldest=%t, Remove=%t",
+	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, LogFormat=%q, LogFile=%q, UseSyslog=%t",
 
 		c.FilePattern,
 		c.FileExtensions,
 		c.StartPath,
 		c.RecursiveSearch,
-		c.FilesToKeep,
+		c.NumFilesToKeep,
 		c.KeepOldest,
 		c.Remove,
+		c.LogFormat,
+		c.LogFile,
+		c.UseSyslog,
 	)
 }

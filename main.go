@@ -40,6 +40,11 @@ func main() {
 		"config": config,
 	}).Debug("Our configuration")
 
+	// TODO: Validate configuration
+	if ok := config.Validate(); !ok {
+		flaggy.ShowHelpAndExit("Configuration validation failed.")
+	}
+
 	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
 		flaggy.ShowHelpAndExit(fmt.Sprintf("Error processing requested path: %q", config.StartPath))
@@ -83,18 +88,18 @@ func main() {
 
 	// DEBUG
 	log.Debugf("%d total items in matches", len(matches))
-	log.Debugf("%d items to keep per config.FilesToKeep", config.FilesToKeep)
+	log.Debugf("%d items to keep per config.NumFilesToKeep", config.NumFilesToKeep)
 
 	if config.KeepOldest {
 		// DEBUG
 		log.Debug("Keeping older files")
 		log.Debug("start at specified number to keep, go until end of slice")
-		filesToPrune = matches[config.FilesToKeep:]
+		filesToPrune = matches[config.NumFilesToKeep:]
 	} else {
 		// DEBUG
 		log.Debug("Keeping newer files")
 		log.Debug("start at beginning, go until specified number to keep")
-		filesToPrune = matches[:(len(matches) - config.FilesToKeep)]
+		filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
 	}
 
 	log.Info("%d items to prune", len(filesToPrune))

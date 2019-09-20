@@ -35,7 +35,7 @@ func hasValidExtension(filename string, config *Config) bool {
 		return true
 	}
 
-	if inFileExtensionsPatterns(ext, config.FileExtensions) {
+	if inList(ext, config.FileExtensions) {
 		// DEBUG
 		log.Printf("%s has a valid extension for removal\n", filename)
 		return true
@@ -69,11 +69,11 @@ func hasValidFilenamePattern(filename string, config *Config) bool {
 	return false
 }
 
-// inFileExtensionsPatterns is a helper function to emulate Python's `if "x"
+// inList is a helper function to emulate Python's `if "x"
 // in list:` functionality
-func inFileExtensionsPatterns(ext string, exts []string) bool {
-	for _, pattern := range exts {
-		if ext == pattern {
+func inList(needle string, haystack []string) bool {
+	for _, item := range haystack {
+		if item == needle {
 			return true
 		}
 	}
