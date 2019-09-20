@@ -15,6 +15,8 @@ type Config struct {
 	// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
 	// https://github.com/jessevdk/go-flags#example
 	// https://godoc.org/github.com/jessevdk/go-flags#hdr-Available_field_tags
+	// https://github.com/jessevdk/go-flags/blob/master/examples/main.go
+	// https://github.com/jessevdk/go-flags/blob/master/examples/rm.go
 
 	FilePattern     string   `short:"" long:"" description:""`
 	FileExtensions  []string `short:"" long:"" description:""`
