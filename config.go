@@ -18,17 +18,17 @@ type Config struct {
 	// https://github.com/jessevdk/go-flags/blob/master/examples/main.go
 	// https://github.com/jessevdk/go-flags/blob/master/examples/rm.go
 
-	FilePattern     string   `short:"" long:"" description:""`
-	FileExtensions  []string `short:"" long:"" description:""`
-	StartPath       string   `short:"" long:"" description:""`
-	RecursiveSearch bool     `short:"" long:"" description:""`
-	NumFilesToKeep  int      `short:"" long:"" description:""`
-	KeepOldest      bool     `short:"" long:"" description:""`
-	Remove          bool     `short:"" long:"" description:""`
-	LogFormat       string   `short:"lf" long:"log-format" choice:"text" choice:"json" description:""`
-	LogFile         string   `short:"log" long:"log-file" description:""`
-	LogLevel        string   `short:"ll" long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" description:""`
-	UseSyslog       bool     `short:"" long:"" description:""`
+	FilePattern     string   `short:"fp" long:"pattern" description:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FileExtensions  []string `short:"e" long:"extension" description:"Limit search to specified file extension. Specify as needed to match multiple required extensions."`
+	StartPath       string   `short:"p" long:"path" description:"Path to process."`
+	RecursiveSearch bool     `short:"r" long:"recurse" description:"Perform recursive search into subdirectories."`
+	NumFilesToKeep  int      `short:"k" long:"keep" description:"Keep specified number of matching files."`
+	KeepOldest      bool     `short:"ko" long:"keep-old" description:"Keep oldest files instead of newer."`
+	Remove          bool     `short:"rm" long:"remove" description:"Remove matched files."`
+	LogFormat       string   `short:"lf" long:"log-format" choice:"text" choice:"json" description:"Log formatter used by logging package."`
+	LogFile         string   `short:"log" long:"log-file" description:"Log file used to hold logged messages."`
+	LogLevel        string   `short:"ll" long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	UseSyslog       bool     `short:"sl" long:"use-syslog" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows.`
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
