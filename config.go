@@ -89,6 +89,17 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	flaggy.Bool(&c.KeepOldest, "ko", "keep-old", "Keep oldest files instead of newer")
 	flaggy.Bool(&c.Remove, "rm", "remove", "Remove matched files")
 
+	// TODO: Is there any way to avoid listing the valid options for this flag?
+	flaggy.String(&c.LogFormat, "lf", "log-format", "Log formatter used by logging package. text and json are the two currently supported formatters.")
+
+	flaggy.String(&c.LogFile, "log", "log-file", "Log file used to hold logged messages.")
+
+	// TODO: Is the word "above" or "below" in regards to the other log
+	// messages which will be discarded?
+	flaggy.String(&c.LogLevel, "ll", "log-level", "Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. The default level is info.")
+
+	flaggy.Bool(&c.UseSyslog, "sl", "use-syslog", "Log messages to syslog in addition to other ouputs. Not supported on Windows.")
+
 	// Parse the flags
 	flaggy.Parse()
 
