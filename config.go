@@ -10,19 +10,22 @@ import (
 // application. Config is created as early as possible upon application
 // startup.
 type Config struct {
-	FilePattern     string
-	FileExtensions  []string
-	StartPath       string
-	RecursiveSearch bool
-	NumFilesToKeep  int
-	KeepOldest      bool
-	Remove          bool
-	LogFormat       string
-	validLogFormats []string
-	LogFile         string
-	LogLevel        string
-	validLogLevels  []string
-	UseSyslog       bool
+
+	// https://godoc.org/github.com/sirupsen/logrus#Level
+	// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
+	// https://github.com/jessevdk/go-flags#example
+
+	FilePattern     string   `short:"" long:"" description:""`
+	FileExtensions  []string `short:"" long:"" description:""`
+	StartPath       string   `short:"" long:"" description:""`
+	RecursiveSearch bool     `short:"" long:"" description:""`
+	NumFilesToKeep  int      `short:"" long:"" description:""`
+	KeepOldest      bool     `short:"" long:"" description:""`
+	Remove          bool     `short:"" long:"" description:""`
+	LogFormat       string   `short:"lf" long:"log-format" choice:"text" choice:"json" description:""`
+	LogFile         string   `short:"log" long:"log-file" description:""`
+	LogLevel        string   `short:"ll" long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" description:""`
+	UseSyslog       bool     `short:"" long:"" description:""`
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
@@ -54,19 +57,6 @@ func NewConfig() *Config {
 		LogFile: "",
 
 		UseSyslog: false,
-
-		// TODO: How else to handle this?
-		// https://godoc.org/github.com/sirupsen/logrus#Level
-		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
-		validLogLevels: []string{
-			"panic",
-			"fatal",
-			"error",
-			"warn",
-			"info",
-			"debug",
-			"trace",
-		},
 	}
 
 }
