@@ -29,7 +29,7 @@ type Config struct {
 	LogFormat       string   `short:"lf" long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
 	LogFile         string   `short:"log" long:"log-file" description:"Log file used to hold logged messages."`
 	LogLevel        string   `short:"ll" long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	UseSyslog       bool     `short:"sl" long:"use-syslog" default:"false" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows.`
+	UseSyslog       bool     `short:"sl" long:"use-syslog" default:"false" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
@@ -70,8 +70,8 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// SETUP a new named parser with description and other details?
 	// this would allow grouping similar options together (log level, log file, syslog, etc)
 
-	//var parser = flags.NewParser(&c, flags.Default)
-	var parser = flags.NewNamedParser(appName, &c, flags.Default)
+	var parser = flags.NewParser(&c, flags.Default)
+	//var parser = flags.NewNamedParser(appName, &c, flags.Default)
 
 	// TODO: What other handling is needed here? If the command-line arguments
 	// are not as expected, exiting the application should probably be the
@@ -113,16 +113,18 @@ func (c *Config) Validate() bool {
 
 	// Remove is optional
 
-	if !inList(c.LogFormat, c.validLogFormats) {
-		return false
-	}
+	// go-args `choice:""` struct tags enforce valid options
+	// if !inList(c.LogFormat, c.validLogFormats) {
+	// 	return false
+	// }
 
 	// LogFile is optional
 	// TODO: String validation if it is set?
 
-	if !inList(c.LogLevel, c.validLogLevels) {
-		return false
-	}
+	// go-args `choice:""` struct tags enforce valid options
+	// if !inList(c.LogLevel, c.validLogLevels) {
+	// 	return false
+	// }
 
 	// UseSyslog is optional
 

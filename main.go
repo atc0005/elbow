@@ -45,13 +45,13 @@ func main() {
 	// Validate configuration
 	// TODO: How much of this work does go-flags handle for us?
 	if ok := config.Validate(); !ok {
-		fmt.Errorf("configuration validation failed")
+		fmt.Println("configuration validation failed")
 		os.Exit(1)
 	}
 
 	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
-		fmt.Errorf("Error processing requested path: %q", config.StartPath)
+		fmt.Printf("Error processing requested path: %q", config.StartPath)
 		os.Exit(1)
 	}
 
