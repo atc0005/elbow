@@ -70,7 +70,7 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// SETUP a new named parser with description and other details?
 	// this would allow grouping similar options together (log level, log file, syslog, etc)
 
-	var parser = flags.NewParser(&c, flags.Default)
+	var parser = flags.NewParser(c, flags.Default)
 	//var parser = flags.NewNamedParser(appName, &c, flags.Default)
 
 	// TODO: What other handling is needed here? If the command-line arguments
