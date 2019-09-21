@@ -16,7 +16,15 @@ func main() {
 
 	log := newLogger()
 
+	// TODO: Can this info be set using go-flags? An interface for this?
+	appName := "Elbow"
+	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
+
+	// If this fails, the application will immediately exit.
+	config := NewConfig().SetupFlags(appName, appDesc)
+
 	// Log as JSON instead of the default ASCII formatter.
+	// TODO: Use command-line option here
 	log.SetFormatter(&logrus.JSONFormatter{})
 
 	// Output to stdout instead of the default stderr
@@ -24,19 +32,14 @@ func main() {
 	log.SetOutput(os.Stdout)
 
 	// TODO: Accept command-line parameter to determine this level
+	// TODO: Setup mapping between command-line options and valid logrus levels
+	// so that they can be referenced here
 	log.SetLevel(logrus.DebugLevel)
 
 	defaultConfig := NewConfig()
 	log.WithFields(logrus.Fields{
 		"defaultConfig": defaultConfig,
 	}).Debug("Default configuration")
-
-	// TODO: Can this info be set using go-flags? An interface for this?
-	appName := "Elbow"
-	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
-
-	// If this fails, the application will immediately exit.
-	config := NewConfig().SetupFlags(appName, appDesc)
 
 	log.WithFields(logrus.Fields{
 		"config": config,
