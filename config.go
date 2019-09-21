@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/integrii/flaggy"
+	"github.com/jessevdk/go-flags"
 )
 
 // Config represents a collection of configuration settings for this
@@ -49,12 +50,8 @@ func NewConfig() *Config {
 		RecursiveSearch: false,
 		KeepOldest:      false,
 		Remove:          false,
-
-		// All of these will require "x in y" type validation
 		LogFormat:       "text",
-		validLogFormats: []string{"text", "json"},
-
-		LogLevel: "info",
+		LogLevel:        "info",
 
 		// Intended to be optional
 		LogFile: "",
@@ -68,40 +65,24 @@ func NewConfig() *Config {
 // TODO: Pull out
 func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
-	flaggy.SetName(appName)
-	flaggy.SetDescription(appDesc)
+	// RETURN HERE
+	// https://github.com/jessevdk/go-flags/blob/c0795c8afcf41dd1d786bebce68636c199b3bb45/flags.go#L172
+	// SETUP a new named parser with description and other details?
+	// this would allow grouping similar options together (log level, log file, syslog, etc)
 
-	flaggy.DefaultParser.ShowHelpOnUnexpected = true
+	//var parser = flags.NewParser(&c, flags.Default)
+	var parser = flags.NewNamedParser(appName, &c, flags.Default)
 
-	// Add flags
-	flaggy.String(&c.StartPath, "p", "path", "Path to process")
-	flaggy.String(&c.FilePattern, "fp", "pattern", "Substring pattern to compare filenames against. Wildcards are not supported.")
-	flaggy.StringSlice(&c.FileExtensions, "e", "extension", "Limit search to specified file extension. Specify as needed to match multiple required extensions.")
-	flaggy.Int(&c.NumFilesToKeep, "k", "keep", "Keep specified number of matching files")
-	flaggy.Bool(&c.RecursiveSearch, "r", "recurse", "Perform recursive search into subdirectories")
-	flaggy.Bool(&c.KeepOldest, "ko", "keep-old", "Keep oldest files instead of newer")
-	flaggy.Bool(&c.Remove, "rm", "remove", "Remove matched files")
-
-	// TODO: Is there any way to avoid listing the valid options for this flag?
-	flaggy.String(&c.LogFormat, "lf", "log-format", "Log formatter used by logging package. text and json are the two currently supported formatters.")
-
-	flaggy.String(&c.LogFile, "log", "log-file", "Log file used to hold logged messages.")
-
-	// TODO: Is the word "above" or "below" in regards to the other log
-	// messages which will be discarded?
-	flaggy.String(&c.LogLevel, "ll", "log-level", "Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. The default level is info.")
-
-	flaggy.Bool(&c.UseSyslog, "sl", "use-syslog", "Log messages to syslog in addition to other ouputs. Not supported on Windows.")
-
-	// Parse the flags
-	flaggy.Parse()
-
-	// https://github.com/atc0005/elbow/issues/2#issuecomment-524032239
-	//
-	// For flags, you can easily just check the value after calling
-	// flaggy.Parse(). If the value is set to something other than the
-	// default, then the caller supplied it. If it was the default value (set
-	// by you or the language), then it was not used.
+	// TODO: What other handling is needed here? If the command-line arguments
+	// are not as expected, exiting the application should probably be the
+	// sensible next step?
+	if _, err := parser.Parse(); err != nil {
+		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+			os.Exit(0)
+		} else {
+			os.Exit(1)
+		}
+	}
 
 	return c
 

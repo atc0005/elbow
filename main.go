@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/integrii/flaggy"
-
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
 	// https://godoc.org/github.com/sirupsen/logrus
+	// "github.com/jessevdk/go-flags"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -31,23 +31,28 @@ func main() {
 		"defaultConfig": defaultConfig,
 	}).Debug("Default configuration")
 
+	// TODO: Can this info be set using go-flags? An interface for this?
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
+	// If this fails, the application will immediately exit.
 	config := NewConfig().SetupFlags(appName, appDesc)
 
 	log.WithFields(logrus.Fields{
 		"config": config,
 	}).Debug("Our configuration")
 
-	// TODO: Validate configuration
+	// Validate configuration
+	// TODO: How much of this work does go-flags handle for us?
 	if ok := config.Validate(); !ok {
-		flaggy.ShowHelpAndExit("Configuration validation failed.")
+		fmt.Errorf("configuration validation failed")
+		os.Exit(1)
 	}
 
 	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
-		flaggy.ShowHelpAndExit(fmt.Sprintf("Error processing requested path: %q", config.StartPath))
+		fmt.Errorf("Error processing requested path: %q", config.StartPath)
+		os.Exit(1)
 	}
 
 	log.Info("Processing path:", config.StartPath)
