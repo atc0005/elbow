@@ -17,14 +17,19 @@ import (
 
 )
 
-func newLogger() (*logrus.Logger) {
+func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
 
-	logger := logrus.New()
+	// make sure that the user actually requested syslog logging as it is
+	// currently supported on UNIX only.
 
-	// https://godoc.org/github.com/sirupsen/logrus#New
-	// https://godoc.org/github.com/sirupsen/logrus#Logger
+	if !config.UseSyslog {
+		return fmt.Errorf("Syslog logging not requested, not enabling")
+	}
 
 	// Attempt to connect to local syslog
+	// TODO: We need to decide whether we're using the same logging level
+	// as specified for the general logger and update this reference
+	// accordingly
 	hook, err := lSyslog.NewSyslogHook("", "", syslog.LOG_INFO, "")
 
 	if err == nil {
@@ -33,9 +38,9 @@ func newLogger() (*logrus.Logger) {
 		// Seems to require `log.AddHook(hook)`` vs `log.Hooks.Add(hook)`
 		logger.AddHook(hook)
 	} else {
-		logger.Warn("Unable to connect to syslog socket:", err)
+		return fmt.Errorf("unable to connect to syslog socket:", err)
 	}
 
-	// FIXME: Is this what I should be returning here?
-	return logger
+	return nil
+
 }

@@ -70,6 +70,9 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// SETUP a new named parser with description and other details?
 	// this would allow grouping similar options together (log level, log file, syslog, etc)
 
+	// https://godoc.org/github.com/jessevdk/go-flags#NewParser
+	// https://godoc.org/github.com/jessevdk/go-flags#Options
+	// Default = HelpFlag | PrintErrors | PassDoubleDash
 	var parser = flags.NewParser(c, flags.Default)
 	//var parser = flags.NewNamedParser(appName, &c, flags.Default)
 

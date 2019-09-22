@@ -23,7 +23,7 @@ import (
 // logger (`log`) object. The logging_windows.go file can emit a debug
 // message indicating that because the OS is Windows we are skipping the
 // syslog configuration
-var log = newLogger()
+var log = logrus.New()
 
 func main() {
 
@@ -37,19 +37,6 @@ func main() {
 	config := NewConfig().SetupFlags(appName, appDesc)
 
 	log.Debug("Config object created")
-
-	// Log as JSON instead of the default ASCII formatter.
-	// TODO: Use command-line option here
-	log.SetFormatter(&logrus.JSONFormatter{})
-
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
-	log.SetOutput(os.Stdout)
-
-	// TODO: Accept command-line parameter to determine this level
-	// TODO: Setup mapping between command-line options and valid logrus levels
-	// so that they can be referenced here
-	log.SetLevel(logrus.DebugLevel)
 
 	defaultConfig := NewConfig()
 	log.WithFields(logrus.Fields{
