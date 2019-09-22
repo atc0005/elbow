@@ -12,16 +12,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func main() {
+// setup a shared logger object for use between various `main` package-level
+// functions
+//
+// TODO: Replace this with a generic log object created from `logrus.New()`
+// That object can be passed into a new function, perhaps named ConfigureLogger
+// or some such that then applies specific settings specified via flags.
+//
+// TODO: Update the logging_unix.go file to modify-only the already configured
+// logger (`log`) object. The logging_windows.go file can emit a debug
+// message indicating that because the OS is Windows we are skipping the
+// syslog configuration
+var log = newLogger()
 
-	log := newLogger()
+func main() {
 
 	// TODO: Can this info be set using go-flags? An interface for this?
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
+	log.Debug("Contructing config object")
+
 	// If this fails, the application will immediately exit.
 	config := NewConfig().SetupFlags(appName, appDesc)
+
+	log.Debug("Config object created")
 
 	// Log as JSON instead of the default ASCII formatter.
 	// TODO: Use command-line option here
@@ -110,7 +125,7 @@ func main() {
 		filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
 	}
 
-	log.Info("%d items to prune", len(filesToPrune))
+	log.Infof("%d items to prune", len(filesToPrune))
 
 	log.Info("Prune specified files, do NOT ignore errors")
 	// TODO: Add support for ignoring errors (though I cannot immediately
@@ -124,7 +139,7 @@ func main() {
 		log.Info(file.Name())
 	}
 
-	log.Info("%d files failed to remove", len(removalResults.FailedRemovals))
+	log.Infof("%d files failed to remove", len(removalResults.FailedRemovals))
 	for _, file := range removalResults.FailedRemovals {
 		log.Println("*", file.Name())
 	}

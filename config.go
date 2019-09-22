@@ -19,17 +19,17 @@ type Config struct {
 	// https://github.com/jessevdk/go-flags/blob/master/examples/main.go
 	// https://github.com/jessevdk/go-flags/blob/master/examples/rm.go
 
-	FilePattern     string   `short:"fp" long:"pattern" description:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	FileExtensions  []string `short:"e" long:"extension" description:"Limit search to specified file extension. Specify as needed to match multiple required extensions."`
-	StartPath       string   `short:"p" long:"path" required:"true" description:"Path to process."`
-	RecursiveSearch bool     `short:"r" long:"recurse" default:"false" description:"Perform recursive search into subdirectories."`
-	NumFilesToKeep  int      `short:"k" long:"keep" required:"true" description:"Keep specified number of matching files."`
-	KeepOldest      bool     `short:"ko" long:"keep-old" default:"false" description:"Keep oldest files instead of newer."`
-	Remove          bool     `short:"rm" long:"remove" default:"false" description:"Remove matched files."`
-	LogFormat       string   `short:"lf" long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
-	LogFile         string   `short:"log" long:"log-file" description:"Log file used to hold logged messages."`
-	LogLevel        string   `short:"ll" long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	UseSyslog       bool     `short:"sl" long:"use-syslog" default:"false" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
+	FilePattern     string   `long:"pattern" description:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FileExtensions  []string `long:"extension" description:"Limit search to specified file extension. Specify as needed to match multiple required extensions."`
+	StartPath       string   `long:"path" required:"true" description:"Path to process."`
+	RecursiveSearch bool     `long:"recurse" description:"Perform recursive search into subdirectories."`
+	NumFilesToKeep  int      `long:"keep" required:"true" description:"Keep specified number of matching files."`
+	KeepOldest      bool     `long:"keep-old" description:"Keep oldest files instead of newer."`
+	Remove          bool     `long:"remove" description:"Remove matched files."`
+	LogFormat       string   `long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
+	LogFile         string   `long:"log-file" description:"Log file used to hold logged messages."`
+	LogLevel        string   `long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	UseSyslog       bool     `long:"use-syslog" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
@@ -78,8 +78,17 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// sensible next step?
 	if _, err := parser.Parse(); err != nil {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
+			// Display flags summary if requested
+			parser.WriteHelp(os.Stdout)
 			os.Exit(0)
 		} else {
+
+			// Another error was encountered. One case where we need to handle
+			// printing it to stdout or stderr ourselves is when setting
+			// `short:""` struct tags to greater than 1 character. In that
+			// case the `os.Exit(1)` call below is NOT preceded with a helpful
+			// message explaining the issue.
+			//fmt.Println(err)
 			os.Exit(1)
 		}
 	}
