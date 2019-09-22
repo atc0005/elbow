@@ -55,7 +55,7 @@ func main() {
 	}
 
 	// Apply our custom logging settings on top of the existing global `log`
-	// object which uses default settings
+	// object (which uses default settings)
 	setLoggerConfig(config, log)
 
 	log.Debug("Confirm that requested path actually exists")

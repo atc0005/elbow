@@ -8,6 +8,8 @@ import (
 	// https://godoc.org/github.com/sirupsen/logrus
 	"fmt"
 
+	// TODO: Is this needed here with a global `log` objection already created
+	// from this package?
 	"github.com/sirupsen/logrus"
 )
 
