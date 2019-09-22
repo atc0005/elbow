@@ -78,8 +78,10 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 	// sensible next step?
 	if _, err := parser.Parse(); err != nil {
 		if flagsErr, ok := err.(*flags.Error); ok && flagsErr.Type == flags.ErrHelp {
-			// Display flags summary if requested
-			parser.WriteHelp(os.Stdout)
+
+			// NOTE: This results in the Help output being shown twice.
+			//parser.WriteHelp(os.Stdout)
+
 			os.Exit(0)
 		} else {
 
