@@ -17,7 +17,7 @@ func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
 	// currently supported on UNIX only.
 
 	if !config.UseSyslog {
-		return fmt.Errorf("Syslog logging not requested, not enabling")
+		return fmt.Errorf("syslog logging not requested, not enabling")
 	}
 
 	log.Debug("This is a Windows build. Syslog support is not currently supported for Windows builds.")

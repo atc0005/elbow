@@ -54,6 +54,10 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Apply our custom logging settings on top of the existing global `log`
+	// object which uses default settings
+	setLoggerConfig(config, log)
+
 	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
 		fmt.Printf("Error processing requested path: %q", config.StartPath)
