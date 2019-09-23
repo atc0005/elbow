@@ -4,6 +4,8 @@ package main
 
 import (
 
+	"fmt"
+
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
 	// https://godoc.org/github.com/sirupsen/logrus
