@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	// 	"github.com/sirupsen/logrus"
 )
 
 // PathPruningResults represents the number of files that were successfully
@@ -23,14 +22,7 @@ type PathPruningResults struct {
 // were encountered).
 func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPruningResults, error) {
 
-	// DEBUG
 	for _, file := range files {
-
-		//fmt.Println("Details of file ...")
-		//fmt.Printf("%T / %+v\n", file, file)
-		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
-
-		// DEBUG
 		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
 			file.Path,
 			file.Name(),
@@ -42,10 +34,8 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 
 	if !config.Remove {
 
-		// INFO
 		log.Info("File removal not enabled.")
 
-		// DEBUG
 		log.Debug("listing what WOULD be removed")
 		for _, file := range files {
 			log.Debug("*", file.Name())
@@ -174,13 +164,13 @@ func processPath(config *Config) (FileMatches, error) {
 		var files []os.FileInfo
 		files, err = ioutil.ReadDir(config.StartPath)
 
-		// TODO: Do we really want to exit early at this point if there are
-		// failures evaluating some of the files?
-		// Is it possible to partially evaluate some of the files?
-		// TODO: Wrap error?
-		// if err != nil {
-		// 	log.Fatal("Error from ioutil.ReadDir():", err)
-		// }
+		if err != nil {
+			// TODO: Do we really want to exit early at this point if there are
+			// failures evaluating some of the files?
+			// Is it possible to partially evaluate some of the files?
+			// TODO: Wrap error?
+			log.Error("Error from ioutil.ReadDir():", err)
+		}
 
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
 		// FileMatch objects
