@@ -1,11 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	// 	"github.com/sirupsen/logrus"
 )
 
 // PathPruningResults represents the number of files that were successfully
@@ -31,7 +31,7 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
 
 		// DEBUG
-		log.Printf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
+		log.Debug("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
 			file.Path,
 			file.Name(),
 			file.Size(),
@@ -43,13 +43,12 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 	if !config.Remove {
 
 		// INFO
-		log.Println("File removal not enabled.")
+		log.Info("File removal not enabled.")
 
 		// DEBUG
-		log.Println("listing what WOULD be removed")
-		log.Println("----------------------------")
+		log.Debug("listing what WOULD be removed")
 		for _, file := range files {
-			log.Println("*", file.Name())
+			log.Debug("*", file.Name())
 		}
 
 		// Nothing to show for this yet, but since the initial state reflects
@@ -61,16 +60,19 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 
 		filename := file.Name()
 
-		// INFO
-		log.Println("Removing file:", filename)
-
+		log.Info("Removing file:", filename)
 		err := os.Remove(filename)
 
 		if err != nil {
-			log.Println(fmt.Errorf("Failed to remove %s: %s", filename, err))
+			log.Errorf("Failed to remove %s: %s", filename, err)
 
 			// Record failed removal, proceed to the next file
 			removalResults.FailedRemovals = append(removalResults.FailedRemovals, file)
+
+			// Confirm that we should ignore errors (likely enabled)
+			if !ignoreErrors {
+				break
+			}
 			continue
 		}
 
@@ -78,9 +80,9 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 		removalResults.SuccessfulRemovals = append(removalResults.SuccessfulRemovals, file)
 	}
 
-	// DEBUG
+	// TODO: Is this needed? We display this in main() ...
 	for _, file := range removalResults.FailedRemovals {
-		log.Println("Failed to remove:", file.Name())
+		log.Debug("Failed to remove:", file.Name())
 	}
 
 	return removalResults, nil
