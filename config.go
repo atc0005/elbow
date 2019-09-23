@@ -93,7 +93,14 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 			// `short:""` struct tags to greater than 1 character. In that
 			// case the `os.Exit(1)` call below is NOT preceded with a helpful
 			// message explaining the issue.
-			//fmt.Println(err)
+			// fmt.Println(err)
+			//
+			// Once we can be sure WE configured the struct properly with
+			// valid length tags (or omitted the `short:""` tags), we can just
+			// use `os.Exit(1)` here to allow the application to exit after
+			// displaying the error code per our use of flags.Default when
+			// setting up the parser (`flags.Default` includes the PrintErrors
+			// option).
 			os.Exit(1)
 		}
 	}
