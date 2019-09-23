@@ -72,7 +72,13 @@ func main() {
 	// How to handle errors from gathering removal candidates?
 	// Add optional flag to allow ignoring errors, fail immediately otherwise?
 	if err != nil {
-		log.Println("error:", err)
+		log.Error("error:", err)
+		if !config.IgnoreErrors {
+			log.Debugf("IgnoreErrors set to %t", config.IgnoreErrors)
+			log.Error("Error encountered, exiting")
+			os.Exit(1)
+		}
+		log.Warn("Error encountered, but continuing as requested.")
 	}
 
 	// NOTE: If this sort order changes, make sure to update the later logic
@@ -100,28 +106,30 @@ func main() {
 
 	var filesToPrune FileMatches
 
-	// DEBUG
 	log.Debugf("%d total items in matches", len(matches))
 	log.Debugf("%d items to keep per config.NumFilesToKeep", config.NumFilesToKeep)
 
 	if config.KeepOldest {
-		// DEBUG
 		log.Debug("Keeping older files")
 		log.Debug("start at specified number to keep, go until end of slice")
 		filesToPrune = matches[config.NumFilesToKeep:]
 	} else {
-		// DEBUG
 		log.Debug("Keeping newer files")
 		log.Debug("start at beginning, go until specified number to keep")
 		filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
 	}
 
-	log.Infof("%d items to prune", len(filesToPrune))
+	log.Debugf("len of filesToPrune: %d", len(filesToPrune))
+
+	if len(filesToPrune) == 0 {
+		log.Info("Nothing to prune, exiting")
+		os.Exit(0)
+	}
 
 	log.Info("Prune specified files, do NOT ignore errors")
 	// TODO: Add support for ignoring errors (though I cannot immediately
 	// think of a good reason to do so)
-	removalResults, err := cleanPath(filesToPrune, false, config)
+	removalResults, err := cleanPath(filesToPrune, config)
 
 	// Show what we WERE able to successfully remove
 	// TODO: Refactor this into a function to handle displaying results?

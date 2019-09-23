@@ -26,6 +26,7 @@ type Config struct {
 	NumFilesToKeep  int      `long:"keep" required:"true" description:"Keep specified number of matching files."`
 	KeepOldest      bool     `long:"keep-old" description:"Keep oldest files instead of newer."`
 	Remove          bool     `long:"remove" description:"Remove matched files."`
+	IgnoreErrors    bool     `long:"ignore-errors" description:"Ignore errors encountered during file removal."`
 	LogFormat       string   `long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
 	LogFile         string   `long:"log-file" description:"TODO: Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
 	ConsoleOutput   string   `long:"console-output" choice:"stdout" choice:"stderr" default:"stdout" description:"Specify how log messages are logged to the console."`
@@ -53,6 +54,7 @@ func NewConfig() *Config {
 		RecursiveSearch: false,
 		KeepOldest:      false,
 		Remove:          false,
+		IgnoreErrors:    false,
 		LogFormat:       "text",
 		LogLevel:        "info",
 

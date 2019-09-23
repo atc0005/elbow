@@ -16,11 +16,11 @@ type PathPruningResults struct {
 }
 
 // cleanPath receives a slice of FileMatch objects and removes each file. Any
-// errors encountered while removing files may optionally be ignored (default
-// is to return immediately upon first error). The total number of files
-// successfully removed is returned along with an error code (nil if no errors
-// were encountered).
-func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPruningResults, error) {
+// errors encountered while removing files may optionally be ignored via
+// command-line flag(default is to return immediately upon first error). The
+// total number of files successfully removed is returned along with an error
+// code (nil if no errors were encountered).
+func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	for _, file := range files {
 		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
@@ -60,7 +60,7 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 			removalResults.FailedRemovals = append(removalResults.FailedRemovals, file)
 
 			// Confirm that we should ignore errors (likely enabled)
-			if !ignoreErrors {
+			if !config.IgnoreErrors {
 				break
 			}
 			continue
