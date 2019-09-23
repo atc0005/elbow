@@ -31,7 +31,7 @@ func cleanPath(files FileMatches, ignoreErrors bool, config *Config) (PathPrunin
 		//fmt.Println(file.ModTime().Format("2006-01-02 15:04:05"))
 
 		// DEBUG
-		log.Debug("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
+		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
 			file.Path,
 			file.Name(),
 			file.Size(),
