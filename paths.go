@@ -93,11 +93,13 @@ func pathExists(path string) bool {
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
+		log.Debug("path is empty string")
 		return false
 	}
 
 	// https://gist.github.com/mattes/d13e273314c3b3ade33f
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		log.Debugf("path found: %s", err)
 		return true
 	}
 
@@ -111,9 +113,7 @@ func processPath(config *Config) (FileMatches, error) {
 	var err error
 
 	if config.RecursiveSearch {
-		// DEBUG
-		log.Println("Recursive option is enabled")
-		//log.Printf("%v", config)
+		log.Debug("Recursive option is enabled")
 
 		// Walk walks the file tree rooted at root, calling the anonymous function
 		// for each file or directory in the tree, including root. All errors that
@@ -138,10 +138,14 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
+				// ignore invalid extensions (only applies if user chose one
+				// or more extensions to match against)
 				if !hasValidExtension(path, config) {
 					return nil
 				}
 
+				// ignore invalid filename patterns (only applies if user
+				// specified a filename pattern)
 				if !hasValidFilenamePattern(path, config) {
 					return nil
 				}
@@ -162,9 +166,8 @@ func processPath(config *Config) (FileMatches, error) {
 		// NOTE: The same cleanPath() function is used in either case, the
 		// difference is in how the FileMatches slice is populated
 
-		// DEBUG
-		log.Println("Recursive option is NOT enabled")
-		log.Printf("%v", config)
+		log.Debug("Recursive option is NOT enabled")
+		log.Debugf("%v", config)
 
 		// err is already declared earlier at a higher scope, so do not
 		// redeclare here
@@ -188,10 +191,14 @@ func processPath(config *Config) (FileMatches, error) {
 			// Apply validity checks against filename. If validity fails,
 			// go to the next file in the list.
 
+			// ignore invalid extensions (only applies if user chose one
+			// or more extensions to match against)
 			if !hasValidExtension(filename, config) {
 				continue
 			}
 
+			// ignore invalid filename patterns (only applies if user
+			// specified a filename pattern)
 			if !hasValidFilenamePattern(filename, config) {
 				continue
 			}
