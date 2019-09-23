@@ -78,7 +78,8 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 		if err := enableSyslogLogging(config, logger); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
-			log.Errorf("enabling syslog logging failed: %s", err)
+			log.Errorf("Failed to enable syslog logging: %s", err)
+			log.Warn("Proceeding without syslog logging")
 		}
 	} else {
 		log.Debug("Syslog logging not requested, not enabling")
