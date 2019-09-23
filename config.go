@@ -30,7 +30,7 @@ type Config struct {
 	LogFormat       string   `long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
 	LogFile         string   `long:"log-file" description:"TODO: Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
 	ConsoleOutput   string   `long:"console-output" choice:"stdout" choice:"stderr" default:"stdout" description:"Specify how log messages are logged to the console."`
-	LogLevel        string   `long:"log-level" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogLevel        string   `long:"log-level" choice:"emergency" choice:"alert" choice:"critical" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"notice" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
 	UseSyslog       bool     `long:"use-syslog" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
 }
 

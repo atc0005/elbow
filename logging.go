@@ -31,6 +31,8 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 
 	if strings.TrimSpace(config.LogFile) != "" {
 		// If this is set, do not log to console unless writing to log file fails
+		// FIXME: How do we defer the file close without killing the file handle?
+		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logger.go#L332
 		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err == nil {
 			loggerOutput = file
@@ -44,14 +46,17 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 	// Note: Can be any io.Writer
 	logger.SetOutput(loggerOutput)
 
+	// https://godoc.org/github.com/sirupsen/logrus#Level
+	// https://golang.org/pkg/log/syslog/#Priority
+	// https://en.wikipedia.org/wiki/Syslog#Severity_level
 	switch config.LogLevel {
-	case "panic":
+	case "emerg", "panic":
 		logger.SetLevel(logrus.PanicLevel)
-	case "fatal":
+	case "alert", "critical", "fatal":
 		logger.SetLevel(logrus.FatalLevel)
 	case "error":
 		logger.SetLevel(logrus.ErrorLevel)
-	case "warn":
+	case "warn", "notice":
 		logger.SetLevel(logrus.WarnLevel)
 	case "info":
 		logger.SetLevel(logrus.InfoLevel)
