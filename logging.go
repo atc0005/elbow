@@ -36,6 +36,10 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err == nil {
 			loggerOutput = file
+			// FIXME: How to close this file handle?
+			// https://kgrz.io/reading-files-in-go-an-overview.html
+			// This seems to imply that this will "leak" file descriptors, even
+			// if the application terminates successfully?
 		} else {
 			log.Errorf("Failed to log to %s, will use %s instead.",
 				config.LogFile, config.ConsoleOutput)
