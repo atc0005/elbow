@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
@@ -11,22 +12,54 @@ import (
 
 func setLoggerConfig(config *Config, logger *logrus.Logger) {
 
-	// switch on log format here
+	switch config.LogFormat {
+	case "text":
+		logger.SetFormatter(&logrus.TextFormatter{})
+	case "json":
+		// Log as JSON instead of the default ASCII formatter.
+		logger.SetFormatter(&logrus.JSONFormatter{})
+	}
 
-	// Log as JSON instead of the default ASCII formatter.
-	// TODO: Use command-line option here
-	logger.SetFormatter(&logrus.JSONFormatter{})
+	// NOTE: If config.LogFile is set, console output is muted
+	var loggerOutput *os.File
+	switch {
+	case config.ConsoleOutput == "stdout":
+		loggerOutput = os.Stdout
+	case config.ConsoleOutput == "stderr":
+		loggerOutput = os.Stderr
+	}
 
-	// Output to stdout instead of the default stderr
-	// Can be any io.Writer, see below for File example
-	logger.SetOutput(os.Stdout)
+	if strings.TrimSpace(config.LogFile) != "" {
+		// If this is set, do not log to console unless writing to log file fails
+		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err == nil {
+			loggerOutput = file
+		} else {
+			log.Errorf("Failed to log to %s, will use %s instead.",
+				config.LogFile, config.ConsoleOutput)
+		}
+	}
 
-	// switch on log level here
+	// Apply chosen output based on earlier checks
+	// Note: Can be any io.Writer
+	logger.SetOutput(loggerOutput)
 
-	// TODO: Accept command-line parameter to determine this level
-	// TODO: Setup mapping between command-line options and valid logrus levels
-	// so that they can be referenced here
-	logger.SetLevel(logrus.DebugLevel)
+	switch config.LogLevel {
+	case "panic":
+		logger.SetLevel(logrus.PanicLevel)
+	case "fatal":
+		logger.SetLevel(logrus.FatalLevel)
+	case "error":
+		logger.SetLevel(logrus.ErrorLevel)
+	case "warn":
+		logger.SetLevel(logrus.WarnLevel)
+	case "info":
+		logger.SetLevel(logrus.InfoLevel)
+	case "debug":
+		logger.SetLevel(logrus.DebugLevel)
+	case "trace":
+		logger.SetLevel(logrus.TraceLevel)
+	}
 
 	// https://godoc.org/github.com/sirupsen/logrus#New
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
