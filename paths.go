@@ -89,7 +89,7 @@ func pathExists(path string) bool {
 
 	// https://gist.github.com/mattes/d13e273314c3b3ade33f
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		log.Debugf("path found: %s", err)
+		log.Debugf("path found: %s", path)
 		return true
 	}
 
