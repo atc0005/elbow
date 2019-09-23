@@ -92,7 +92,7 @@ func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
 		logger.AddHook(hook)
 		logger.Debug("AddHook() called for syslog logging")
 	} else {
-		return fmt.Errorf("unable to connect to syslog socket:", err)
+		return fmt.Errorf("unable to connect to syslog socket: %s", err)
 	}
 
 	return nil

@@ -64,7 +64,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Info("Processing path:", config.StartPath)
+	log.Infof("Processing path: %s", config.StartPath)
 
 	matches, err := processPath(config)
 
