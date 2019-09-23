@@ -66,12 +66,6 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /
 cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "-masterdev-" --keep 2 --recurse --remove
 ```
 
-```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-master-" -k 2 -r
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-masterqa-" -k 2 -r
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow -p /tmp -e ".war" -fp "-masterdev-" -k 2 -r
-```
-
 Leave off `--remove` to display what *would* be removed.
 
 ### Build and run from test area, no options
