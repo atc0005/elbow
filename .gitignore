@@ -4,3 +4,7 @@ testing/
 
 # When building on non-Windows platform
 elbow
+
+# UPX backup files
+elbow.ex~
+elbow.~
