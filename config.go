@@ -69,7 +69,7 @@ func NewConfig() *Config {
 }
 
 // SetupFlags applies settings provided by command-line flags
-// TODO: Pull out
+// FIXME: go-flags doesn't use appName or appDesc. Keep?
 func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
 	// RETURN HERE
