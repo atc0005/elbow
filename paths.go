@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // PathPruningResults represents the number of files that were successfully
@@ -23,11 +25,12 @@ type PathPruningResults struct {
 func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	for _, file := range files {
-		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v",
-			file.Path,
-			file.Name(),
-			file.Size(),
-			file.ModTime().Format("2006-01-02 15:04:05"))
+		log.WithFields(logrus.Fields{
+			"fullpath":  strings.TrimSpace(file.Path),
+			"shortpath": file.Name(),
+			"size":      file.Size(),
+			"modified":  file.ModTime().Format("2006-01-02 15:04:05"),
+		}).Debug("Matching file")
 	}
 
 	var removalResults PathPruningResults
