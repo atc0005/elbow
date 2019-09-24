@@ -23,7 +23,7 @@ type PathPruningResults struct {
 func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	for _, file := range files {
-		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v\n",
+		log.Debugf("Full path: %s, ShortPath: %s, Size: %d, Modified: %v",
 			file.Path,
 			file.Name(),
 			file.Size(),
@@ -38,7 +38,8 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 		log.Debug("listing what WOULD be removed")
 		for _, file := range files {
-			log.Debug("*", file.Name())
+			// TODO: Add extra fields here
+			log.Debug(file.Name())
 		}
 
 		// Nothing to show for this yet, but since the initial state reflects
@@ -50,7 +51,7 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 		filename := file.Name()
 
-		log.Info("Removing file:", filename)
+		log.Infof("Removing file: %s", filename)
 		err := os.Remove(filename)
 
 		if err != nil {

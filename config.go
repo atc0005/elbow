@@ -28,7 +28,8 @@ type Config struct {
 	Remove          bool     `long:"remove" description:"Remove matched files."`
 	IgnoreErrors    bool     `long:"ignore-errors" description:"Ignore errors encountered during file removal."`
 	LogFormat       string   `long:"log-format" choice:"text" choice:"json" default:"text" description:"Log formatter used by logging package."`
-	LogFile         string   `long:"log-file" description:"TODO: Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	LogFilePath     string   `long:"log-file" description:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	LogFileHandle   *os.File `no-flag:"true"`
 	ConsoleOutput   string   `long:"console-output" choice:"stdout" choice:"stderr" default:"stdout" description:"Specify how log messages are logged to the console."`
 	LogLevel        string   `long:"log-level" choice:"emergency" choice:"alert" choice:"critical" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"notice" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
 	UseSyslog       bool     `long:"use-syslog" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
@@ -57,13 +58,10 @@ func NewConfig() *Config {
 		IgnoreErrors:    false,
 		LogFormat:       "text",
 		LogLevel:        "info",
-
-		// Intended to be optional
-		LogFile: "",
-
-		ConsoleOutput: "stdout",
-
-		UseSyslog: false,
+		LogFilePath:     "",
+		LogFileHandle:   nil,
+		ConsoleOutput:   "stdout",
+		UseSyslog:       false,
 	}
 
 }
@@ -146,7 +144,7 @@ func (c *Config) Validate() bool {
 	// 	return false
 	// }
 
-	// LogFile is optional
+	// LogFilePath is optional
 	// TODO: String validation if it is set?
 
 	// go-args `choice:""` struct tags enforce valid options
@@ -164,7 +162,7 @@ func (c *Config) Validate() bool {
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, LogFormat=%q, LogFile=%q, UseSyslog=%t",
+	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, LogFormat=%q, LogFilePath=%q, UseSyslog=%t",
 
 		c.FilePattern,
 		c.FileExtensions,
@@ -174,7 +172,7 @@ func (c *Config) String() string {
 		c.KeepOldest,
 		c.Remove,
 		c.LogFormat,
-		c.LogFile,
+		c.LogFilePath,
 		c.UseSyslog,
 	)
 }

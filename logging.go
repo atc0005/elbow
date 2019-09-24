@@ -29,20 +29,20 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 		loggerOutput = os.Stderr
 	}
 
-	if strings.TrimSpace(config.LogFile) != "" {
+	if strings.TrimSpace(config.LogFilePath) != "" {
 		// If this is set, do not log to console unless writing to log file fails
 		// FIXME: How do we defer the file close without killing the file handle?
 		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logger.go#L332
-		file, err := os.OpenFile(config.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		file, err := os.OpenFile(config.LogFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err == nil {
 			loggerOutput = file
-			// FIXME: How to close this file handle?
+
+			// This is what we'll use to close the file handle from main()
 			// https://kgrz.io/reading-files-in-go-an-overview.html
-			// This seems to imply that this will "leak" file descriptors, even
-			// if the application terminates successfully?
+			config.LogFileHandle = file
 		} else {
 			log.Errorf("Failed to log to %s, will use %s instead.",
-				config.LogFile, config.ConsoleOutput)
+				config.LogFilePath, config.ConsoleOutput)
 		}
 	}
 

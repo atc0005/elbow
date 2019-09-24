@@ -49,7 +49,10 @@ func main() {
 
 	// Validate configuration
 	// TODO: How much of this work does go-flags handle for us?
+	// TODO: Best practice to return an `error` here, even if it is nil?
 	if ok := config.Validate(); !ok {
+		// NOTE: We're not using `log` here as the configuration could be too
+		// botched to use reliably.
 		fmt.Println("configuration validation failed")
 		os.Exit(1)
 	}
@@ -58,13 +61,19 @@ func main() {
 	// object (which uses default settings)
 	setLoggerConfig(config, log)
 
+	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
+	if config.LogFileHandle != nil {
+		log.Debug("Deferring closure of log file")
+		defer config.LogFileHandle.Close()
+	}
+
 	log.Debug("Confirm that requested path actually exists")
 	if !pathExists(config.StartPath) {
 		fmt.Printf("Error processing requested path: %q", config.StartPath)
 		os.Exit(1)
 	}
 
-	log.Infof("Processing path: %s", config.StartPath)
+	log.Infof("Evaluating path: %s", config.StartPath)
 
 	matches, err := processPath(config)
 
@@ -94,11 +103,7 @@ func main() {
 		noMatchesMessage := fmt.Sprintf("No matches found in path %q for files with substring pattern of %q and with extensions %v",
 			config.StartPath, config.FilePattern, config.FileExtensions)
 
-		// TODO: How to handle duplicate output to the console from both
-		// commands?
 		log.Info(noMatchesMessage)
-		fmt.Println(noMatchesMessage)
-
 		// TODO: Not finding something is a valid outcome, so "normal" exit
 		// code?
 		os.Exit(0)
@@ -106,8 +111,8 @@ func main() {
 
 	var filesToPrune FileMatches
 
-	log.Debugf("%d total items in matches", len(matches))
-	log.Debugf("%d items to keep per config.NumFilesToKeep", config.NumFilesToKeep)
+	log.Infof("Found %d total matches eligible for removal", len(matches))
+	log.Infof("Found %d items to keep per config.NumFilesToKeep", config.NumFilesToKeep)
 
 	if config.KeepOldest {
 		log.Debug("Keeping older files")
@@ -126,9 +131,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	log.Info("Prune specified files, do NOT ignore errors")
-	// TODO: Add support for ignoring errors (though I cannot immediately
-	// think of a good reason to do so)
+	log.Debug("Calling cleanPath")
+	log.Infof("Ignoring file removal errors: %t", config.IgnoreErrors)
 	removalResults, err := cleanPath(filesToPrune, config)
 
 	// Show what we WERE able to successfully remove
