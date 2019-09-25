@@ -14,15 +14,6 @@ import (
 
 // setup a shared logger object for use between various `main` package-level
 // functions
-//
-// TODO: Replace this with a generic log object created from `logrus.New()`
-// That object can be passed into a new function, perhaps named ConfigureLogger
-// or some such that then applies specific settings specified via flags.
-//
-// TODO: Update the logging_unix.go file to modify-only the already configured
-// logger (`log`) object. The logging_windows.go file can emit a debug
-// message indicating that because the OS is Windows we are skipping the
-// syslog configuration
 var log = logrus.New()
 
 func main() {
