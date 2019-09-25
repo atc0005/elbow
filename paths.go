@@ -42,7 +42,9 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 		log.Debug("listing what WOULD be removed")
 		for _, file := range files {
 			// TODO: Add extra fields here
-			log.Debug(file.Name())
+			log.WithFields(logrus.Fields{
+				"removal_enabled": config.Remove,
+			}).Debug(file.Name())
 		}
 
 		// Nothing to show for this yet, but since the initial state reflects
@@ -54,29 +56,33 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 		filename := file.Name()
 
-		log.Infof("Removing file: %s", filename)
-		err := os.Remove(filename)
+		log.WithFields(logrus.Fields{
+			"removal_enabled": config.Remove,
+			"file":            filename,
+		}).Info("Removing file", filename)
 
+		err := os.Remove(filename)
 		if err != nil {
-			log.Errorf("Failed to remove %s: %s", filename, err)
+			log.WithFields(logrus.Fields{
+				"file": file,
+			}).Errorf("Error encountered while removing file: %s", err)
 
 			// Record failed removal, proceed to the next file
 			removalResults.FailedRemovals = append(removalResults.FailedRemovals, file)
 
 			// Confirm that we should ignore errors (likely enabled)
 			if !config.IgnoreErrors {
+				remainingFiles := len(files) - len(removalResults.FailedRemovals) - len(removalResults.SuccessfulRemovals)
+				log.Debugf("Abandoning removal of %d remaining files", remainingFiles)
 				break
 			}
+
+			log.Debug("Ignoring error as requested")
 			continue
 		}
 
 		// Record successful removal
 		removalResults.SuccessfulRemovals = append(removalResults.SuccessfulRemovals, file)
-	}
-
-	// TODO: Is this needed? We display this in main() ...
-	for _, file := range removalResults.FailedRemovals {
-		log.Debug("Failed to remove:", file.Name())
 	}
 
 	return removalResults, nil
@@ -87,13 +93,15 @@ func pathExists(path string) bool {
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
-		log.Debug("path is empty string")
+		log.Debugf("path is empty string")
 		return false
 	}
 
 	// https://gist.github.com/mattes/d13e273314c3b3ade33f
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		log.Debugf("path found: %s", path)
+		log.WithFields(logrus.Fields{
+			"path": path,
+		}).Debug("path found")
 		return true
 	}
 
@@ -106,8 +114,11 @@ func processPath(config *Config) (FileMatches, error) {
 	var matches FileMatches
 	var err error
 
+	log.WithFields(logrus.Fields{
+		"resursive_search": config.RecursiveSearch,
+	}).Debugf("Recursive search: %t", config.RecursiveSearch)
+
 	if config.RecursiveSearch {
-		log.Debug("Recursive option is enabled")
 
 		// Walk walks the file tree rooted at root, calling the anonymous function
 		// for each file or directory in the tree, including root. All errors that
@@ -160,9 +171,6 @@ func processPath(config *Config) (FileMatches, error) {
 		// NOTE: The same cleanPath() function is used in either case, the
 		// difference is in how the FileMatches slice is populated
 
-		log.Debug("Recursive option is NOT enabled")
-		log.Debugf("%v", config)
-
 		// err is already declared earlier at a higher scope, so do not
 		// redeclare here
 		var files []os.FileInfo
@@ -173,7 +181,7 @@ func processPath(config *Config) (FileMatches, error) {
 			// failures evaluating some of the files?
 			// Is it possible to partially evaluate some of the files?
 			// TODO: Wrap error?
-			log.Error("Error from ioutil.ReadDir():", err)
+			log.Errorf("Error from ioutil.ReadDir(): %s", err)
 		}
 
 		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
