@@ -26,10 +26,11 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	for _, file := range files {
 		log.WithFields(logrus.Fields{
-			"fullpath":  strings.TrimSpace(file.Path),
-			"shortpath": file.Name(),
-			"size":      file.Size(),
-			"modified":  file.ModTime().Format("2006-01-02 15:04:05"),
+			"fullpath":        strings.TrimSpace(file.Path),
+			"shortpath":       file.Name(),
+			"size":            file.Size(),
+			"modified":        file.ModTime().Format("2006-01-02 15:04:05"),
+			"removal_enabled": config.Remove,
 		}).Debug("Matching file")
 	}
 
@@ -37,15 +38,7 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	if !config.Remove {
 
-		log.Info("File removal not enabled.")
-
-		log.Debug("listing what WOULD be removed")
-		for _, file := range files {
-			// TODO: Add extra fields here
-			log.WithFields(logrus.Fields{
-				"removal_enabled": config.Remove,
-			}).Debug(file.Name())
-		}
+		log.Info("File removal not enabled, not removing files")
 
 		// Nothing to show for this yet, but since the initial state reflects
 		// that we can return it as-is
