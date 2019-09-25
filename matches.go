@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -29,21 +28,18 @@ func hasValidExtension(filename string, config *Config) bool {
 	ext := filepath.Ext(filename)
 
 	if len(config.FileExtensions) == 0 {
-		// DEBUG
-		log.Println("No extension limits have been set!")
-		log.Printf("Considering %s safe for removal\n", filename)
+		log.Debug("No extension limits have been set!")
+		log.Debugf("Considering %s safe for removal\n", filename)
 		return true
 	}
 
-	if inFileExtensionsPatterns(ext, config.FileExtensions) {
-		// DEBUG
-		log.Printf("%s has a valid extension for removal\n", filename)
+	if inList(ext, config.FileExtensions) {
+		log.Debugf("%s has a valid extension for removal\n", filename)
 		return true
 	}
 
-	// DEBUG
-	log.Println("hasValidExtension: returning false for:", filename)
-	log.Printf("hasValidExtension: returning false (%q not in %q)",
+	log.Debug("hasValidExtension: returning false for:", filename)
+	log.Debugf("hasValidExtension: returning false (%q not in %q)",
 		ext, config.FileExtensions)
 	return false
 }
@@ -51,29 +47,30 @@ func hasValidExtension(filename string, config *Config) bool {
 func hasValidFilenamePattern(filename string, config *Config) bool {
 
 	if strings.TrimSpace(config.FilePattern) == "" {
-		// DEBUG
-		log.Println("No FilePattern has been specified!")
-		log.Printf("Considering %s safe for removal\n", filename)
+		log.Debug("No FilePattern has been specified!")
+		log.Debugf("Considering %s safe for removal\n", filename)
 		return true
 	}
 
 	// Search for substring
 	if strings.Contains(filename, config.FilePattern) {
+		log.Debug("hasValidFilenamePattern: returning true for:", filename)
+		log.Debugf("hasValidFilenamePattern: returning true (%q contains %q)",
+			filename, config.FilePattern)
 		return true
 	}
 
-	// DEBUG
-	log.Println("hasValidFilenamePattern: returning false for:", filename)
-	log.Printf("hasValidFilenamePattern: returning false (%q does not contain %q)",
+	log.Debug("hasValidFilenamePattern: returning false for:", filename)
+	log.Debugf("hasValidFilenamePattern: returning false (%q does not contain %q)",
 		filename, config.FilePattern)
 	return false
 }
 
-// inFileExtensionsPatterns is a helper function to emulate Python's `if "x"
+// inList is a helper function to emulate Python's `if "x"
 // in list:` functionality
-func inFileExtensionsPatterns(ext string, exts []string) bool {
-	for _, pattern := range exts {
-		if ext == pattern {
+func inList(needle string, haystack []string) bool {
+	for _, item := range haystack {
+		if item == needle {
 			return true
 		}
 	}
