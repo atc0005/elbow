@@ -74,6 +74,8 @@ func main() {
 	}
 
 	log.Infof("Evaluating path: %s", config.StartPath)
+	log.Infof("Looking for file pattern: %q", config.FilePattern)
+	log.Infof("Looking for extensions: %q", config.FileExtensions)
 
 	matches, err := processPath(config)
 
@@ -81,9 +83,11 @@ func main() {
 	// How to handle errors from gathering removal candidates?
 	// Add optional flag to allow ignoring errors, fail immediately otherwise?
 	if err != nil {
-		log.Error("error:", err)
+		log.WithFields(logrus.Fields{
+			"ignore_errors": config.IgnoreErrors,
+		}).Error("error:", err)
+
 		if !config.IgnoreErrors {
-			log.Debugf("IgnoreErrors set to %t", config.IgnoreErrors)
 			log.Error("Error encountered, exiting")
 			os.Exit(1)
 		}
@@ -111,10 +115,13 @@ func main() {
 
 	var filesToPrune FileMatches
 
-	log.Infof("Found %d total matches eligible for removal", len(matches))
-	log.Infof("Will keep %d items as requested", config.NumFilesToKeep)
+	log.Infof("%d files eligible for removal", len(matches))
+	log.WithFields(logrus.Fields{
+		"keep_oldest": config.KeepOldest,
+	}).Infof("%d files to keep as requested", config.NumFilesToKeep)
 
 	if config.KeepOldest {
+		// TODO: Is debug output still useful?
 		log.Debug("Keeping older files")
 		log.Debug("start at specified number to keep, go until end of slice")
 		filesToPrune = matches[config.NumFilesToKeep:]
@@ -124,14 +131,14 @@ func main() {
 		filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
 	}
 
-	log.Debugf("len of filesToPrune: %d", len(filesToPrune))
-
 	if len(filesToPrune) == 0 {
 		log.Info("Nothing to prune, exiting")
 		os.Exit(0)
 	}
 
-	log.Debug("Calling cleanPath")
+	log.WithFields(logrus.Fields{
+		"files_to_prune": len(filesToPrune),
+	}).Debug("Calling cleanPath")
 	log.Infof("Ignoring file removal errors: %t", config.IgnoreErrors)
 	removalResults, err := cleanPath(filesToPrune, config)
 
@@ -139,12 +146,16 @@ func main() {
 	// TODO: Refactor this into a function to handle displaying results?
 	log.Infof("%d files successfully removed", len(removalResults.SuccessfulRemovals))
 	for _, file := range removalResults.SuccessfulRemovals {
-		log.Info(file.Name())
+		log.WithFields(logrus.Fields{
+			"failed_removal": false,
+		}).Info(file.Name())
 	}
 
 	log.Infof("%d files failed to remove", len(removalResults.FailedRemovals))
 	for _, file := range removalResults.FailedRemovals {
-		log.Println("*", file.Name())
+		log.WithFields(logrus.Fields{
+			"failed_removal": true,
+		}).Info(file.Name())
 	}
 
 	if err != nil {
