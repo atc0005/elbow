@@ -112,7 +112,7 @@ func main() {
 	var filesToPrune FileMatches
 
 	log.Infof("Found %d total matches eligible for removal", len(matches))
-	log.Infof("Found %d items to keep per config.NumFilesToKeep", config.NumFilesToKeep)
+	log.Infof("Will keep %d items as requested", config.NumFilesToKeep)
 
 	if config.KeepOldest {
 		log.Debug("Keeping older files")
