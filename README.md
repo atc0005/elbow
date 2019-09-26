@@ -3,20 +3,36 @@
 Elbow, Elbow grease.
 
 - [elbow](#elbow)
+  - [Project home](#project-home)
   - [Purpose](#purpose)
   - [Gotchas](#gotchas)
+  - [Features](#features)
+  - [Changelog](#changelog)
+  - [Requirements](#requirements)
+  - [How to install it](#how-to-install-it)
   - [Setup test environment](#setup-test-environment)
+  - [Configuration Options](#configuration-options)
+    - [Command-line Arguments](#command-line-arguments)
+    - [Environment Variables](#environment-variables)
+    - [Configuration File](#configuration-file)
   - [Examples](#examples)
     - [Overview](#overview)
+    - [Log output](#log-output)
+      - [Text format](#text-format)
+      - [JSON format](#json-format)
+    - [Help Output](#help-output)
     - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
     - [... keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
     - [... log in JSON format, use log file](#log-in-json-format-use-log-file)
     - [Build and run from test area, no options](#build-and-run-from-test-area-no-options)
   - [References](#references)
-    - [Configuration object](#configuration-object)
-    - [Sorting files](#sorting-files)
-    - [Path/File Existence](#pathfile-existence)
-    - [Slice management](#slice-management)
+  - [License](#license)
+
+## Project home
+
+See [our GitHub repo](https://github.com/atc0005/elbow) for the latest code,
+to file an issue or submit improvements for review and potential inclusion
+into the project.
 
 ## Purpose
 
@@ -30,8 +46,63 @@ would otherwise completely clog a filesystem.
 - File extensions are *case-sensitive*
 - File name patterns are *case-sensitive*
 - File name patterns, much like shell globs, can match more than you might
-  wish. Test carefully and do not provide the `--remove` flag until you are
-  ready to actually prune the content.
+  wish.
+  - Test carefully and do not provide the `--remove` flag until you have
+    tested and are ready to actually prune the content.
+
+## Features
+
+- Extensive command-line flags with detailed help output
+  - including default values and valid choices, thanks to the
+    `jessevdk/go-flags` package
+- Match on specified file patterns
+- Flat (single-level) or recursive search
+- Keep a specified number of older or newer matches
+- Limit search to specified list of file extensions
+- Toggle file removal (read-only by default)
+- Extensive, leveled-logging
+  - (Optional) Syslog logging (not supported on Windows)
+  - (Optional) Logging to a file (if enabled, mutes console output)
+  - Text or JSON log formats
+- (Optional) Ignore errors encountered when removing files
+
+Worth noting: This project uses Go modules (vs classic GOPATH setup)
+
+## Changelog
+
+See the [`CHANGELOG.md`](CHANGELOG.md) file for the changes associated with
+each release of this application. Changes that have been merged to `master`,
+but not yet an official release are also noted in the file under the
+`Unreleased` section. A helpful link to the Git commit history since the last
+official release is also provided.
+
+## Requirements
+
+- Go (for building)
+  - unsure what version; whatever the dependencies in `go.mod` require
+- Linux (if using Syslog support)
+  - macOS and UNIX systems have not been tested
+
+Tested using:
+
+- Go 1.12+
+- Windows 10 Version 1803+
+- Ubuntu Linux 16.04+
+
+## How to install it
+
+1. [Download](https://golang.org/dl/) Go
+1. [Install](https://golang.org/doc/install) Go
+1. Clone the repo
+   1. `cd /tmp`
+   1. `git clone https://github.com/atc0005/elbow`
+   1. `cd elbow`
+1. Build binaries for as many supported platforms as you need to run the tool
+   1. `GOOS=windows go build`
+   1. `GOOS=linux go build`
+1. Copy the applicable binary to whatever systems needs to run it
+   1. Linux: `/tmp/elbow/elbow`
+   1. Windows: `/tmp/elbow/elbow.exe`
 
 ## Setup test environment
 
@@ -41,33 +112,160 @@ would otherwise completely clog a filesystem.
 1. `cd /path/to/this/repo`
 1. `go build`
 
-See next section for examples of running the app against the test files.
+See the [Examples](#examples) or the [Configuration Options](#options)
+sections for examples of running `elbow` against these newly created test
+files.
+
+## Configuration Options
+
+Placeholder. Add table of all command-line flags here with a very brief
+explanation of what they're used for and whether they're required (should be
+listed first) or optional (listed last).
+
+### Command-line Arguments
+
+Aside from the built-in `-h`, short flag names are currently not supported.
+
+| Long             | Required | Default        | Repeat | Possible                                                                                                | Description                                                                                              |
+| ---------------- | -------- | -------------- | ------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `keep`           | Yes      | N/A            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
+| `path`           | Yes      | N/A            | No     | *valid directory path*                                                                                  | Path to process.                                                                                         |
+| `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                             |
+| `extension`      | No       | *empty list*   | Yes    | *valid file extension*                                                                                  | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
+| `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                            |
+| `keep-old`       | No       | `false`        | No     | `true`, `false`                                                                                         | Keep oldest files instead of newer.                                                                      |
+| `remove`         | Maybe    | `false`        | No     | `true`, `false`                                                                                         | Remove matched files. The default behavior is to only note what matching files *would* be removed.       |
+| `ignore-errors`  | No       | `false`        | No     | `true`, `false`                                                                                         | Ignore errors encountered during file removal.                                                           |
+| `log-format`     | No       | `text`         | No     | `text`, `json`                                                                                          | Log formatter used by logging package.                                                                   |
+| `log-file`       | No       | *empty string* | No     | *writable directory path*                                                                               | Optional log file used to hold logged messages. If set, log messages are not displayed on the console.   |
+| `console-output` | No       | `stdout`       | No     | `stdout`, `stderr`                                                                                      | Specify how log messages are logged to the console.                                                      |
+| `log-level`      | No       | `info`         | No     | `emergency`, `alert`, `critical`, `panic`, `fatal`, `error`, `warn`, `info`, `notice`, `debug`, `trace` | Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. |
+| `use-syslog`     | No       | `false`        | No     | `true`, `false`                                                                                         | Log messages to syslog in addition to other ouputs. Not supported on Windows.                            |
+
+### Environment Variables
+
+Not yet supported.
+
+### Configuration File
+
+Not yet supported.
 
 ## Examples
 
 ### Overview
 
-The following steps illustrate a rough, overall idea of what this application
-is intended to do. The steps illustrate building and running the application
-from within an Ubuntu Linux Subsystem for Windows (WSL) instance. The `/t`
-volume is present on the Windows host.
+The following steps illustrate a rough, overall idea of what `elbow` is
+intended to do. The steps illustrate building and running the application from
+within an Ubuntu Linux Subsystem for Windows (WSL) instance. The `t` volume is
+present on the Windows host.
 
-The file extension used in the examples is for a `WAR` file that is generated
-on a build system that our team maintains. The idea is that this application
-could be run as a cron job to help ensure that only X copies (the most recent)
-for each of three branches remain on the build box.
+The file extension used in the examples below is for `WAR` files that are
+generated on a build system that our group maintains. The idea is that `elbow`
+could be run as a cron job to help ensure that only X copies (the most recent
+in our case) for each of three branches remain on the build box.
 
-There are better aproaches to managing those build artifacts, but that is the
-problem that this tool seeks to solve in a simple way.
+There are better aproaches to managing build artifacts (e.g., containers), but
+that is the problem that this tool seeks to solve in a simple, "low tech" way.
+
+The particular repo that the build system processes has three branches:
+
+| Branch Name | Type of build |
+| ----------- | ------------- |
+| `master`    | Production    |
+| `masterqa`  | Q/A           |
+| `masterdev` | Development   |
+
+We had little control over the name of these branches.
+
+### Log output
+
+#### Text format
+
+```ShellSession
+$ ./elbow --path /tmp --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format text
+```
+
+```ShellSession
+ERRO[0000] Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error
+WARN[0000] Proceeding without syslog logging
+INFO[0000] Evaluating path: /tmp
+INFO[0000] Looking for file pattern: "reach-master"
+INFO[0000] Looking for extensions: []
+ERRO[0000] error:open /tmp/tmp0dyy3wu9: permission denied  ignore_errors=true
+WARN[0000] Error encountered, but continuing as requested.
+INFO[0000] 24 files eligible for removal
+INFO[0000] 1 files to keep as requested                  keep_oldest=true
+INFO[0000] Ignoring file removal errors: true
+INFO[0000] File removal not enabled, not removing files
+INFO[0000] 0 files successfully removed
+INFO[0000] 0 files failed to remove
+INFO[0000] Elbow successfully completed.
+```
+
+Where supported, the output is colored. Here is a screenshot of the output
+from just before the v0.2.0 milestone was completed and the [`v0.2.0`
+tag](https://github.com/atc0005/elbow/releases/tag/v0.2.0) created:
+
+![alt text][screenshot]
+
+#### JSON format
+
+```ShellSession
+$ ./elbow --path /tmp --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format json
+```
+
+```json
+{"level":"error","msg":"Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error","time":"2019-09-26T12:38:34-05:00"}
+{"level":"warning","msg":"Proceeding without syslog logging","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"Evaluating path: /tmp","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"Looking for file pattern: \"reach-master\"","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"Looking for extensions: []","time":"2019-09-26T12:38:34-05:00"}
+{"ignore_errors":true,"level":"error","msg":"error:open /tmp/tmp0dyy3wu9: permission denied","time":"2019-09-26T12:38:34-05:00"}
+{"level":"warning","msg":"Error encountered, but continuing as requested.","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"24 files eligible for removal","time":"2019-09-26T12:38:34-05:00"}
+{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"0 files successfully removed","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"0 files failed to remove","time":"2019-09-26T12:38:34-05:00"}
+{"level":"info","msg":"Elbow successfully completed.","time":"2019-09-26T12:38:34-05:00"}
+```
+
+### Help Output
+
+```ShellSession
+$ ./elbow --help
+Usage:
+  elbow [OPTIONS]
+
+Application Options:
+      --pattern=                                                                            Substring pattern to compare filenames against. Wildcards are not supported.
+      --extension=                                                                          Limit search to specified file extension. Specify as needed to match multiple required extensions.
+      --path=                                                                               Path to process.
+      --recurse                                                                             Perform recursive search into subdirectories.
+      --keep=                                                                               Keep specified number of matching files.
+      --keep-old                                                                            Keep oldest files instead of newer.
+      --remove                                                                              Remove matched files.
+      --ignore-errors                                                                       Ignore errors encountered during file removal.
+      --log-format=[text|json]                                                              Log formatter used by logging package. (default: text)
+      --log-file=                                                                           Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
+      --console-output=[stdout|stderr]                                                      Specify how log messages are logged to the console. (default: stdout)
+      --log-level=[emergency|alert|critical|panic|fatal|error|warn|info|notice|debug|trace] Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. (default: info)
+      --use-syslog                                                                          Log messages to syslog in addition to other ouputs. Not supported on Windows.
+
+Help Options:
+  -h, --help                                                                                Show this help message
+```
 
 ### Prune `.war` files from each branch recursively, keep newest 2
 
 Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-master-" --keep 2 --recurse --remove
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --extension ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
+./elbow --path /tmp --extension ".war" --pattern "reach-master-" --keep 2 --recurse --remove
+./elbow --path /tmp --extension ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
+./elbow --path /tmp --extension ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
 ```
 
 ### ... keep oldest 1, debug logging, ignore errors, use syslog
@@ -75,9 +273,10 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /
 Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
+./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
 ```
 
 ### ... log in JSON format, use log file
@@ -88,9 +287,10 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /
 - We ignore file removal errors and proceed to the next matching file.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --log-format json --use-syslog --log-file testing-master-build-removals.txt
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterqa-build-removals.txt
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
+cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
+./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --log-format json --use-syslog --log-file testing-master-build-removals.txt
+./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterqa-build-removals.txt
+./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
 ```
 
 ### Build and run from test area, no options
@@ -104,29 +304,27 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow
 
 ## References
 
-The following unordered list of sites/examples provided guidance while
-developing this application. Depending on when consulted, the original code
-written based on that guidance may no longer be present in the active version
-of this application.
+See the [docs/references.md](docs/references.md) for details.
 
-### Configuration object
+## License
 
-- <https://github.com/go-sql-driver/mysql/blob/877a9775f06853f611fb2d4e817d92479242d1cd/dsn.go#L67>
-- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/aws/config.go#L251>
-- <https://github.com/aws/aws-sdk-go/blob/master/aws/config.go>
-- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/awstesting/integration/performance/s3GetObject/config.go#L25>
-- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/awstesting/integration/performance/s3GetObject/main.go#L25>
+Taken directly from the `LICENSE` and `NOTICES.txt` files:
 
-### Sorting files
+```License
+Copyright 2019-Present Adam Chalkley
 
-- <https://stackoverflow.com/questions/46746862/list-files-in-a-directory-sorted-by-creation-time>
+https://github.com/atc0005/elbow/blob/master/LICENSE
 
-### Path/File Existence
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License at
 
-- <https://gist.github.com/mattes/d13e273314c3b3ade33f>
+    http://www.apache.org/licenses/LICENSE-2.0
 
-### Slice management
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the Licens
+```
 
-- <https://yourbasic.org/golang/delete-element-slice/>
-- <https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang>
-- <https://github.com/golang/go/wiki/SliceTricks>
+[screenshot]: media/elbow_example_text_log_format_2019-09-26.png "Colored text output example screenshot"
