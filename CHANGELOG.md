@@ -24,7 +24,9 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
-- placeholder
+### Fixed
+
+- Fix link to section in README
 
 ## [v0.2.0] - 2019-09-26
 

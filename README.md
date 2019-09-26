@@ -112,9 +112,9 @@ Tested using:
 1. `cd /path/to/this/repo`
 1. `go build`
 
-See the [Examples](#examples) or the [Configuration Options](#options)
-sections for examples of running `elbow` against these newly created test
-files.
+See the [Examples](#examples) or the [Configuration
+Options](#configuration-options) sections for examples of running `elbow`
+against these newly created test files.
 
 ## Configuration Options
 
