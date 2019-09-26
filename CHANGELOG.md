@@ -1,0 +1,93 @@
+# Changelog
+
+## Overview
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a
+Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+Please [open an issue](https://github.com/atc0005/elbow/issues) for any
+deviations that you spot; I'm still learning!.
+
+## Types of changes
+
+The following types of changes will be recorded in this file:
+
+- `Added` for new features.
+- `Changed` for changes in existing functionality.
+- `Deprecated` for soon-to-be removed features.
+- `Removed` for now removed features.
+- `Fixed` for any bug fixes.
+- `Security` in case of vulnerabilities.
+
+## [Unreleased]
+
+- placeholder
+
+## [v0.2.0] - 2019-09-26
+
+### Added
+
+Documentation:
+
+- `LICENSE` file
+- `CHANGELOG.md` file
+- `NOTICES.txt` file
+- License header to all source files
+
+Logging:
+
+- Apply leveled logging to better filter desired logging levels
+- Add (optional on Linux, unavailable on Windows) syslog logging support
+- Add optional log file support
+
+Configuration options:
+
+- (optional) Ignore errors when removing files
+- (optional) Log format (text or json, defaults to text)
+- (optional) Log level (large list, mapped where possible to syslog logging
+  levels)
+- (optional) Console output toggle (stdout or stderr)
+- (optional) Log file path (logging to a log file mutes console output)
+
+### Changed
+
+- Extensive updates to main `README.md` file
+- Additional polish for "feedback" log statements; work towards having all
+  required information set to INFO log level (which is the default)
+- Use `jessevdk/go-flags` for command-line flag support
+- Short flag names dropped
+  - There are some issues with `go-flags` misdetecting leading dashes in file
+    patterns as short flags, so instead of dealing with that right now I've
+    opted to only support long flag names
+  - `go-flags` only supports single letter short flags, and with the number of
+    flags that we're using I decided to keep things simple for now and only
+    use long flag names
+- The number of files to keep from match results is now a required flag
+
+### Removed
+
+- Feature: Short flag names
+- Package: `integrii/flaggy`
+- Package: `r3labs/diff`
+
+## [v0.1.0] - 2019-09-17
+
+### Added
+
+This initial prototype supports:
+
+- Command-line flags support via `integrii/flaggy` package
+- Matching on specified file patterns
+- Flat (single-level) or recursive search
+- Keeping a specified number of older or newer matches
+- Limiting search to specified list of extensions
+- Toggling file removal (read-only by default)
+- Go modules (vs classic GOPATH setup)
+- Brief overview, examples for testing purposes
+
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.2.0...HEAD
+[v0.2.0]: https://github.com/atc0005/elbow/releases/tag/v0.2.0
+[v0.1.0]: https://github.com/atc0005/elbow/releases/tag/v0.1.0
