@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright 2019 Adam Chalkley
 #
 # https://github.com/atc0005/elbow
@@ -14,15 +16,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-*.test
-*.exe
+TEST_DIR_PATH=$1
 
-# When building on non-Windows platform
-elbow
+PATH_TO_THIS_SCRIPT="$(dirname $(echo $0))"
 
-# UPX backup files
-elbow.ex~
-elbow.~
-
-.upx
-elbow.upx
+while read line
+do
+    touch -d $(echo $line | awk -F\- '{print $4}') /tmp/${line}
+done < ${PATH_TO_THIS_SCRIPT}/sample_files_list_dev_web_app_server.txt
