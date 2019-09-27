@@ -78,9 +78,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Infof("Evaluating path: %s", config.StartPath)
-	log.Infof("Looking for file pattern: %q", config.FilePattern)
-	log.Infof("Looking for extensions: %q", config.FileExtensions)
+	log.WithFields(logrus.Fields{
+		"path":         config.StartPath,
+		"file_pattern": config.FilePattern,
+		"extensions":   config.FileExtensions,
+		"file_age":     config.FileAge,
+	}).Info("Starting evaluation of path")
 
 	matches, err := processPath(config)
 
@@ -109,10 +112,13 @@ func main() {
 	log.Debugf("Early exit if no matching files were found.")
 	if len(matches) <= 0 {
 
-		noMatchesMessage := fmt.Sprintf("No matches found in path %q for files with substring pattern of %q and with extensions %v",
-			config.StartPath, config.FilePattern, config.FileExtensions)
+		log.WithFields(logrus.Fields{
+			"path":         config.StartPath,
+			"file_pattern": config.FilePattern,
+			"extensions":   config.FileExtensions,
+			"file_age":     config.FileAge,
+		}).Info("No matches found")
 
-		log.Info(noMatchesMessage)
 		// TODO: Not finding something is a valid outcome, so "normal" exit
 		// code?
 		os.Exit(0)

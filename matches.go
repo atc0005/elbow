@@ -21,6 +21,9 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // FileMatch represents a superset of statistics (including os.FileInfo) for a
@@ -37,7 +40,7 @@ type FileMatch struct {
 // that we're working with a slice?
 type FileMatches []FileMatch
 
-func hasValidExtension(filename string, config *Config) bool {
+func hasMatchingExtension(filename string, config *Config) bool {
 
 	// NOTE: We do NOT compare extensions insensitively. We can add that
 	// functionality in the future if needed.
@@ -54,13 +57,13 @@ func hasValidExtension(filename string, config *Config) bool {
 		return true
 	}
 
-	log.Debug("hasValidExtension: returning false for:", filename)
-	log.Debugf("hasValidExtension: returning false (%q not in %q)",
+	log.Debug("hasMatchingExtension: returning false for:", filename)
+	log.Debugf("hasMatchingExtension: returning false (%q not in %q)",
 		ext, config.FileExtensions)
 	return false
 }
 
-func hasValidFilenamePattern(filename string, config *Config) bool {
+func hasMatchingFilenamePattern(filename string, config *Config) bool {
 
 	if strings.TrimSpace(config.FilePattern) == "" {
 		log.Debug("No FilePattern has been specified!")
@@ -70,16 +73,83 @@ func hasValidFilenamePattern(filename string, config *Config) bool {
 
 	// Search for substring
 	if strings.Contains(filename, config.FilePattern) {
-		log.Debug("hasValidFilenamePattern: returning true for:", filename)
-		log.Debugf("hasValidFilenamePattern: returning true (%q contains %q)",
+		log.Debug("hasMatchingFilenamePattern: returning true for:", filename)
+		log.Debugf("hasMatchingFilenamePattern: returning true (%q contains %q)",
 			filename, config.FilePattern)
 		return true
 	}
 
-	log.Debug("hasValidFilenamePattern: returning false for:", filename)
-	log.Debugf("hasValidFilenamePattern: returning false (%q does not contain %q)",
+	log.Debug("hasMatchingFilenamePattern: returning false for:", filename)
+	log.Debugf("hasMatchingFilenamePattern: returning false (%q does not contain %q)",
 		filename, config.FilePattern)
 	return false
+}
+
+func hasMatchingAge(file os.FileInfo, config *Config) bool {
+
+	// used by this function's context logger and for return code
+	var ageCheckResults bool
+
+	now := time.Now()
+	fileModTime := file.ModTime()
+
+	// common fields that we can apply to all messages in this function
+	contextLogger := log.WithFields(logrus.Fields{
+		"file_mod_time": fileModTime.Format(time.RFC3339),
+		"current_time":  now.Format(time.RFC3339),
+		"file_age_flag": config.FileAge,
+		"filename":      file.Name(),
+	})
+
+	// The default for this flag is 0, so only a positive, non-zero number
+	// is considered for use with age matching.
+	if config.FileAge > 0 {
+
+		// Flip user specified number of days negative so that we can wind
+		// back that many days from the file modification time. This gives
+		// us our threshold to compare file modification times against.
+		daysBack := -(config.FileAge)
+		fileAgeThreshold := now.AddDate(0, 0, daysBack)
+
+		// Bundle more fields now that we have access to the data
+		contextLogger = contextLogger.WithFields(logrus.Fields{
+			"file_age_threshold": fileAgeThreshold.Format(time.RFC3339),
+			"days_back":          daysBack,
+		})
+
+		contextLogger.Debug("Before age check")
+
+		switch {
+		case fileModTime.Equal(fileAgeThreshold):
+			ageCheckResults = true
+			contextLogger.WithFields(logrus.Fields{
+				"safe_for_removal": ageCheckResults,
+			}).Debug("hasMatchingAge: file mod time is equal to threshold")
+
+		case fileModTime.Before(fileAgeThreshold):
+			ageCheckResults = true
+			contextLogger.WithFields(logrus.Fields{
+				"safe_for_removal": ageCheckResults,
+			}).Debug("hasMatchingAge: file mod time is before threshold")
+
+		case fileModTime.After(fileAgeThreshold):
+			ageCheckResults = false
+			contextLogger.WithFields(logrus.Fields{
+				"safe_for_removal": ageCheckResults,
+			}).Debug("hasMatchingAge: file mod time is after threshold")
+
+		}
+
+		return ageCheckResults
+
+	}
+
+	contextLogger.WithFields(logrus.Fields{
+		"safe_for_removal": ageCheckResults,
+	}).Debugf("hasMatchingAge: age flag was not set")
+
+	return true
+
 }
 
 // inList is a helper function to emulate Python's `if "x"

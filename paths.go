@@ -152,15 +152,20 @@ func processPath(config *Config) (FileMatches, error) {
 					return nil
 				}
 
-				// ignore invalid extensions (only applies if user chose one
-				// or more extensions to match against)
-				if !hasValidExtension(path, config) {
+				// ignore non-matching extension (only applies if user chose
+				// one or more extensions to match against)
+				if !hasMatchingExtension(path, config) {
 					return nil
 				}
 
-				// ignore invalid filename patterns (only applies if user
+				// ignore non-matching filename pattern (only applies if user
 				// specified a filename pattern)
-				if !hasValidFilenamePattern(path, config) {
+				if !hasMatchingFilenamePattern(path, config) {
+					return nil
+				}
+
+				// ignore non-matching modification age
+				if !hasMatchingAge(info, config) {
 					return nil
 				}
 
@@ -204,13 +209,18 @@ func processPath(config *Config) (FileMatches, error) {
 
 			// ignore invalid extensions (only applies if user chose one
 			// or more extensions to match against)
-			if !hasValidExtension(filename, config) {
+			if !hasMatchingExtension(filename, config) {
 				continue
 			}
 
 			// ignore invalid filename patterns (only applies if user
 			// specified a filename pattern)
-			if !hasValidFilenamePattern(filename, config) {
+			if !hasMatchingFilenamePattern(filename, config) {
+				continue
+			}
+
+			// ignore non-matching modification age
+			if !hasMatchingAge(file, config) {
 				continue
 			}
 

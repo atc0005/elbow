@@ -39,6 +39,7 @@ type Config struct {
 	FileExtensions  []string `long:"extension" description:"Limit search to specified file extension. Specify as needed to match multiple required extensions."`
 	StartPath       string   `long:"path" required:"true" description:"Path to process."`
 	RecursiveSearch bool     `long:"recurse" description:"Perform recursive search into subdirectories."`
+	FileAge         int      `long:"age" description:"Limit search to files that are the specified number of days old or older."`
 	NumFilesToKeep  int      `long:"keep" required:"true" description:"Keep specified number of matching files."`
 	KeepOldest      bool     `long:"keep-old" description:"Keep oldest files instead of newer."`
 	Remove          bool     `long:"remove" description:"Remove matched files."`
@@ -67,6 +68,7 @@ func NewConfig() *Config {
 		// Leave at default value of nil slice instead by not providing a
 		// value here
 		// FileExtensions:  []string,
+		FileAge:         0,
 		NumFilesToKeep:  0,
 		RecursiveSearch: false,
 		KeepOldest:      false,
@@ -148,6 +150,14 @@ func (c *Config) Validate() bool {
 	// a non-negative number. AFAIK, this is not currently enforced any other
 	// way.
 	if c.NumFilesToKeep < 0 {
+		return false
+	}
+
+	// We only want to work with positive file modification times 0 is
+	// acceptable as it is the default value and indicates that the user has
+	// not chosen to use the flag (or has chosen improperly and it will be
+	// ignored).
+	if c.FileAge < 0 {
 		return false
 	}
 
