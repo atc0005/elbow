@@ -24,6 +24,10 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
+- placeholder
+
+## [v0.3.0] - 2019-09-27
+
 ### Added
 
 - Add Makefile
@@ -108,6 +112,7 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.0...HEAD
+[v0.3.0]: https://github.com/atc0005/elbow/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/atc0005/elbow/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/atc0005/elbow/releases/tag/v0.1.0
