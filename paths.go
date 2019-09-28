@@ -68,7 +68,7 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 		log.WithFields(logrus.Fields{
 			"removal_enabled": config.Remove,
 			"file":            filename,
-		}).Info("Removing file", filename)
+		}).Info("Removing file")
 
 		err := os.Remove(filename)
 		if err != nil {
