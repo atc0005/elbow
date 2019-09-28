@@ -97,9 +97,13 @@ Tested using:
    1. `cd /tmp`
    1. `git clone https://github.com/atc0005/elbow`
    1. `cd elbow`
-1. Build binaries for as many supported platforms as you need to run the tool
-   1. `GOOS=windows go build`
-   1. `GOOS=linux go build`
+1. Build binaries
+   - for all supported platforms
+      - `make all`
+   - for Windows
+      - `make windows`
+   - for Linux
+     - `make linux`
 1. Copy the applicable binary to whatever systems needs to run it
    1. Linux: `/tmp/elbow/elbow`
    1. Windows: `/tmp/elbow/elbow.exe`
@@ -107,10 +111,11 @@ Tested using:
 ## Setup test environment
 
 1. Launch container, VM or WSL instance
-1. `cd /path/to/create/test/files`
-1. `touch $(cat /path/to/this/repo/testing/sample_files_list_dev_web_app_server.txt)`
-1. `cd /path/to/this/repo`
-1. `go build`
+1. Clone the repo
+   1. `cd /tmp`
+   1. `git clone https://github.com/atc0005/elbow`
+   1. `cd elbow`
+1. `make testenv`
 
 See the [Examples](#examples) or the [Configuration
 Options](#configuration-options) sections for examples of running `elbow`
