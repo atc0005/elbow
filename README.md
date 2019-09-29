@@ -115,7 +115,13 @@ Tested using:
    1. `cd /tmp`
    1. `git clone https://github.com/atc0005/elbow`
    1. `cd elbow`
-1. `make testenv`
+1. Create test files
+   - in `/tmp`
+     - `make testenv`
+     - Note: `/tmp` is the default location
+   - in a custom location (e.g., in `$HOME/tmp`)
+     - `mkdir -vp $HOME/tmp`
+     - `make testenv TESTENVDIR=$HOME/tmp`
 
 See the [Examples](#examples) or the [Configuration
 Options](#configuration-options) sections for examples of running `elbow`

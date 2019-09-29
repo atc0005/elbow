@@ -20,7 +20,12 @@ TEST_DIR_PATH=$1
 
 PATH_TO_THIS_SCRIPT="$(dirname $(echo $0))"
 
+if [[ ! -d "$TEST_DIR_PATH" ]]; then
+    echo "\"$TEST_DIR_PATH\" not found! Please create and then re-run make command."
+    exit 1
+fi
+
 while read line
 do
-    touch -d $(echo $line | awk -F\- '{print $4}') /tmp/${line}
+    touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH}/${line}
 done < ${PATH_TO_THIS_SCRIPT}/sample_files_list_dev_web_app_server.txt

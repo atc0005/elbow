@@ -26,6 +26,18 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.3.1] - 2019-09-29
+
+### Changed
+
+- Update `Makefile` (and the called `testing/setup_testenv.sh` script) to allow
+  for providing a custom location for generation of test files)
+
+### Fixed
+
+- Minor tweak to logging output to reduce duplication between main log message
+  and the structured field
+
 ## [v0.3.0] - 2019-09-27
 
 ### Added
@@ -112,7 +124,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.1...HEAD
+[v0.3.1]: https://github.com/atc0005/elbow/releases/tag/v0.3.1
 [v0.3.0]: https://github.com/atc0005/elbow/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/atc0005/elbow/releases/tag/v0.2.0
 [v0.1.0]: https://github.com/atc0005/elbow/releases/tag/v0.1.0

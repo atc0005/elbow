@@ -28,6 +28,7 @@
 
 
 OUTPUTBASEFILENAME		= elbow
+TESTENVDIR				= /tmp
 
 # The default `go build` process embeds debugging information. Building
 # without that debugging information reduces the binary size by around 28%.
@@ -54,9 +55,9 @@ help:
 	@echo "  testenv        setup test environment in Windows Subsystem for Linux or other Linux system"
 
 testenv:
-	@echo "Setting up test environment"
-	@bash testing/setup_testenv.sh "/tmp"
-	@echo "Finished creating test files"
+	@echo "Setting up test environment in \"$(TESTENVDIR)\""
+	@bash testing/setup_testenv.sh "$(TESTENVDIR)"
+	@echo "Finished creating test files in \"$(TESTENVDIR)\""
 
 goclean:
 	@echo "Removing object files and cached files ..."
