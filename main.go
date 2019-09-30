@@ -36,7 +36,7 @@ func main() {
 	appName := "Elbow"
 	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
 
-	log.Debug("Contructing config object")
+	log.Debug("Constructing config object")
 
 	// If this fails, the application will immediately exit.
 	config := NewConfig().SetupFlags(appName, appDesc)

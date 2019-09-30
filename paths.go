@@ -124,7 +124,7 @@ func processPath(config *Config) (FileMatches, error) {
 	var err error
 
 	log.WithFields(logrus.Fields{
-		"resursive_search": config.RecursiveSearch,
+		"recursive_search": config.RecursiveSearch,
 	}).Debugf("Recursive search: %t", config.RecursiveSearch)
 
 	if config.RecursiveSearch {

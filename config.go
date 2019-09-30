@@ -49,7 +49,7 @@ type Config struct {
 	LogFileHandle   *os.File `no-flag:"true"`
 	ConsoleOutput   string   `long:"console-output" choice:"stdout" choice:"stderr" default:"stdout" description:"Specify how log messages are logged to the console."`
 	LogLevel        string   `long:"log-level" choice:"emergency" choice:"alert" choice:"critical" choice:"panic" choice:"fatal" choice:"error" choice:"warn" choice:"info" choice:"notice" choice:"debug" choice:"trace" default:"info" description:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	UseSyslog       bool     `long:"use-syslog" description:"Log messages to syslog in addition to other ouputs. Not supported on Windows."`
+	UseSyslog       bool     `long:"use-syslog" description:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // NewConfig returns a new Config pointer that can be chained with builder
@@ -132,7 +132,7 @@ func (c *Config) SetupFlags(appName string, appDesc string) *Config {
 
 }
 
-// Validate verifies all struct fields have been provided accceptable
+// Validate verifies all struct fields have been provided acceptable
 func (c *Config) Validate() bool {
 
 	// FilePattern is optional
