@@ -82,6 +82,12 @@ official release is also provided.
   - unsure what version; whatever the dependencies in `go.mod` require
 - Linux (if using Syslog support)
   - macOS and UNIX systems have not been tested
+- GCC
+  - if building with custom options (as the provided `Makefile` does)
+- `make`
+  - if using the provided `Makefile`
+- UPX
+  - if using the provided `Makefile`
 
 Tested using:
 
@@ -97,7 +103,15 @@ Tested using:
    1. `cd /tmp`
    1. `git clone https://github.com/atc0005/elbow`
    1. `cd elbow`
-1. Build binaries
+1. Install dependencies (optional)
+   - for Ubuntu Linux
+     - `sudo apt-get install make gcc upx`
+   - for CentOS Linux
+     1. `sudo yum install make gcc epel-release`
+     1. `sudo yum install upx`
+1. Build
+   - for current operating system with default `go` build options
+     - `go build`
    - for all supported platforms
       - `make all`
    - for Windows
