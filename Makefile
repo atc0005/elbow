@@ -30,9 +30,13 @@
 OUTPUTBASEFILENAME		= elbow
 TESTENVDIR				= /tmp
 
+# https://gist.github.com/TheHippo/7e4d9ec4b7ed4c0d7a39839e6800cc16
+# https://github.com/atc0005/elbow/issues/54
+VERSION 				= $(shell git describe --always --long --dirty)
+
 # The default `go build` process embeds debugging information. Building
 # without that debugging information reduces the binary size by around 28%.
-BUILDCMD				=	go build -a -ldflags="-s -w"
+BUILDCMD				=	go build -a -ldflags="-s -w -X main.version=${VERSION}"
 BINARYPACKCMD			=	upx -f --brute
 GOCLEANCMD				=	go clean
 GITCLEANCMD				= 	git clean -xfd
