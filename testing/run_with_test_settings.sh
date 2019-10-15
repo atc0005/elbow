@@ -1,0 +1,112 @@
+#!/bin/bash
+
+# Purpose: Small wrapper script to build and call binary with environment
+# variables already configured.
+
+
+# Copyright 2019 Adam Chalkley
+#
+# https://github.com/atc0005/elbow
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+BINARY_NAME="$1"
+WORK_PATH="$2"
+
+# Use default build options
+go build
+
+# See README for complete list of environment variables
+export ELBOW_PATH="${WORK_PATH}"
+export ELBOW_FILE_PATTERN="reach-masterdev-"
+export ELBOW_EXTENSIONS=".war,.tmp"
+export ELBOW_KEEP=1
+export ELBOW_FILE_AGE=1
+export ELBOW_RECURSE="true"
+export ELBOW_KEEP_OLD="true"
+export ELBOW_IGNORE_ERRORS="true"
+export ELBOW_LOG_LEVEL="lizard"
+export ELBOW_USE_SYSLOG="false"
+export ELBOW_LOG_FORMAT="json"
+export ELBOW_REMOVE="false"
+#export ELBOW_LOG_FILE="testing-masterqa-build-removals.txt"
+
+echo -e "\n\nCalling ${BINARY_NAME} without flags; rely on env vars\n"
+./${BINARY_NAME}
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+# Test drive --extensions flag
+echo -e "\n\nCalling ${BINARY_NAME} with extensions flag specified\n"
+./${BINARY_NAME} \
+  --path /tmp \
+  --extensions ".war" ".tmp" \
+  --pattern "" \
+  --keep 1 \
+  --recurse \
+  --keep-old \
+  --ignore-errors \
+  --log-level info \
+  --use-syslog \
+  --log-format text \
+  --console-output "stdout"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+# Confirm that precedence works as expected
+echo -e "\n\nCalling ${BINARY_NAME} with flags; override env vars\n"
+./${BINARY_NAME} \
+  --path /tmp \
+  --keep 1 \
+  --recurse \
+  --keep-old \
+  --ignore-errors \
+  --log-level info \
+  --use-syslog \
+  --log-format text \
+  --console-output "stdout" \
+  --remove
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+# Provide invalid option
+echo -e "\n\nCalling ${BINARY_NAME} with invalid flag"
+echo -e "This will result in several Makefile errors:\n"
+echo -e "    Makefile:66: recipe for target 'testrun' failed\n    make: *** [testrun] Error 1\n"
+#read -p "Press enter to continue"
+
+./${BINARY_NAME} \
+  --path /tmp \
+  --keep 1 \
+  --recurse \
+  --keep-old \
+  --ignore-errors \
+  --log-level info \
+  --use-syslog \
+  --log-format text \
+  --console-output "tacos"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi

@@ -36,6 +36,8 @@ BUILDCMD				=	go build -a -ldflags="-s -w"
 BINARYPACKCMD			=	upx -f --brute
 GOCLEANCMD				=	go clean
 GITCLEANCMD				= 	git clean -xfd
+TESTENVCMD				=   bash testing/setup_testenv.sh
+TESTRUNCMD				=   bash testing/run_with_test_settings.sh
 
 .DEFAULT_GOAL := help
 
@@ -53,11 +55,17 @@ help:
 	@echo "  windows        to generate a binary file for Windows"
 	@echo "  linux          to generate a binary file for Linux distros"
 	@echo "  testenv        setup test environment in Windows Subsystem for Linux or other Linux system"
+	@echo "  testrun        use wrapper script to call binary with test settings"
 
 testenv:
 	@echo "Setting up test environment in \"$(TESTENVDIR)\""
-	@bash testing/setup_testenv.sh "$(TESTENVDIR)"
+	@$(TESTENVCMD) "$(TESTENVDIR)"
 	@echo "Finished creating test files in \"$(TESTENVDIR)\""
+
+testrun:
+	@echo "Calling wrapper script: $(TESTRUNCMD)"
+	@$(TESTRUNCMD) "$(OUTPUTBASEFILENAME)" "$(TESTENVDIR)"
+	@echo "Finished running wrapper script"
 
 goclean:
 	@echo "Removing object files and cached files ..."

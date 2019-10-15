@@ -16,7 +16,6 @@ module github.com/atc0005/elbow
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 // Based on some reading in https://github.com/golang/go/wiki/Modules, the
 // behavior for `go get -u` changed to allow more conservative updates of
 // dependencies. The new behavior sounds more natural and is less likely to
@@ -25,7 +24,7 @@ module github.com/atc0005/elbow
 go 1.13
 
 require (
-	github.com/jessevdk/go-flags v1.4.0
+	github.com/alexflint/go-arg v1.1.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/stretchr/testify v1.4.0 // indirect
 )

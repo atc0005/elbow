@@ -12,6 +12,7 @@ Elbow, Elbow grease.
   - [How to install it](#how-to-install-it)
   - [Setup test environment](#setup-test-environment)
   - [Configuration Options](#configuration-options)
+    - [Precedence](#precedence)
     - [Command-line Arguments](#command-line-arguments)
     - [Environment Variables](#environment-variables)
     - [Configuration File](#configuration-file)
@@ -22,8 +23,8 @@ Elbow, Elbow grease.
       - [JSON format](#json-format)
     - [Help Output](#help-output)
     - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
-    - [... keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
-    - [... log in JSON format, use log file](#log-in-json-format-use-log-file)
+    - [Keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
+    - [Keep log in JSON format, use log file](#keep-log-in-json-format-use-log-file)
     - [Build and run from test area, no options](#build-and-run-from-test-area-no-options)
   - [References](#references)
   - [License](#license)
@@ -53,8 +54,10 @@ would otherwise completely clog a filesystem.
 ## Features
 
 - Extensive command-line flags with detailed help output
-  - including default values and valid choices, thanks to the
-    `jessevdk/go-flags` package
+- (Optional) Use environment variables instead of or in addition to
+  command-line arguments
+  - Note: See the [Precedence](#precedence) list for how multiple
+    configuration sources are processed
 - Match on specified file patterns
 - Flat (single-level) or recursive search
 - Keep a specified number of older or newer matches
@@ -66,7 +69,7 @@ would otherwise completely clog a filesystem.
   - Text or JSON log formats
 - (Optional) Ignore errors encountered when removing files
 
-Worth noting: This project uses Go modules (vs classic GOPATH setup)
+Worth noting: This project uses Go modules (vs classic `GOPATH` setup)
 
 ## Changelog
 
@@ -142,6 +145,15 @@ against these newly created test files.
 
 ## Configuration Options
 
+### Precedence
+
+The priority order is:
+
+1. Command line flags (highest priority)
+1. Configuration file
+   - **Not supported yet**
+1. Environment variables (lowest priority)
+
 ### Command-line Arguments
 
 Aside from the built-in `-h`, short flag names are currently not supported.
@@ -151,7 +163,7 @@ Aside from the built-in `-h`, short flag names are currently not supported.
 | `keep`           | Yes      | N/A            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
 | `path`           | Yes      | N/A            | No     | *valid directory path*                                                                                  | Path to process.                                                                                         |
 | `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                             |
-| `extension`      | No       | *empty list*   | Yes    | *valid file extension*                                                                                  | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
+| `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
 | `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                            |
 | `keep-old`       | No       | `false`        | No     | `true`, `false`                                                                                         | Keep oldest files instead of newer.                                                                      |
 | `remove`         | Maybe    | `false`        | No     | `true`, `false`                                                                                         | Remove matched files. The default behavior is to only note what matching files *would* be removed.       |
@@ -164,7 +176,25 @@ Aside from the built-in `-h`, short flag names are currently not supported.
 
 ### Environment Variables
 
-Not yet supported.
+If set, command-line arguments override the equivalent environment variables
+listed below. See the [Command-line Arguments](#command-line-arguments) table
+for more information.
+
+| Flag Name        | Environment Variable Name | Notes                        | Example                                                     |
+| ---------------- | ------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| `keep`           | `ELBOW_KEEP`              |                              | `ELBOW_KEEP=1`                                              |
+| `path`           | `ELBOW_PATH`              |                              | `ELBOW_PATH="/tmp"`                                         |
+| `pattern`        | `ELBOW_FILE_PATTERN`      |                              | `ELBOW_FILE_PATTERN="reach-masterdev-"`                     |
+| `extensions`     | `ELBOW_EXTENSIONS`        | *Comma-separated, no spaces* | `ELBOW_EXTENSIONS=".war,.tmp"`                              |
+| `recurse`        | `ELBOW_RECURSE`           |                              | `ELBOW_RECURSE="true"`                                      |
+| `keep-old`       | `ELBOW_KEEP_OLD`          |                              | `ELBOW_KEEP_OLD="true"`                                     |
+| `remove`         | `ELBOW_REMOVE`            |                              | `ELBOW_REMOVE="false"`                                      |
+| `ignore-errors`  | `ELBOW_IGNORE_ERRORS`     |                              | `ELBOW_IGNORE_ERRORS="true"`                                |
+| `log-format`     | `ELBOW_LOG_FORMAT`        |                              | `ELBOW_LOG_FORMAT="json"`                                   |
+| `log-file`       | `ELBOW_LOG_FILE`          |                              | `ELBOW_LOG_FILE="/tmp/testing-masterqa-build-removals.txt"` |
+| `console-output` | `ELBOW_CONSOLE_OUTPUT`    |                              | `ELBOW_CONSOLE_OUTPUT="stdout"`                             |
+| `log-level`      | `ELBOW_LOG_LEVEL`         |                              | `ELBOW_LOG_LEVEL="debug"`                                   |
+| `use-syslog`     | `ELBOW_USE_SYSLOG`        |                              | `ELBOW_USE_SYSLOG="true"`                                   |
 
 ### Configuration File
 
@@ -255,26 +285,34 @@ $ ./elbow --path /tmp --pattern "reach-master" --keep 1 --recurse --keep-old --i
 
 ```ShellSession
 $ ./elbow --help
-Usage:
-  elbow [OPTIONS]
+Elbow prunes content matching specific patterns, either in a single directory or recursively through a directory tree.
 
-Application Options:
-      --pattern=                                                                            Substring pattern to compare filenames against. Wildcards are not supported.
-      --extension=                                                                          Limit search to specified file extension. Specify as needed to match multiple required extensions.
-      --path=                                                                               Path to process.
-      --recurse                                                                             Perform recursive search into subdirectories.
-      --keep=                                                                               Keep specified number of matching files.
-      --keep-old                                                                            Keep oldest files instead of newer.
-      --remove                                                                              Remove matched files.
-      --ignore-errors                                                                       Ignore errors encountered during file removal.
-      --log-format=[text|json]                                                              Log formatter used by logging package. (default: text)
-      --log-file=                                                                           Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
-      --console-output=[stdout|stderr]                                                      Specify how log messages are logged to the console. (default: stdout)
-      --log-level=[emergency|alert|critical|panic|fatal|error|warn|info|notice|debug|trace] Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. (default: info)
-      --use-syslog                                                                          Log messages to syslog in addition to other ouputs. Not supported on Windows.
+ELBOW x.y.z
+https://github.com/atc0005/elbow
 
-Help Options:
-  -h, --help                                                                                Show this help message
+Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--path PATH] [--recurse] [--age AGE] [--keep KEEP] [--keep-old] [--remove] [--ignore-errors] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--log-level LOG-LEVEL] [--use-syslog]
+
+Options:
+  --pattern PATTERN      Substring pattern to compare filenames against. Wildcards are not supported.
+  --extensions EXTENSIONS
+                         Limit search to specified file extensions. Specify as space separated list to match multiple required extensions.
+  --path PATH            Path to process.
+  --recurse              Perform recursive search into subdirectories.
+  --age AGE              Limit search to files that are the specified number of days old or older.
+  --keep KEEP            Keep specified number of matching files.
+  --keep-old             Keep oldest files instead of newer.
+  --remove               Remove matched files.
+  --ignore-errors        Ignore errors encountered during file removal.
+  --log-format LOG-FORMAT
+                         Log formatter used by logging package. [default: text]
+  --log-file LOG-FILE    Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
+  --console-output CONSOLE-OUTPUT
+                         Specify how log messages are logged to the console. [default: stdout]
+  --log-level LOG-LEVEL
+                         Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. [default: info]
+  --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows.
+  --help, -h             display this help and exit
+  --version              display version and exit
 ```
 
 ### Prune `.war` files from each branch recursively, keep newest 2
@@ -283,12 +321,12 @@ Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
 cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
-./elbow --path /tmp --extension ".war" --pattern "reach-master-" --keep 2 --recurse --remove
-./elbow --path /tmp --extension ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
-./elbow --path /tmp --extension ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
+./elbow --path /tmp --extensions ".war" --pattern "reach-master-" --keep 2 --recurse --remove
+./elbow --path /tmp --extensions ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
+./elbow --path /tmp --extensions ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
 ```
 
-### ... keep oldest 1, debug logging, ignore errors, use syslog
+### Keep oldest 1, debug logging, ignore errors, use syslog
 
 Note: Leave off `--remove` to display what *would* be removed.
 
@@ -299,7 +337,7 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
 ./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
 ```
 
-### ... log in JSON format, use log file
+### Keep log in JSON format, use log file
 
 - These examples attempt to create a log file in the current directory, which is `/tmp` in this case.
 - The default logging format is `text` unless overridden; here we specify `json`.
