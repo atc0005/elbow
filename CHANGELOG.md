@@ -27,6 +27,8 @@ The following types of changes will be recorded in this file:
 ### Fixed
 
 - Update `String()` method to include new fields
+- Log config field values after setting logging level so that they're visible
+  when choosing to log at `debug` level
 
 ## [v0.3.1] - 2019-09-29
 
