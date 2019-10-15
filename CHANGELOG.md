@@ -24,7 +24,9 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
-- placeholder
+### Fixed
+
+- Update `String()` method to include new fields
 
 ## [v0.3.1] - 2019-09-29
 
