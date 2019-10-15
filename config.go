@@ -188,17 +188,22 @@ func (c *Config) Validate() bool {
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, LogFormat=%q, LogFilePath=%q, UseSyslog=%t",
+	return fmt.Sprintf("FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t",
 
 		c.FilePattern,
 		c.FileExtensions,
 		c.StartPath,
 		c.RecursiveSearch,
+		c.FileAge,
 		c.NumFilesToKeep,
 		c.KeepOldest,
 		c.Remove,
+		c.IgnoreErrors,
 		c.LogFormat,
 		c.LogFilePath,
+		c.LogFileHandle,
+		c.ConsoleOutput,
+		c.LogLevel,
 		c.UseSyslog,
 	)
 }
