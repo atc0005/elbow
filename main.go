@@ -43,15 +43,6 @@ func main() {
 
 	log.Debug("Config object created")
 
-	defaultConfig := NewConfig()
-	log.WithFields(logrus.Fields{
-		"defaultConfig": defaultConfig,
-	}).Debug("Default configuration")
-
-	log.WithFields(logrus.Fields{
-		"config": config,
-	}).Debug("Our configuration")
-
 	// Validate configuration
 	// TODO: How much of this work does go-flags handle for us?
 	// TODO: Best practice to return an `error` here, even if it is nil?
@@ -65,6 +56,15 @@ func main() {
 	// Apply our custom logging settings on top of the existing global `log`
 	// object (which uses default settings)
 	setLoggerConfig(config, log)
+
+	defaultConfig := NewConfig()
+	log.WithFields(logrus.Fields{
+		"defaultConfig": defaultConfig,
+	}).Debug("Default configuration")
+
+	log.WithFields(logrus.Fields{
+		"config": config,
+	}).Debug("Our configuration")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if config.LogFileHandle != nil {
