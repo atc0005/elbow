@@ -2,6 +2,8 @@
 
 Elbow, Elbow grease.
 
+[![Latest Release](https://img.shields.io/github/release/atc0005/elbow.svg?style=flat-square)](https://github.com/atc0005/elbow/releases/latest)
+
 - [elbow](#elbow)
   - [Project home](#project-home)
   - [Purpose](#purpose)
