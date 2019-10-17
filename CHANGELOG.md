@@ -24,15 +24,37 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
+- placeholder
+
+## [v0.4.0] - 2019-10-17 (PENDING)
+
+### Added
+
+- Support for environment variables via `alexflint/go-arg` package
+- `Makefile` command: `testrun`
+
 ### Changed
 
+- `--extension` (multi-use) flag is now `--extensions` (single call, multiple values supported
+  - See [README](README.md) for usage
+- Replaced `jessevdk/go-flags` package with `alexflint/go-arg`
+- Improve configuration validation to accommodate lack of native `go-arg`
+  support for enforcing specific flag values
+- `Makefile`
+  - TODO: Add more info here
 - `go.mod` updated to use Go 1.13 as the base version
-  - Based on some reading in <https://github.com/golang/go/wiki/Modules,> the
+  - Based on some reading in <https://github.com/golang/go/wiki/Modules>, the
     behavior for `go get -u` changed to allow more conservative updates of
     dependencies. The new behavior sounds more natural and is less likely to
     surprise newcomers, so locking the base behavior to Go 1.13 sounds like a
     "Good Thing" to do here.
 - README updated to note Go 1.13 as the base version
+
+### Removed
+
+- `jessevdk/go-flags` package replaced with `alexflint/go-arg`
+
+### Fixed
 
 ## [v0.3.2] - 2019-10-16
 
@@ -149,7 +171,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.4.0...HEAD
+[v0.4.0]: https://github.com/atc0005/elbow/releases/tag/v0.4.0
 [v0.3.2]: https://github.com/atc0005/elbow/releases/tag/v0.3.2
 [v0.3.1]: https://github.com/atc0005/elbow/releases/tag/v0.3.1
 [v0.3.0]: https://github.com/atc0005/elbow/releases/tag/v0.3.0

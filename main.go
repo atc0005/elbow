@@ -32,32 +32,33 @@ var log = logrus.New()
 
 func main() {
 
-	// TODO: Can this info be set using go-flags? An interface for this?
-	appName := "Elbow"
-	appDesc := "Prune content matching specific patterns, either in a single directory or recursively through a directory tree."
-
 	log.Debug("Constructing config object")
 
 	// If this fails, the application will immediately exit.
-	config := NewConfig().SetupFlags(appName, appDesc)
+	config := NewConfig()
+	defaultConfig := NewConfig()
 
 	log.Debug("Config object created")
 
 	// Validate configuration
-	// TODO: How much of this work does go-flags handle for us?
-	// TODO: Best practice to return an `error` here, even if it is nil?
-	if ok := config.Validate(); !ok {
-		// NOTE: We're not using `log` here as the configuration could be too
-		// botched to use reliably.
-		fmt.Println("configuration validation failed")
+	if ok, err := config.Validate(); !ok {
+		// NOTE: We're not using `log` here as the user-specified
+		// configuration could be too botched to use reliably.
+
+		// Provide user with error and valid usage details
+		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
+		config.FlagParser.WriteUsage(os.Stdout)
 		os.Exit(1)
+
+		// failMessage := fmt.Sprint("configuration validation failed: ", err)
+		// config.FlagParser.Fail(failMessage)
+
 	}
 
 	// Apply our custom logging settings on top of the existing global `log`
 	// object (which uses default settings)
 	setLoggerConfig(config, log)
 
-	defaultConfig := NewConfig()
 	log.WithFields(logrus.Fields{
 		"defaultConfig": defaultConfig,
 	}).Debug("Default configuration")
@@ -126,7 +127,13 @@ func main() {
 
 	var filesToPrune FileMatches
 
-	log.Infof("%d files eligible for removal", len(matches))
+	log.WithFields(logrus.Fields{
+		"path":         config.StartPath,
+		"file_pattern": config.FilePattern,
+		"extensions":   config.FileExtensions,
+		"file_age":     config.FileAge,
+	}).Infof("%d files eligible for removal", len(matches))
+
 	log.WithFields(logrus.Fields{
 		"keep_oldest": config.KeepOldest,
 	}).Infof("%d files to keep as requested", config.NumFilesToKeep)
@@ -174,6 +181,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Infof("%s successfully completed.", appName)
+	log.Infof("%s successfully completed.", config.AppName)
 
 }
