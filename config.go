@@ -120,10 +120,9 @@ func NewConfig() *Config {
 	config.AppDescription = "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
 	config.AppURL = "https://github.com/atc0005/elbow"
 
-	// TODO: Set this value via programatic build tag, likely based off of
-	// the latest Git tag + a 'dev' suffix if on a branch, or sans suffix
-	// if we can confirm that we've checked out a tag directly.
-	config.AppVersion = "x.y.z"
+	// `version` is a global variable set via programatic build tag, by our
+	// Makefile.
+	config.AppVersion = version
 
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the

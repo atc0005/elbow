@@ -30,6 +30,10 @@ import (
 // functions
 var log = logrus.New()
 
+// VERSION represents the version of this application. Set externally during
+// build by our Makefile
+var version = "x.y.z"
+
 func main() {
 
 	log.Debug("Constructing config object")
