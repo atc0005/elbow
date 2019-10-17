@@ -24,9 +24,16 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
+- placeholder
+
+## [v0.3.2] - 2019-10-16
+
 ### Fixed
 
-- Update `String()` method to include new fields
+- README: Add package dependencies and install steps
+- Fix miscellaneous spelling errors
+  - credit: `Code Spell Checker` VSCode extension
+- Update `Config.String()` method to include new fields
 - Log config field values after setting logging level so that they're visible
   when choosing to log at `debug` level
 - Remove placeholder text from README file that has since been superseded by
@@ -134,7 +141,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.3.2...HEAD
+[v0.3.2]: https://github.com/atc0005/elbow/releases/tag/v0.3.2
 [v0.3.1]: https://github.com/atc0005/elbow/releases/tag/v0.3.1
 [v0.3.0]: https://github.com/atc0005/elbow/releases/tag/v0.3.0
 [v0.2.0]: https://github.com/atc0005/elbow/releases/tag/v0.2.0
