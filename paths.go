@@ -63,16 +63,21 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 	for _, file := range files {
 
-		filename := file.Name()
-
 		log.WithFields(logrus.Fields{
 			"removal_enabled": config.Remove,
-			"file":            filename,
+
+			// fully-qualified path to the file
+			"file": file.Path,
 		}).Info("Removing file")
 
-		err := os.Remove(filename)
+		// We need to reference the full path here, not the short name since
+		// the current working directory may not be the same directory
+		// where the file is located
+		err := os.Remove(file.Path)
 		if err != nil {
 			log.WithFields(logrus.Fields{
+
+				// Include full details for troubleshooting purposes
 				"file": file,
 			}).Errorf("Error encountered while removing file: %s", err)
 

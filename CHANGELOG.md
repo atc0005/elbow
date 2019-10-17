@@ -31,6 +31,10 @@ The following types of changes will be recorded in this file:
   when choosing to log at `debug` level
 - Remove placeholder text from README file that has since been superseded by
   real content
+- Fix file removal bug by using fully-qualified path to file instead of
+  shortname
+  - the bug was due to an unintentional assumption that the file to be removed
+    was within the current working directory
 
 ## [v0.3.1] - 2019-09-29
 
