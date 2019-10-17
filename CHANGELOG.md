@@ -26,10 +26,11 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
-## [v0.4.0] - 2019-10-17 (PENDING)
+## [v0.4.0] - 2019-10-17
 
 ### Added
 
+- Latest Release badge on README
 - Support for environment variables via `alexflint/go-arg` package
 - `Makefile`
   - command: `testrun`
@@ -57,6 +58,9 @@ The following types of changes will be recorded in this file:
 - `jessevdk/go-flags` package replaced with `alexflint/go-arg`
 
 ### Fixed
+
+- Typo in license text
+- Replace lightweight Git tags with annotated tags
 
 ## [v0.3.2] - 2019-10-16
 
