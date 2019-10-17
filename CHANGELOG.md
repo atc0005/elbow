@@ -31,7 +31,9 @@ The following types of changes will be recorded in this file:
 ### Added
 
 - Support for environment variables via `alexflint/go-arg` package
-- `Makefile` command: `testrun`
+- `Makefile`
+  - command: `testrun`
+  - Set `version` global variable in `main` package based on `git describe`
 
 ### Changed
 
