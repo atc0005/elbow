@@ -143,10 +143,6 @@ against these newly created test files.
 
 ## Configuration Options
 
-Placeholder. Add table of all command-line flags here with a very brief
-explanation of what they're used for and whether they're required (should be
-listed first) or optional (listed last).
-
 ### Command-line Arguments
 
 Aside from the built-in `-h`, short flag names are currently not supported.
