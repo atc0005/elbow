@@ -344,7 +344,7 @@ License at
 Unless required by applicable law or agreed to in writing, software distributed
 under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the Licens
+specific language governing permissions and limitations under the License.
 ```
 
 [screenshot]: media/elbow_example_text_log_format_2019-09-26.png "Colored text output example screenshot"
