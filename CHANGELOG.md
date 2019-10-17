@@ -24,7 +24,15 @@ The following types of changes will be recorded in this file:
 
 ## [Unreleased]
 
-- placeholder
+### Changed
+
+- `go.mod` updated to use Go 1.13 as the base version
+  - Based on some reading in <https://github.com/golang/go/wiki/Modules,> the
+    behavior for `go get -u` changed to allow more conservative updates of
+    dependencies. The new behavior sounds more natural and is less likely to
+    surprise newcomers, so locking the base behavior to Go 1.13 sounds like a
+    "Good Thing" to do here.
+- README updated to note Go 1.13 as the base version
 
 ## [v0.3.2] - 2019-10-16
 

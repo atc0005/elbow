@@ -78,8 +78,7 @@ official release is also provided.
 
 ## Requirements
 
-- Go (for building)
-  - unsure what version; whatever the dependencies in `go.mod` require
+- Go 1.13+ (for building)
 - Linux (if using Syslog support)
   - macOS and UNIX systems have not been tested
 - GCC
@@ -91,7 +90,7 @@ official release is also provided.
 
 Tested using:
 
-- Go 1.12+
+- Go 1.13+
 - Windows 10 Version 1803+
 - Ubuntu Linux 16.04+
 
