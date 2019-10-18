@@ -123,7 +123,7 @@ func pathExists(path string) bool {
 
 }
 
-func processPath(config *Config) (FileMatches, error) {
+func processPath(config *Config, path string) (FileMatches, error) {
 
 	var matches FileMatches
 	var err error
@@ -140,7 +140,7 @@ func processPath(config *Config) (FileMatches, error) {
 		// function. The files are walked in lexical order, which makes the output
 		// deterministic but means that for very large directories Walk can be
 		// inefficient. Walk does not follow symbolic links.
-		err = filepath.Walk(config.StartPath, func(path string, info os.FileInfo, err error) error {
+		err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 
 			// If an error is received, return it. If we return a non-nil error, this
 			// will stop the filepath.Walk() function from continuing to walk the
@@ -193,7 +193,7 @@ func processPath(config *Config) (FileMatches, error) {
 		// err is already declared earlier at a higher scope, so do not
 		// redeclare here
 		var files []os.FileInfo
-		files, err = ioutil.ReadDir(config.StartPath)
+		files, err = ioutil.ReadDir(path)
 
 		if err != nil {
 			// TODO: Do we really want to exit early at this point if there are

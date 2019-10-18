@@ -22,13 +22,14 @@
 
 
 BINARY_NAME="$1"
-WORK_PATH="$2"
+PATH1="$2"
+PATH2="$3"
 
 # Use default build options
 go build
 
 # See README for complete list of environment variables
-export ELBOW_PATH="${WORK_PATH}"
+export ELBOW_PATHS="${PATH1}"
 export ELBOW_FILE_PATTERN="reach-masterdev-"
 export ELBOW_EXTENSIONS=".war,.tmp"
 export ELBOW_KEEP=1
@@ -50,10 +51,48 @@ if [[ $? -ne 0 ]]; then
   sleep 3
 fi
 
-# Test drive --extensions flag
-echo -e "\n\nCalling ${BINARY_NAME} with extensions flag specified\n"
+echo -e "\n\nCalling ${BINARY_NAME} with 1 path, 2 extensions specified\n"
 ./${BINARY_NAME} \
-  --path /tmp \
+  --paths "${PATH1}" \
+  --extensions ".war" ".tmp" \
+  --pattern "" \
+  --keep 1 \
+  --recurse \
+  --keep-old \
+  --ignore-errors \
+  --log-level info \
+  --use-syslog \
+  --log-format text \
+  --console-output "stdout"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+
+echo -e "\n\nCalling ${BINARY_NAME} with 2 paths and 2 extensions specified\n"
+./${BINARY_NAME} \
+  --paths "${PATH1}" "${PATH2}" \
+  --extensions ".war" ".tmp" \
+  --pattern "" \
+  --keep 1 \
+  --recurse \
+  --keep-old \
+  --ignore-errors \
+  --log-level info \
+  --use-syslog \
+  --log-format text \
+  --console-output "stdout"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+echo -e "\n\nCalling ${BINARY_NAME} with 2 paths (one good, one bad) and 2 extensions specified\n"
+./${BINARY_NAME} \
+  --paths "/tmp3" "${PATH1}" \
   --extensions ".war" ".tmp" \
   --pattern "" \
   --keep 1 \
@@ -73,7 +112,7 @@ fi
 # Confirm that precedence works as expected
 echo -e "\n\nCalling ${BINARY_NAME} with flags; override env vars\n"
 ./${BINARY_NAME} \
-  --path /tmp \
+  --paths "${PATH1}" \
   --keep 1 \
   --recurse \
   --keep-old \
@@ -96,7 +135,7 @@ echo -e "    Makefile:66: recipe for target 'testrun' failed\n    make: *** [tes
 #read -p "Press enter to continue"
 
 ./${BINARY_NAME} \
-  --path /tmp \
+  --paths "${PATH1}" \
   --keep 1 \
   --recurse \
   --keep-old \

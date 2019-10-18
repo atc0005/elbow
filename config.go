@@ -39,17 +39,17 @@ type FileHandlingOptions struct {
 	FilePattern    string   `arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
 	FileAge        int      `arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep int      `arg:"--keep,env:ELBOW_KEEP" arg:"required" help:"Keep specified number of matching files."`
-	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer."`
-	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files."`
+	NumFilesToKeep int      `arg:"--keep,env:ELBOW_KEEP" arg:"required" help:"Keep specified number of matching files per provided path."`
+	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
 	IgnoreErrors   bool     `arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // SearchOptions represents options specific to controlling how this
 // application performs searches in the filesystem
 type SearchOptions struct {
-	StartPath       string `arg:"--path,env:ELBOW_PATH" arg:"required" help:"Path to process."`
-	RecursiveSearch bool   `arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories."`
+	Paths           []string `arg:"--paths,env:ELBOW_PATHS" arg:"required" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch bool     `arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // LoggingOptions represents options specific to how this application handles
@@ -93,7 +93,7 @@ func NewConfig() *Config {
 	// Explicitly initialize with intended defaults
 	// TODO: Add defaults to `Config{}` once
 	// https://github.com/alexflint/go-arg/pull/91 lands.
-	config.StartPath = ""
+	//config.Paths = []string
 	config.FilePattern = ""
 
 	// NOTE: This creates an empty slice (not nil since there is an
@@ -163,8 +163,8 @@ func (c Config) Validate() (bool, error) {
 	// FileExtensions is optional
 	//   Discovered files are checked against FileExtensions later
 
-	if len(c.StartPath) == 0 {
-		return false, fmt.Errorf("path not provided")
+	if len(c.Paths) == 0 {
+		return false, fmt.Errorf("one or more paths not provided")
 	}
 
 	// RecursiveSearch is optional
@@ -242,7 +242,7 @@ func (c Config) Validate() (bool, error) {
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, FilePattern=%q, FileExtensions=%q, StartPath=%q, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t",
+	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t",
 
 		// TODO: Finish syncing this against the config struct fields
 		c.AppName,
@@ -250,7 +250,7 @@ func (c *Config) String() string {
 		c.AppVersion,
 		c.FilePattern,
 		c.FileExtensions,
-		c.StartPath,
+		c.Paths,
 		c.RecursiveSearch,
 		c.FileAge,
 		c.NumFilesToKeep,

@@ -16,16 +16,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-TEST_DIR_PATH=$1
+TEST_DIR_PATH1=$1
+TEST_DIR_PATH2=$2
 
 PATH_TO_THIS_SCRIPT="$(dirname $(echo $0))"
 
-if [[ ! -d "$TEST_DIR_PATH" ]]; then
-    echo "\"$TEST_DIR_PATH\" not found! Please create and then re-run make command."
+# Attempt to create paths specified by Makefile
+mkdir -vp "${TEST_DIR_PATH1}"
+mkdir -vp "${TEST_DIR_PATH2}"
+
+# Fail if paths were not successfully created
+if [[ ! -d "$TEST_DIR_PATH1" ]]; then
+    echo "\"$TEST_DIR_PATH1\" not found! Please create and then re-run make command."
+    exit 1
+elif [[ ! -d "$TEST_DIR_PATH2" ]]; then
+    echo "\"$TEST_DIR_PATH2\" not found! Please create and then re-run make command."
     exit 1
 fi
 
 while read line
 do
-    touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH}/${line}
+    touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH1}/${line}
+    touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH2}/${line}
 done < ${PATH_TO_THIS_SCRIPT}/sample_files_list_dev_web_app_server.txt
