@@ -28,7 +28,9 @@
 
 
 OUTPUTBASEFILENAME		= elbow
-TESTENVDIR				= /tmp
+TESTENVBASEDIR			= /tmp/elbow
+TESTENVDIR1				= $(TESTENVBASEDIR)/path1
+TESTENVDIR2				= $(TESTENVBASEDIR)/path2
 
 # https://gist.github.com/TheHippo/7e4d9ec4b7ed4c0d7a39839e6800cc16
 # https://github.com/atc0005/elbow/issues/54
@@ -62,13 +64,13 @@ help:
 	@echo "  testrun        use wrapper script to call binary with test settings"
 
 testenv:
-	@echo "Setting up test environment in \"$(TESTENVDIR)\""
-	@$(TESTENVCMD) "$(TESTENVDIR)"
-	@echo "Finished creating test files in \"$(TESTENVDIR)\""
+	@echo "Setting up test environment in \"$(TESTENVDIR1)\" and \"$(TESTENVDIR2)\""
+	@$(TESTENVCMD) "$(TESTENVDIR1)" "$(TESTENVDIR2)"
+	@echo "Finished creating test files in \"$(TESTENVDIR1)\" and \"$(TESTENVDIR2)\""
 
 testrun:
 	@echo "Calling wrapper script: $(TESTRUNCMD)"
-	@$(TESTRUNCMD) "$(OUTPUTBASEFILENAME)" "$(TESTENVDIR)"
+	@$(TESTRUNCMD) "$(OUTPUTBASEFILENAME)" "$(TESTENVDIR1)" "$(TESTENVDIR2)"
 	@echo "Finished running wrapper script"
 
 goclean:

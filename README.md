@@ -22,12 +22,14 @@ Elbow, Elbow grease.
     - [Overview](#overview)
     - [Log output](#log-output)
       - [Text format](#text-format)
+        - [Screenshots](#screenshots)
+          - [Original implementation](#original-implementation)
+          - [Multiple paths](#multiple-paths)
       - [JSON format](#json-format)
     - [Help Output](#help-output)
     - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
     - [Keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
-    - [Keep log in JSON format, use log file](#keep-log-in-json-format-use-log-file)
-    - [Build and run from test area, no options](#build-and-run-from-test-area-no-options)
+    - [Log to a file in JSON format](#log-to-a-file-in-json-format)
   - [References](#references)
   - [License](#license)
 
@@ -48,8 +50,7 @@ would otherwise completely clog a filesystem.
 
 - File extensions are *case-sensitive*
 - File name patterns are *case-sensitive*
-- File name patterns, much like shell globs, can match more than you might
-  wish.
+- File name patterns, much like shell globs, may match more than intended.
   - Test carefully and do not provide the `--remove` flag until you have
     tested and are ready to actually prune the content.
 
@@ -62,6 +63,7 @@ would otherwise completely clog a filesystem.
     configuration sources are processed
 - Match on specified file patterns
 - Flat (single-level) or recursive search
+- Process one or many paths
 - Keep a specified number of older or newer matches
 - Limit search to specified list of file extensions
 - Toggle file removal (read-only by default)
@@ -134,12 +136,11 @@ Tested using:
    1. `git clone https://github.com/atc0005/elbow`
    1. `cd elbow`
 1. Create test files
-   - in `/tmp`
+   - in subdirectories of `/tmp/elbow`
      - `make testenv`
-     - Note: `/tmp` is the default location
-   - in a custom location (e.g., in `$HOME/tmp`)
-     - `mkdir -vp $HOME/tmp`
-     - `make testenv TESTENVDIR=$HOME/tmp`
+   - in a custom location (e.g., in `$HOME`)
+     - `mkdir -vp $HOME/tmp/elbow`
+     - `make testenv TESTENVBASEDIR="$HOME/tmp/elbow"`
 
 See the [Examples](#examples) or the [Configuration
 Options](#configuration-options) sections for examples of running `elbow`
@@ -163,7 +164,7 @@ Aside from the built-in `-h`, short flag names are currently not supported.
 | Long             | Required | Default        | Repeat | Possible                                                                                                | Description                                                                                              |
 | ---------------- | -------- | -------------- | ------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 | `keep`           | Yes      | N/A            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
-| `path`           | Yes      | N/A            | No     | *valid directory path*                                                                                  | Path to process.                                                                                         |
+| `paths`          | Yes      | N/A            | No     | *one or more valid directory paths*                                                                     | List of comma or space-separated paths to process.                                                       |
 | `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                             |
 | `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
 | `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                            |
@@ -182,21 +183,21 @@ If set, command-line arguments override the equivalent environment variables
 listed below. See the [Command-line Arguments](#command-line-arguments) table
 for more information.
 
-| Flag Name        | Environment Variable Name | Notes                        | Example                                                     |
-| ---------------- | ------------------------- | ---------------------------- | ----------------------------------------------------------- |
-| `keep`           | `ELBOW_KEEP`              |                              | `ELBOW_KEEP=1`                                              |
-| `path`           | `ELBOW_PATH`              |                              | `ELBOW_PATH="/tmp"`                                         |
-| `pattern`        | `ELBOW_FILE_PATTERN`      |                              | `ELBOW_FILE_PATTERN="reach-masterdev-"`                     |
-| `extensions`     | `ELBOW_EXTENSIONS`        | *Comma-separated, no spaces* | `ELBOW_EXTENSIONS=".war,.tmp"`                              |
-| `recurse`        | `ELBOW_RECURSE`           |                              | `ELBOW_RECURSE="true"`                                      |
-| `keep-old`       | `ELBOW_KEEP_OLD`          |                              | `ELBOW_KEEP_OLD="true"`                                     |
-| `remove`         | `ELBOW_REMOVE`            |                              | `ELBOW_REMOVE="false"`                                      |
-| `ignore-errors`  | `ELBOW_IGNORE_ERRORS`     |                              | `ELBOW_IGNORE_ERRORS="true"`                                |
-| `log-format`     | `ELBOW_LOG_FORMAT`        |                              | `ELBOW_LOG_FORMAT="json"`                                   |
-| `log-file`       | `ELBOW_LOG_FILE`          |                              | `ELBOW_LOG_FILE="/tmp/testing-masterqa-build-removals.txt"` |
-| `console-output` | `ELBOW_CONSOLE_OUTPUT`    |                              | `ELBOW_CONSOLE_OUTPUT="stdout"`                             |
-| `log-level`      | `ELBOW_LOG_LEVEL`         |                              | `ELBOW_LOG_LEVEL="debug"`                                   |
-| `use-syslog`     | `ELBOW_USE_SYSLOG`        |                              | `ELBOW_USE_SYSLOG="true"`                                   |
+| Flag Name        | Environment Variable Name | Notes                        | Example                                                                             |
+| ---------------- | ------------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
+| `keep`           | `ELBOW_KEEP`              |                              | `ELBOW_KEEP=1`                                                                      |
+| `paths`          | `ELBOW_PATHS`             |                              | `ELBOW_PATHS="/tmp/elbow/path1"`, `ELBOW_PATHS="/tmp/elbow/path1,/tmp/elbow/path2"` |
+| `pattern`        | `ELBOW_FILE_PATTERN`      |                              | `ELBOW_FILE_PATTERN="reach-masterdev-"`                                             |
+| `extensions`     | `ELBOW_EXTENSIONS`        | *Comma-separated, no spaces* | `ELBOW_EXTENSIONS=".war,.tmp"`                                                      |
+| `recurse`        | `ELBOW_RECURSE`           |                              | `ELBOW_RECURSE="true"`                                                              |
+| `keep-old`       | `ELBOW_KEEP_OLD`          |                              | `ELBOW_KEEP_OLD="true"`                                                             |
+| `remove`         | `ELBOW_REMOVE`            |                              | `ELBOW_REMOVE="false"`                                                              |
+| `ignore-errors`  | `ELBOW_IGNORE_ERRORS`     |                              | `ELBOW_IGNORE_ERRORS="true"`                                                        |
+| `log-format`     | `ELBOW_LOG_FORMAT`        |                              | `ELBOW_LOG_FORMAT="json"`                                                           |
+| `log-file`       | `ELBOW_LOG_FILE`          |                              | `ELBOW_LOG_FILE="/tmp/testing-masterqa-build-removals.txt"`                         |
+| `console-output` | `ELBOW_CONSOLE_OUTPUT`    |                              | `ELBOW_CONSOLE_OUTPUT="stdout"`                                                     |
+| `log-level`      | `ELBOW_LOG_LEVEL`         |                              | `ELBOW_LOG_LEVEL="debug"`                                                           |
+| `use-syslog`     | `ELBOW_USE_SYSLOG`        |                              | `ELBOW_USE_SYSLOG="true"`                                                           |
 
 ### Configuration File
 
@@ -216,7 +217,7 @@ generated on a build system that our group maintains. The idea is that `elbow`
 could be run as a cron job to help ensure that only X copies (the most recent
 in our case) for each of three branches remain on the build box.
 
-There are better aproaches to managing build artifacts (e.g., containers), but
+There are better approaches to managing build artifacts (e.g., containers), but
 that is the problem that this tool seeks to solve in a simple, "low tech" way.
 
 The particular repo that the build system processes has three branches:
@@ -234,53 +235,77 @@ We had little control over the name of these branches.
 #### Text format
 
 ```ShellSession
-$ ./elbow --path /tmp --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format text
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format text
 ```
 
 ```ShellSession
 ERRO[0000] Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error
 WARN[0000] Proceeding without syslog logging
-INFO[0000] Evaluating path: /tmp
-INFO[0000] Looking for file pattern: "reach-master"
-INFO[0000] Looking for extensions: []
-ERRO[0000] error:open /tmp/tmp0dyy3wu9: permission denied  ignore_errors=true
-WARN[0000] Error encountered, but continuing as requested.
-INFO[0000] 24 files eligible for removal
+INFO[0000] Starting evaluation of paths list             extensions="[]" file_age=0 file_pattern=reach-master paths="[/tmp/elbow/path1 /tmp/elbow/path2]"
+INFO[0000] Beginning processing of path "/tmp/elbow/path1" (1 of 2)  iteration=1 total_paths=2
+INFO[0000] 183 files eligible for removal                extensions="[]" file_age=0 file_pattern=reach-master path=/tmp/elbow/path1
 INFO[0000] 1 files to keep as requested                  keep_oldest=true
 INFO[0000] Ignoring file removal errors: true
 INFO[0000] File removal not enabled, not removing files
 INFO[0000] 0 files successfully removed
 INFO[0000] 0 files failed to remove
+INFO[0000] Ending processing of "/tmp/elbow/path1" (1 of 2)  iteration=1 total_paths=2
+INFO[0000] Beginning processing of path "/tmp/elbow/path2" (2 of 2)  iteration=2 total_paths=2
+INFO[0000] 183 files eligible for removal                extensions="[]" file_age=0 file_pattern=reach-master path=/tmp/elbow/path2
+INFO[0000] 1 files to keep as requested                  keep_oldest=true
+INFO[0000] Ignoring file removal errors: true
+INFO[0000] File removal not enabled, not removing files
+INFO[0000] 0 files successfully removed
+INFO[0000] 0 files failed to remove
+INFO[0000] Ending processing of "/tmp/elbow/path2" (2 of 2)  iteration=2 total_paths=2
 INFO[0000] Elbow successfully completed.
 ```
 
-Where supported, the output is colored. Here is a screenshot of the output
-from just before the v0.2.0 milestone was completed and the [`v0.2.0`
+Where supported, the output is colored.
+
+##### Screenshots
+
+###### Original implementation
+
+From just before the v0.2.0 milestone was completed and the [`v0.2.0`
 tag](https://github.com/atc0005/elbow/releases/tag/v0.2.0) created:
 
-![alt text][screenshot]
+![Colored text output example screenshot][screenshot-v0.2.0]
+
+###### Multiple paths
+
+While working on support for multiple paths per [issue
+32](https://github.com/atc0005/elbow/issues/32):
+
+![Colored text output example screenshot][screenshot-issue32]
 
 #### JSON format
 
 ```ShellSession
-$ ./elbow --path /tmp --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format json
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-master" --keep 1 --recurse --keep-old --ignore-errors --log-level info --use-syslog --log-format json
 ```
 
 ```json
-{"level":"error","msg":"Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error","time":"2019-09-26T12:38:34-05:00"}
-{"level":"warning","msg":"Proceeding without syslog logging","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"Evaluating path: /tmp","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"Looking for file pattern: \"reach-master\"","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"Looking for extensions: []","time":"2019-09-26T12:38:34-05:00"}
-{"ignore_errors":true,"level":"error","msg":"error:open /tmp/tmp0dyy3wu9: permission denied","time":"2019-09-26T12:38:34-05:00"}
-{"level":"warning","msg":"Error encountered, but continuing as requested.","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"24 files eligible for removal","time":"2019-09-26T12:38:34-05:00"}
-{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"0 files successfully removed","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"0 files failed to remove","time":"2019-09-26T12:38:34-05:00"}
-{"level":"info","msg":"Elbow successfully completed.","time":"2019-09-26T12:38:34-05:00"}
+{"level":"error","msg":"Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error","time":"2019-10-22T21:25:50-05:00"}
+{"level":"warning","msg":"Proceeding without syslog logging","time":"2019-10-22T21:25:50-05:00"}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"Starting evaluation of paths list","paths":["/tmp/elbow/path1","/tmp/elbow/path2"],"time":"2019-10-22T21:25:50-05:00"}
+{"iteration":1,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path1\" (1 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"183 files eligible for removal","path":"/tmp/elbow/path1","time":"2019-10-22T21:25:50-05:00"}
+{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"0 files successfully removed","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"0 files failed to remove","time":"2019-10-22T21:25:50-05:00"}
+{"iteration":1,"level":"info","msg":"Ending processing of \"/tmp/elbow/path1\" (1 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
+{"iteration":2,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path2\" (2 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"183 files eligible for removal","path":"/tmp/elbow/path2","time":"2019-10-22T21:25:50-05:00"}
+{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"0 files successfully removed","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"0 files failed to remove","time":"2019-10-22T21:25:50-05:00"}
+{"iteration":2,"level":"info","msg":"Ending processing of \"/tmp/elbow/path2\" (2 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
+{"level":"info","msg":"Elbow successfully completed.","time":"2019-10-22T21:25:50-05:00"}
 ```
 
 ### Help Output
@@ -292,27 +317,27 @@ Elbow prunes content matching specific patterns, either in a single directory or
 ELBOW x.y.z
 https://github.com/atc0005/elbow
 
-Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--path PATH] [--recurse] [--age AGE] [--keep KEEP] [--keep-old] [--remove] [--ignore-errors] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--log-level LOG-LEVEL] [--use-syslog]
+Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--age AGE] [--keep KEEP] [--keep-old] [--remove] [--ignore-errors] [--log-level LOG-LEVEL] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--use-syslog] [--paths PATHS] [--recurse]
 
 Options:
   --pattern PATTERN      Substring pattern to compare filenames against. Wildcards are not supported.
   --extensions EXTENSIONS
                          Limit search to specified file extensions. Specify as space separated list to match multiple required extensions.
-  --path PATH            Path to process.
-  --recurse              Perform recursive search into subdirectories.
   --age AGE              Limit search to files that are the specified number of days old or older.
-  --keep KEEP            Keep specified number of matching files.
-  --keep-old             Keep oldest files instead of newer.
-  --remove               Remove matched files.
+  --keep KEEP            Keep specified number of matching files per provided path.
+  --keep-old             Keep oldest files instead of newer per provided path.
+  --remove               Remove matched files per provided path.
   --ignore-errors        Ignore errors encountered during file removal.
+  --log-level LOG-LEVEL
+                         Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. [default: info]
   --log-format LOG-FORMAT
                          Log formatter used by logging package. [default: text]
   --log-file LOG-FILE    Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
   --console-output CONSOLE-OUTPUT
                          Specify how log messages are logged to the console. [default: stdout]
-  --log-level LOG-LEVEL
-                         Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. [default: info]
   --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows.
+  --paths PATHS          List of comma or space-separated paths to process.
+  --recurse              Perform recursive search into subdirectories per provided path.
   --help, -h             display this help and exit
   --version              display version and exit
 ```
@@ -322,10 +347,9 @@ Options:
 Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
-./elbow --path /tmp --extensions ".war" --pattern "reach-master-" --keep 2 --recurse --remove
-./elbow --path /tmp --extensions ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
-./elbow --path /tmp --extensions ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --extensions ".war" --pattern "reach-master-" --keep 2 --recurse --remove
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --extensions ".war" --pattern "reach-masterqa-" --keep 2 --recurse --remove
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --extensions ".war" --pattern "reach-masterdev-" --keep 2 --recurse --remove
 ```
 
 ### Keep oldest 1, debug logging, ignore errors, use syslog
@@ -333,33 +357,22 @@ cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
 Note: Leave off `--remove` to display what *would* be removed.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
-./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
-./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
-./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog
 ```
 
-### Keep log in JSON format, use log file
+### Log to a file in JSON format
 
-- These examples attempt to create a log file in the current directory, which is `/tmp` in this case.
+- These examples attempt to create a log file in the current directory.
 - The default logging format is `text` unless overridden; here we specify `json`.
 - We attempt to enable syslog logging. This currently fails gracefully on Windows.
 - We ignore file removal errors and proceed to the next matching file.
 
 ```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/
-./elbow --path /tmp --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --log-format json --use-syslog --log-file testing-master-build-removals.txt
-./elbow --path /tmp --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterqa-build-removals.txt
-./elbow --path /tmp --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
-```
-
-### Build and run from test area, no options
-
-This results in Help text being displayed. At a minimum, the path to process
-has to be provided for the application to proceed.
-
-```ShellSession
-cd /mnt/t/github/elbow; go build; cp -vf elbow /tmp/; cd /tmp/; ./elbow
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-master-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --log-format json --use-syslog --log-file testing-master-build-removals.txt
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-masterqa-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterqa-build-removals.txt
+./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
 ```
 
 ## References
@@ -387,4 +400,5 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 ```
 
-[screenshot]: media/elbow_example_text_log_format_2019-09-26.png "Colored text output example screenshot"
+[screenshot-v0.2.0]: media/elbow_example_text_log_format_2019-09-26.png "Colored text output example screenshot"
+[screenshot-issue32]: media/elbow_example_text_log_format_2019-10-22.png "Colored text output example screenshot"

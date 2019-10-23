@@ -36,6 +36,10 @@ var version = "x.y.z"
 
 func main() {
 
+	// Checked at the end to determine if any issues were encountered during
+	// app run. There is likely a much better way to handle this
+	problemsEncountered := false
+
 	log.Debug("Constructing config object")
 
 	// If this fails, the application will immediately exit.
@@ -52,6 +56,7 @@ func main() {
 		// Provide user with error and valid usage details
 		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
 		config.FlagParser.WriteUsage(os.Stdout)
+		problemsEncountered = true
 		os.Exit(1)
 
 		// failMessage := fmt.Sprint("configuration validation failed: ", err)
@@ -77,114 +82,169 @@ func main() {
 		defer config.LogFileHandle.Close()
 	}
 
-	log.Debug("Confirm that requested path actually exists")
-	if !pathExists(config.StartPath) {
-		fmt.Printf("Error processing requested path: %q", config.StartPath)
-		os.Exit(1)
-	}
-
 	log.WithFields(logrus.Fields{
-		"path":         config.StartPath,
+		"paths":        config.Paths,
 		"file_pattern": config.FilePattern,
 		"extensions":   config.FileExtensions,
 		"file_age":     config.FileAge,
-	}).Info("Starting evaluation of path")
+	}).Info("Starting evaluation of paths list")
 
-	matches, err := processPath(config)
+	var pass int
+	var totalPaths int = len(config.Paths)
+	for _, path := range config.Paths {
 
-	// TODO
-	// How to handle errors from gathering removal candidates?
-	// Add optional flag to allow ignoring errors, fail immediately otherwise?
-	if err != nil {
+		pass++
+
 		log.WithFields(logrus.Fields{
-			"ignore_errors": config.IgnoreErrors,
-		}).Error("error:", err)
+			"total_paths": totalPaths,
+			"iteration":   pass,
+		}).Infof("Beginning processing of path %q (%d of %d)",
+			path, pass, totalPaths)
 
-		if !config.IgnoreErrors {
-			log.Error("Error encountered, exiting")
-			os.Exit(1)
+		log.Debug("Confirm that requested path actually exists")
+		if !pathExists(path) {
+
+			problemsEncountered = true
+
+			log.WithFields(logrus.Fields{
+				"ignore_errors": config.IgnoreErrors,
+			}).Errorf("Requested path not found: %q", path)
+
+			if config.IgnoreErrors {
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.IgnoreErrors,
+				}).Warn("Error encountered, but continuing as requested.")
+				continue
+			} else {
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.IgnoreErrors,
+				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+
+				os.Exit(1)
+			}
 		}
-		log.Warn("Error encountered, but continuing as requested.")
-	}
 
-	// NOTE: If this sort order changes, make sure to update the later logic
-	// which retains the top or bottom X items (specific flag to preserve X
-	// number of files while pruning the others)
-	matches.sortByModTimeAsc()
+		matches, err := processPath(config, path)
+		if err != nil {
 
-	log.Debugf("Length of matches slice: %d", len(matches))
+			problemsEncountered = true
 
-	log.Debugf("Early exit if no matching files were found.")
-	if len(matches) <= 0 {
+			log.WithFields(logrus.Fields{
+				"ignore_errors": config.IgnoreErrors,
+			}).Error("error:", err)
+
+			if !config.IgnoreErrors {
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.IgnoreErrors,
+				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+			}
+			log.Warn("Error encountered, but continuing as requested.")
+		}
+
+		// NOTE: If this sort order changes, make sure to update the later logic
+		// which retains the top or bottom X items (specific flag to preserve X
+		// number of files while pruning the others)
+		matches.sortByModTimeAsc()
+
+		log.Debugf("Length of matches slice: %d", len(matches))
+
+		log.Debugf("Early exit if no matching files were found.")
+		if len(matches) <= 0 {
+
+			log.WithFields(logrus.Fields{
+				"path":         path,
+				"file_pattern": config.FilePattern,
+				"extensions":   config.FileExtensions,
+				"file_age":     config.FileAge,
+			}).Info("No matches found")
+
+			log.Debugf("Ending processing of path %d", pass)
+			if pass < totalPaths {
+				log.Debugf("Continuing to next available path")
+			}
+			continue
+
+		}
+
+		var filesToPrune FileMatches
 
 		log.WithFields(logrus.Fields{
-			"path":         config.StartPath,
+			"path":         path,
 			"file_pattern": config.FilePattern,
 			"extensions":   config.FileExtensions,
 			"file_age":     config.FileAge,
-		}).Info("No matches found")
+		}).Infof("%d files eligible for removal", len(matches))
 
-		// TODO: Not finding something is a valid outcome, so "normal" exit
-		// code?
-		os.Exit(0)
+		log.WithFields(logrus.Fields{
+			"keep_oldest": config.KeepOldest,
+		}).Infof("%d files to keep as requested", config.NumFilesToKeep)
+
+		if config.KeepOldest {
+			// TODO: Is debug output still useful?
+			log.Debug("Keeping older files")
+			log.Debug("start at specified number to keep, go until end of slice")
+			filesToPrune = matches[config.NumFilesToKeep:]
+		} else {
+			log.Debug("Keeping newer files")
+			log.Debug("start at beginning, go until specified number to keep")
+			filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
+		}
+
+		if len(filesToPrune) == 0 {
+			log.Info("Nothing to prune")
+			log.Debugf("Ending processing of path %d", pass)
+			if pass < totalPaths {
+				log.Debugf("Continuing to next available path")
+			}
+			continue
+		}
+
+		log.WithFields(logrus.Fields{
+			"files_to_prune": len(filesToPrune),
+		}).Debug("Calling cleanPath")
+		log.Infof("Ignoring file removal errors: %t", config.IgnoreErrors)
+		removalResults, err := cleanPath(filesToPrune, config)
+
+		// Show what we WERE able to successfully remove
+		// TODO: Refactor this into a function to handle displaying results?
+		log.Infof("%d files successfully removed", len(removalResults.SuccessfulRemovals))
+		for _, file := range removalResults.SuccessfulRemovals {
+			log.WithFields(logrus.Fields{
+				"failed_removal": false,
+			}).Info(file.Name())
+		}
+
+		log.Infof("%d files failed to remove", len(removalResults.FailedRemovals))
+		for _, file := range removalResults.FailedRemovals {
+			log.WithFields(logrus.Fields{
+				"failed_removal": true,
+			}).Info(file.Name())
+		}
+
+		if err != nil {
+
+			log.Warnf("Error encountered while processing %s: %s", path, err)
+
+			if !config.IgnoreErrors {
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.IgnoreErrors,
+				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+			}
+			log.Warn("Error encountered, but continuing as requested.")
+			continue
+		}
+
+		log.WithFields(logrus.Fields{
+			"total_paths": totalPaths,
+			"iteration":   pass,
+		}).Infof("Ending processing of %q (%d of %d)", path, pass, totalPaths)
+
 	}
 
-	var filesToPrune FileMatches
-
-	log.WithFields(logrus.Fields{
-		"path":         config.StartPath,
-		"file_pattern": config.FilePattern,
-		"extensions":   config.FileExtensions,
-		"file_age":     config.FileAge,
-	}).Infof("%d files eligible for removal", len(matches))
-
-	log.WithFields(logrus.Fields{
-		"keep_oldest": config.KeepOldest,
-	}).Infof("%d files to keep as requested", config.NumFilesToKeep)
-
-	if config.KeepOldest {
-		// TODO: Is debug output still useful?
-		log.Debug("Keeping older files")
-		log.Debug("start at specified number to keep, go until end of slice")
-		filesToPrune = matches[config.NumFilesToKeep:]
+	if problemsEncountered {
+		log.Warnf("%s completed, but issues were encountered.", config.AppName)
 	} else {
-		log.Debug("Keeping newer files")
-		log.Debug("start at beginning, go until specified number to keep")
-		filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
+		log.Infof("%s successfully completed.", config.AppName)
 	}
-
-	if len(filesToPrune) == 0 {
-		log.Info("Nothing to prune, exiting")
-		os.Exit(0)
-	}
-
-	log.WithFields(logrus.Fields{
-		"files_to_prune": len(filesToPrune),
-	}).Debug("Calling cleanPath")
-	log.Infof("Ignoring file removal errors: %t", config.IgnoreErrors)
-	removalResults, err := cleanPath(filesToPrune, config)
-
-	// Show what we WERE able to successfully remove
-	// TODO: Refactor this into a function to handle displaying results?
-	log.Infof("%d files successfully removed", len(removalResults.SuccessfulRemovals))
-	for _, file := range removalResults.SuccessfulRemovals {
-		log.WithFields(logrus.Fields{
-			"failed_removal": false,
-		}).Info(file.Name())
-	}
-
-	log.Infof("%d files failed to remove", len(removalResults.FailedRemovals))
-	for _, file := range removalResults.FailedRemovals {
-		log.WithFields(logrus.Fields{
-			"failed_removal": true,
-		}).Info(file.Name())
-	}
-
-	if err != nil {
-		log.Errorf("Errors encountered while processing %s: %s", config.StartPath, err)
-		os.Exit(1)
-	}
-
-	log.Infof("%s successfully completed.", config.AppName)
 
 }
