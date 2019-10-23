@@ -92,8 +92,6 @@ official release is also provided.
   - if building with custom options (as the provided `Makefile` does)
 - `make`
   - if using the provided `Makefile`
-- UPX
-  - if using the provided `Makefile`
 
 Tested using:
 
@@ -111,10 +109,9 @@ Tested using:
    1. `cd elbow`
 1. Install dependencies (optional)
    - for Ubuntu Linux
-     - `sudo apt-get install make gcc upx`
+     - `sudo apt-get install make gcc`
    - for CentOS Linux
-     1. `sudo yum install make gcc epel-release`
-     1. `sudo yum install upx`
+     1. `sudo yum install make gcc`
 1. Build
    - for current operating system with default `go` build options
      - `go build`

@@ -39,7 +39,6 @@ VERSION 				= $(shell git describe --always --long --dirty)
 # The default `go build` process embeds debugging information. Building
 # without that debugging information reduces the binary size by around 28%.
 BUILDCMD				=	go build -a -ldflags="-s -w -X main.version=${VERSION}"
-BINARYPACKCMD			=	upx -f --brute
 GOCLEANCMD				=	go clean
 GITCLEANCMD				= 	git clean -xfd
 TESTENVCMD				=   bash testing/setup_testenv.sh
@@ -50,7 +49,7 @@ TESTRUNCMD				=   bash testing/run_with_test_settings.sh
 # Targets will not work properly if a file with the same name is ever created
 # in this directory. We explicitly declare our targets to be phony by
 # making them a prerequisite of the special target .PHONY
-.PHONY: help clean goclean gitclean pristine all windows linux build testenv
+.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun
 
 # WARNING: Make expects you to use tabs to introduce recipe lines
 help:
@@ -98,8 +97,6 @@ windows: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME).exe
 windows:
 	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
 	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo "Running executable packer to compress binary ..."
-	@$(BINARYPACKCMD) $(OUTPUT_FILENAME)
 	@echo
 	@echo "Completed build for $(OS)"
 
@@ -110,7 +107,5 @@ linux: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME)
 linux:
 	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
 	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo "Running executable packer to compress binary ..."
-	@$(BINARYPACKCMD) $(OUTPUT_FILENAME)
 	@echo
 	@echo "Completed build for $(OS)"
