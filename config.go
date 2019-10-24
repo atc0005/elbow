@@ -39,7 +39,7 @@ type FileHandlingOptions struct {
 	FilePattern    string   `arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
 	FileAge        int      `arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep int      `arg:"--keep,env:ELBOW_KEEP" arg:"required" help:"Keep specified number of matching files per provided path."`
+	NumFilesToKeep int      `arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
 	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
 	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
 	IgnoreErrors   bool     `arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
@@ -48,7 +48,7 @@ type FileHandlingOptions struct {
 // SearchOptions represents options specific to controlling how this
 // application performs searches in the filesystem
 type SearchOptions struct {
-	Paths           []string `arg:"--paths,env:ELBOW_PATHS" arg:"required" help:"List of comma or space-separated paths to process."`
+	Paths           []string `arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
 	RecursiveSearch bool     `arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
