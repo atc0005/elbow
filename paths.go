@@ -68,7 +68,7 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 			// fully-qualified path to the file
 			"file": file.Path,
-		}).Info("Removing file")
+		}).Debug("Removing file")
 
 		// We need to reference the full path here, not the short name since
 		// the current working directory may not be the same directory
