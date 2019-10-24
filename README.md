@@ -162,7 +162,7 @@ Aside from the built-in `-h`, short flag names are currently not supported.
 
 | Long             | Required | Default        | Repeat | Possible                                                                                                | Description                                                                                              |
 | ---------------- | -------- | -------------- | ------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `keep`           | Yes      | N/A            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
+| `keep`           | No       | `0`            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
 | `paths`          | Yes      | N/A            | No     | *one or more valid directory paths*                                                                     | List of comma or space-separated paths to process.                                                       |
 | `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                             |
 | `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
@@ -318,17 +318,17 @@ Elbow prunes content matching specific patterns, either in a single directory or
 ELBOW x.y.z
 https://github.com/atc0005/elbow
 
-Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--age AGE] [--keep KEEP] [--keep-old] [--remove] [--ignore-errors] [--log-level LOG-LEVEL] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--use-syslog] [--paths PATHS] [--recurse]
+Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--age AGE] --keep KEEP [--keep-old] [--remove] [--ignore-errors] [--log-level LOG-LEVEL] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--use-syslog] --paths PATHS [--recurse]
 
 Options:
   --pattern PATTERN      Substring pattern to compare filenames against. Wildcards are not supported.
   --extensions EXTENSIONS
                          Limit search to specified file extensions. Specify as space separated list to match multiple required extensions.
-  --age AGE              Limit search to files that are the specified number of days old or older.
+  --age AGE              Limit search to files that are the specified number of days old or older. [default: 0]
   --keep KEEP            Keep specified number of matching files per provided path.
-  --keep-old             Keep oldest files instead of newer per provided path.
-  --remove               Remove matched files per provided path.
-  --ignore-errors        Ignore errors encountered during file removal.
+  --keep-old             Keep oldest files instead of newer per provided path. [default: false]
+  --remove               Remove matched files per provided path. [default: false]
+  --ignore-errors        Ignore errors encountered during file removal. [default: false]
   --log-level LOG-LEVEL
                          Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. [default: info]
   --log-format LOG-FORMAT
@@ -336,9 +336,9 @@ Options:
   --log-file LOG-FILE    Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
   --console-output CONSOLE-OUTPUT
                          Specify how log messages are logged to the console. [default: stdout]
-  --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows.
+  --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows. [default: false]
   --paths PATHS          List of comma or space-separated paths to process.
-  --recurse              Perform recursive search into subdirectories per provided path.
+  --recurse              Perform recursive search into subdirectories per provided path. [default: false]
   --help, -h             display this help and exit
   --version              display version and exit
 ```
