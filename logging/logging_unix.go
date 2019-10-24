@@ -16,11 +16,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package logging
 
 import (
 
 	"fmt"
+
+	"github.com/atc0005/elbow/config"
 
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
@@ -35,7 +37,7 @@ import (
 
 )
 
-func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
+func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.

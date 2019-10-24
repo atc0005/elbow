@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package matches
 
 import (
 	"os"
@@ -23,6 +23,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/atc0005/elbow/config"
 	"github.com/sirupsen/logrus"
 )
 
@@ -40,7 +41,10 @@ type FileMatch struct {
 // that we're working with a slice?
 type FileMatches []FileMatch
 
-func hasMatchingExtension(filename string, config *Config) bool {
+// HasMatchingExtension validates whether a file has the desired extension
+func HasMatchingExtension(filename string, config *config.Config) bool {
+
+	log := config.Logger
 
 	// NOTE: We do NOT compare extensions insensitively. We can add that
 	// functionality in the future if needed.
@@ -52,18 +56,22 @@ func hasMatchingExtension(filename string, config *Config) bool {
 		return true
 	}
 
-	if inList(ext, config.FileExtensions) {
+	if InList(ext, config.FileExtensions) {
 		log.Debugf("%s has a valid extension for removal\n", filename)
 		return true
 	}
 
-	log.Debug("hasMatchingExtension: returning false for:", filename)
-	log.Debugf("hasMatchingExtension: returning false (%q not in %q)",
+	log.Debug("HasMatchingExtension: returning false for:", filename)
+	log.Debugf("HasMatchingExtension: returning false (%q not in %q)",
 		ext, config.FileExtensions)
 	return false
 }
 
-func hasMatchingFilenamePattern(filename string, config *Config) bool {
+// HasMatchingFilenamePattern validates whether a filename matches the desired
+// pattern
+func HasMatchingFilenamePattern(filename string, config *config.Config) bool {
+
+	log := config.Logger
 
 	if strings.TrimSpace(config.FilePattern) == "" {
 		log.Debug("No FilePattern has been specified!")
@@ -73,19 +81,22 @@ func hasMatchingFilenamePattern(filename string, config *Config) bool {
 
 	// Search for substring
 	if strings.Contains(filename, config.FilePattern) {
-		log.Debug("hasMatchingFilenamePattern: returning true for:", filename)
-		log.Debugf("hasMatchingFilenamePattern: returning true (%q contains %q)",
+		log.Debug("HasMatchingFilenamePattern: returning true for:", filename)
+		log.Debugf("HasMatchingFilenamePattern: returning true (%q contains %q)",
 			filename, config.FilePattern)
 		return true
 	}
 
-	log.Debug("hasMatchingFilenamePattern: returning false for:", filename)
-	log.Debugf("hasMatchingFilenamePattern: returning false (%q does not contain %q)",
+	log.Debug("HasMatchingFilenamePattern: returning false for:", filename)
+	log.Debugf("HasMatchingFilenamePattern: returning false (%q does not contain %q)",
 		filename, config.FilePattern)
 	return false
 }
 
-func hasMatchingAge(file os.FileInfo, config *Config) bool {
+// HasMatchingAge validates whether a file matches the desired age threshold
+func HasMatchingAge(file os.FileInfo, config *config.Config) bool {
+
+	log := config.Logger
 
 	// used by this function's context logger and for return code
 	var ageCheckResults bool
@@ -124,19 +135,19 @@ func hasMatchingAge(file os.FileInfo, config *Config) bool {
 			ageCheckResults = true
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
-			}).Debug("hasMatchingAge: file mod time is equal to threshold")
+			}).Debug("HasMatchingAge: file mod time is equal to threshold")
 
 		case fileModTime.Before(fileAgeThreshold):
 			ageCheckResults = true
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
-			}).Debug("hasMatchingAge: file mod time is before threshold")
+			}).Debug("HasMatchingAge: file mod time is before threshold")
 
 		case fileModTime.After(fileAgeThreshold):
 			ageCheckResults = false
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
-			}).Debug("hasMatchingAge: file mod time is after threshold")
+			}).Debug("HasMatchingAge: file mod time is after threshold")
 
 		}
 
@@ -146,15 +157,15 @@ func hasMatchingAge(file os.FileInfo, config *Config) bool {
 
 	contextLogger.WithFields(logrus.Fields{
 		"safe_for_removal": ageCheckResults,
-	}).Debugf("hasMatchingAge: age flag was not set")
+	}).Debugf("HasMatchingAge: age flag was not set")
 
 	return true
 
 }
 
-// inList is a helper function to emulate Python's `if "x"
+// InList is a helper function to emulate Python's `if "x"
 // in list:` functionality
-func inList(needle string, haystack []string) bool {
+func InList(needle string, haystack []string) bool {
 	for _, item := range haystack {
 		if item == needle {
 			return true
@@ -163,14 +174,15 @@ func inList(needle string, haystack []string) bool {
 	return false
 }
 
-// TODO: Two methods, or one method with a boolean flag determining behavior?
-func (fm FileMatches) sortByModTimeAsc() {
+// SortByModTimeAsc sorts slice of FileMatches in ascending order
+func (fm FileMatches) SortByModTimeAsc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().Before(fm[j].ModTime())
 	})
 }
 
-func (fm FileMatches) sortByModTimeDesc() {
+// SortByModTimeDesc sorts slice of FileMatches in descending order
+func (fm FileMatches) SortByModTimeDesc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().After(fm[j].ModTime())
 	})

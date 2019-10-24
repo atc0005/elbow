@@ -20,15 +20,16 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/atc0005/elbow/config"
+	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/matches"
+	"github.com/atc0005/elbow/paths"
+
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
 	// https://godoc.org/github.com/sirupsen/logrus
 	"github.com/sirupsen/logrus"
 )
-
-// setup a shared logger object for use between various `main` package-level
-// functions
-var log = logrus.New()
 
 // version represents the version of this application. Set externally during
 // build by our Makefile
@@ -44,58 +45,60 @@ func main() {
 	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
 	appURL := "https://github.com/atc0005/elbow"
 
-	log.Debug("Constructing config object")
+	//log.Debug("Constructing config object")
 
 	// If this fails, the application will immediately exit.
-	config := NewConfig(appName, appDescription, appURL, version)
-	defaultConfig := NewConfig(appName, appDescription, appURL, version)
-
-	log.Debug("Config object created")
+	appConfig := config.NewConfig(appName, appDescription, appURL, version)
+	defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
 
 	// Validate configuration
-	if ok, err := config.Validate(); !ok {
+	if ok, err := appConfig.Validate(); !ok {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
 
 		// Provide user with error and valid usage details
 		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
-		config.FlagParser.WriteUsage(os.Stdout)
+		appConfig.FlagParser.WriteUsage(os.Stdout)
 		problemsEncountered = true
 		os.Exit(1)
 
 		// failMessage := fmt.Sprint("configuration validation failed: ", err)
-		// config.FlagParser.Fail(failMessage)
+		// appConfig.FlagParser.Fail(failMessage)
 
 	}
 
-	// Apply our custom logging settings on top of the existing global `log`
-	// object (which uses default settings)
-	setLoggerConfig(config, log)
+	logging.SetLoggerConfig(appConfig)
+
+	log := appConfig.Logger
+
+	log.Debug("Config object created")
+
+	// Apply our custom logging settings
 
 	log.WithFields(logrus.Fields{
 		"defaultConfig": defaultConfig,
 	}).Debug("Default configuration")
 
 	log.WithFields(logrus.Fields{
-		"config": config,
+		"config": appConfig,
 	}).Debug("Our configuration")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
-	if config.LogFileHandle != nil {
+	if appConfig.LogFileHandle != nil {
 		log.Debug("Deferring closure of log file")
-		defer config.LogFileHandle.Close()
+		defer appConfig.LogFileHandle.Close()
 	}
 
 	log.WithFields(logrus.Fields{
-		"paths":        config.Paths,
-		"file_pattern": config.FilePattern,
-		"extensions":   config.FileExtensions,
-		"file_age":     config.FileAge,
+		"paths":        appConfig.Paths,
+		"file_pattern": appConfig.FilePattern,
+		"extensions":   appConfig.FileExtensions,
+		"file_age":     appConfig.FileAge,
 	}).Info("Starting evaluation of paths list")
 
 	var pass int
-	var totalPaths int = len(config.Paths)
-	for _, path := range config.Paths {
+	var totalPaths int = len(appConfig.Paths)
+	for _, path := range appConfig.Paths {
 
 		pass++
 
@@ -106,40 +109,40 @@ func main() {
 			path, pass, totalPaths)
 
 		log.Debug("Confirm that requested path actually exists")
-		if !pathExists(path) {
+		if !paths.PathExists(path, appConfig) {
 
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": config.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors,
 			}).Errorf("Requested path not found: %q", path)
 
-			if config.IgnoreErrors {
+			if appConfig.IgnoreErrors {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": config.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors,
 				}).Warn("Error encountered, but continuing as requested.")
 				continue
 			} else {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": config.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 
 				os.Exit(1)
 			}
 		}
 
-		matches, err := processPath(config, path)
+		fileMatches, err := paths.ProcessPath(appConfig, path)
 		if err != nil {
 
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": config.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors,
 			}).Error("error:", err)
 
-			if !config.IgnoreErrors {
+			if !appConfig.IgnoreErrors {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": config.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")
@@ -148,18 +151,18 @@ func main() {
 		// NOTE: If this sort order changes, make sure to update the later logic
 		// which retains the top or bottom X items (specific flag to preserve X
 		// number of files while pruning the others)
-		matches.sortByModTimeAsc()
+		fileMatches.SortByModTimeAsc()
 
-		log.Debugf("Length of matches slice: %d", len(matches))
+		log.Debugf("Length of matches slice: %d", len(fileMatches))
 
 		log.Debugf("Early exit if no matching files were found.")
-		if len(matches) <= 0 {
+		if len(fileMatches) <= 0 {
 
 			log.WithFields(logrus.Fields{
 				"path":         path,
-				"file_pattern": config.FilePattern,
-				"extensions":   config.FileExtensions,
-				"file_age":     config.FileAge,
+				"file_pattern": appConfig.FilePattern,
+				"extensions":   appConfig.FileExtensions,
+				"file_age":     appConfig.FileAge,
 			}).Info("No matches found")
 
 			log.Debugf("Ending processing of path %d", pass)
@@ -170,28 +173,28 @@ func main() {
 
 		}
 
-		var filesToPrune FileMatches
+		var filesToPrune matches.FileMatches
 
 		log.WithFields(logrus.Fields{
 			"path":         path,
-			"file_pattern": config.FilePattern,
-			"extensions":   config.FileExtensions,
-			"file_age":     config.FileAge,
-		}).Infof("%d files eligible for removal", len(matches))
+			"file_pattern": appConfig.FilePattern,
+			"extensions":   appConfig.FileExtensions,
+			"file_age":     appConfig.FileAge,
+		}).Infof("%d files eligible for removal", len(fileMatches))
 
 		log.WithFields(logrus.Fields{
-			"keep_oldest": config.KeepOldest,
-		}).Infof("%d files to keep as requested", config.NumFilesToKeep)
+			"keep_oldest": appConfig.KeepOldest,
+		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
 
-		if config.KeepOldest {
+		if appConfig.KeepOldest {
 			// TODO: Is debug output still useful?
 			log.Debug("Keeping older files")
 			log.Debug("start at specified number to keep, go until end of slice")
-			filesToPrune = matches[config.NumFilesToKeep:]
+			filesToPrune = fileMatches[appConfig.NumFilesToKeep:]
 		} else {
 			log.Debug("Keeping newer files")
 			log.Debug("start at beginning, go until specified number to keep")
-			filesToPrune = matches[:(len(matches) - config.NumFilesToKeep)]
+			filesToPrune = fileMatches[:(len(fileMatches) - appConfig.NumFilesToKeep)]
 		}
 
 		if len(filesToPrune) == 0 {
@@ -206,8 +209,8 @@ func main() {
 		log.WithFields(logrus.Fields{
 			"files_to_prune": len(filesToPrune),
 		}).Debug("Calling cleanPath")
-		log.Infof("Ignoring file removal errors: %t", config.IgnoreErrors)
-		removalResults, err := cleanPath(filesToPrune, config)
+		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
+		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
 
 		// Show what we WERE able to successfully remove
 		// TODO: Refactor this into a function to handle displaying results?
@@ -229,9 +232,9 @@ func main() {
 
 			log.Warnf("Error encountered while processing %s: %s", path, err)
 
-			if !config.IgnoreErrors {
+			if !appConfig.IgnoreErrors {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": config.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")
@@ -246,9 +249,9 @@ func main() {
 	}
 
 	if problemsEncountered {
-		log.Warnf("%s completed, but issues were encountered.", config.AppName)
+		log.Warnf("%s completed, but issues were encountered.", appConfig.AppName)
 	} else {
-		log.Infof("%s successfully completed.", config.AppName)
+		log.Infof("%s successfully completed.", appConfig.AppName)
 	}
 
 }

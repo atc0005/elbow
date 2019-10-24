@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package paths
 
 import (
 	"io/ioutil"
@@ -22,6 +22,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/atc0005/elbow/config"
+	"github.com/atc0005/elbow/matches"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,16 +31,18 @@ import (
 // removed and those that were not. This is used in various calculations and
 // to provide a brief summary of results to the user at program completion.
 type PathPruningResults struct {
-	SuccessfulRemovals FileMatches
-	FailedRemovals     FileMatches
+	SuccessfulRemovals matches.FileMatches
+	FailedRemovals     matches.FileMatches
 }
 
-// cleanPath receives a slice of FileMatch objects and removes each file. Any
+// CleanPath receives a slice of FileMatch objects and removes each file. Any
 // errors encountered while removing files may optionally be ignored via
 // command-line flag(default is to return immediately upon first error). The
 // total number of files successfully removed is returned along with an error
 // code (nil if no errors were encountered).
-func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
+func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningResults, error) {
+
+	log := config.Logger
 
 	for _, file := range files {
 		log.WithFields(logrus.Fields{
@@ -103,7 +107,10 @@ func cleanPath(files FileMatches, config *Config) (PathPruningResults, error) {
 
 }
 
-func pathExists(path string) bool {
+// PathExists confirms that the specified path exists
+func PathExists(path string, config *config.Config) bool {
+
+	log := config.Logger
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
@@ -123,9 +130,13 @@ func pathExists(path string) bool {
 
 }
 
-func processPath(config *Config, path string) (FileMatches, error) {
+// ProcessPath accepts a configuration object and a path to process and
+// returns a slice of FileMatch objects
+func ProcessPath(config *config.Config, path string) (matches.FileMatches, error) {
 
-	var matches FileMatches
+	log := config.Logger
+
+	var fileMatches matches.FileMatches
 	var err error
 
 	log.WithFields(logrus.Fields{
@@ -159,25 +170,25 @@ func processPath(config *Config, path string) (FileMatches, error) {
 
 				// ignore non-matching extension (only applies if user chose
 				// one or more extensions to match against)
-				if !hasMatchingExtension(path, config) {
+				if !matches.HasMatchingExtension(path, config) {
 					return nil
 				}
 
 				// ignore non-matching filename pattern (only applies if user
 				// specified a filename pattern)
-				if !hasMatchingFilenamePattern(path, config) {
+				if !matches.HasMatchingFilenamePattern(path, config) {
 					return nil
 				}
 
 				// ignore non-matching modification age
-				if !hasMatchingAge(info, config) {
+				if !matches.HasMatchingAge(info, config) {
 					return nil
 				}
 
 				// If we made it to this point, then we must assume that the file
 				// has met all criteria to be removed by this application.
-				fileMatch := FileMatch{FileInfo: info, Path: path}
-				matches = append(matches, fileMatch)
+				fileMatch := matches.FileMatch{FileInfo: info, Path: path}
+				fileMatches = append(fileMatches, fileMatch)
 
 			}
 
@@ -214,27 +225,27 @@ func processPath(config *Config, path string) (FileMatches, error) {
 
 			// ignore invalid extensions (only applies if user chose one
 			// or more extensions to match against)
-			if !hasMatchingExtension(filename, config) {
+			if !matches.HasMatchingExtension(filename, config) {
 				continue
 			}
 
 			// ignore invalid filename patterns (only applies if user
 			// specified a filename pattern)
-			if !hasMatchingFilenamePattern(filename, config) {
+			if !matches.HasMatchingFilenamePattern(filename, config) {
 				continue
 			}
 
 			// ignore non-matching modification age
-			if !hasMatchingAge(file, config) {
+			if !matches.HasMatchingAge(file, config) {
 				continue
 			}
 
 			// If we made it to this point, then we must assume that the file
 			// has met all criteria to be removed by this application.
-			fileMatch := FileMatch{FileInfo: file, Path: filename}
-			matches = append(matches, fileMatch)
+			fileMatch := matches.FileMatch{FileInfo: file, Path: filename}
+			fileMatches = append(fileMatches, fileMatch)
 		}
 	}
 
-	return matches, err
+	return fileMatches, err
 }
