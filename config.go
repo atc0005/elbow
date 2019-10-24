@@ -36,20 +36,20 @@ type AppMetadata struct {
 // FileHandlingOptions represents options specific to how this application
 // handles files.
 type FileHandlingOptions struct {
-	FilePattern    string   `arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FilePattern    string   `arg:"--pattern,env:ELBOW_FILE_PATTERN" default:"" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        int      `arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	FileAge        int      `arg:"--age,env:ELBOW_FILE_AGE" default:"0" help:"Limit search to files that are the specified number of days old or older."`
 	NumFilesToKeep int      `arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	IgnoreErrors   bool     `arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" default:"false" help:"Keep oldest files instead of newer per provided path."`
+	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" default:"false" help:"Remove matched files per provided path."`
+	IgnoreErrors   bool     `arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" default:"false" help:"Ignore errors encountered during file removal."`
 }
 
 // SearchOptions represents options specific to controlling how this
 // application performs searches in the filesystem
 type SearchOptions struct {
 	Paths           []string `arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch bool     `arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	RecursiveSearch bool     `arg:"--recurse,env:ELBOW_RECURSE" default:"false" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // LoggingOptions represents options specific to how this application handles
@@ -58,11 +58,11 @@ type LoggingOptions struct {
 
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
-	LogLevel      string `arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     string `arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	LogFilePath   string `arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput string `arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	UseSyslog     bool   `arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel      string `arg:"--log-level,env:ELBOW_LOG_LEVEL" default:"info" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     string `arg:"--log-format,env:ELBOW_LOG_FORMAT" default:"text" help:"Log formatter used by logging package."`
+	LogFilePath   string `arg:"--log-file,env:ELBOW_LOG_FILE" default:"" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	ConsoleOutput string `arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" default:"stdout" help:"Specify how log messages are logged to the console."`
+	UseSyslog     bool   `arg:"--use-syslog,env:ELBOW_USE_SYSLOG" default:"false" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -85,44 +85,15 @@ type Config struct {
 
 // NewConfig returns a newly configured object representing a collection of
 // user-provided and default settings.
-func NewConfig() *Config {
+func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
-	// "bootstrapping" for this object is provided via struct tags
+	// Note: The majority of the default settings are supplied via struct tags
 	var config Config
 
-	// Explicitly initialize with intended defaults
-	// TODO: Add defaults to `Config{}` once
-	// https://github.com/alexflint/go-arg/pull/91 lands.
-	//config.Paths = []string
-	config.FilePattern = ""
-
-	// NOTE: This creates an empty slice (not nil since there is an
-	// underlying array of zero length) FileExtensions:  []string{},
-	//
-	// Leave at default value of nil slice instead by not providing a
-	// value here
-	// config.FileExtensions = []string
-	config.FileAge = 0
-	config.NumFilesToKeep = 0
-	config.RecursiveSearch = false
-	config.KeepOldest = false
-	config.Remove = false
-	config.IgnoreErrors = false
-	config.LogFormat = "text"
-	config.LogLevel = "info"
-	config.LogFilePath = ""
-	config.LogFileHandle = nil
-	config.ConsoleOutput = "stdout"
-	config.UseSyslog = false
-
-	// TODO: Configure these values elsewhere?
-	config.AppName = "Elbow"
-	config.AppDescription = "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
-	config.AppURL = "https://github.com/atc0005/elbow"
-
-	// `version` is a global variable set via programatic build tag, by our
-	// Makefile.
-	config.AppVersion = version
+	config.AppName = appName
+	config.AppDescription = appDescription
+	config.AppURL = appURL
+	config.AppVersion = appVersion
 
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
