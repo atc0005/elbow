@@ -30,7 +30,7 @@ import (
 // functions
 var log = logrus.New()
 
-// VERSION represents the version of this application. Set externally during
+// version represents the version of this application. Set externally during
 // build by our Makefile
 var version = "x.y.z"
 
@@ -40,11 +40,15 @@ func main() {
 	// app run. There is likely a much better way to handle this
 	problemsEncountered := false
 
+	appName := "Elbow"
+	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
+	appURL := "https://github.com/atc0005/elbow"
+
 	log.Debug("Constructing config object")
 
 	// If this fails, the application will immediately exit.
-	config := NewConfig()
-	defaultConfig := NewConfig()
+	config := NewConfig(appName, appDescription, appURL, version)
+	defaultConfig := NewConfig(appName, appDescription, appURL, version)
 
 	log.Debug("Config object created")
 

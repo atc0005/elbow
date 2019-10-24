@@ -20,7 +20,11 @@ import "testing"
 
 func TestMain(t *testing.T) {
 
-	defaultConfig := NewConfig()
+	appName := "Elbow"
+	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
+	appURL := "https://github.com/atc0005/elbow"
+
+	defaultConfig := NewConfig(appName, appDescription, appURL, version)
 
 	var emptySlice = []string{}
 	var nilSlice []string
