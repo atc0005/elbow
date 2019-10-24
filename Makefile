@@ -97,7 +97,6 @@ windows: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME).exe
 windows:
 	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
 	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo
 	@echo "Completed build for $(OS)"
 
 linux: OS=linux
@@ -107,5 +106,4 @@ linux: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME)
 linux:
 	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
 	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo
 	@echo "Completed build for $(OS)"
