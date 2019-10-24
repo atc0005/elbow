@@ -16,7 +16,11 @@
 
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/atc0005/elbow/config"
+)
 
 func TestMain(t *testing.T) {
 
@@ -24,7 +28,7 @@ func TestMain(t *testing.T) {
 	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
 	appURL := "https://github.com/atc0005/elbow"
 
-	defaultConfig := NewConfig(appName, appDescription, appURL, version)
+	defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
 
 	var emptySlice = []string{}
 	var nilSlice []string

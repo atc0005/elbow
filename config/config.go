@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
 import (
 	"fmt"
@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/alexflint/go-arg"
+	"github.com/sirupsen/logrus"
 )
 
 // AppMetadata represents data about this application that may be used in Help
@@ -79,8 +80,9 @@ type Config struct {
 	// Embedded to allow for easier carrying of "handles" between functions
 	// TODO: Confirm that this is both needed and that it doesn't violate
 	// best practices.
-	LogFileHandle *os.File    `arg:"-"`
-	FlagParser    *arg.Parser `arg:"-"`
+	LogFileHandle *os.File       `arg:"-"`
+	Logger        *logrus.Logger `arg:"-"`
+	FlagParser    *arg.Parser    `arg:"-"`
 }
 
 // NewConfig returns a newly configured object representing a collection of

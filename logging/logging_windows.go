@@ -16,7 +16,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package logging
 
 import (
 	// Use `log` if we are going to override the default `log`, otherwise
@@ -27,9 +27,11 @@ import (
 	// TODO: Is this needed here with a global `log` objection already created
 	// from this package?
 	"github.com/sirupsen/logrus"
+
+	"github.com/atc0005/elbow/config"
 )
 
-func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
+func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.
@@ -38,7 +40,7 @@ func enableSyslogLogging(config *Config, logger *logrus.Logger) error {
 		return fmt.Errorf("syslog logging not requested, not enabling")
 	}
 
-	log.Debug("This is a Windows build. Syslog support is not currently supported for this platform.")
+	logger.Debug("This is a Windows build. Syslog support is not currently supported for this platform.")
 
 	return nil
 

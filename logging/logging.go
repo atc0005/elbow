@@ -14,16 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package logging
 
 import (
 	"os"
 	"strings"
 
+	"github.com/atc0005/elbow/config"
+
 	"github.com/sirupsen/logrus"
 )
 
-func setLoggerConfig(config *Config, logger *logrus.Logger) {
+// SetLoggerConfig applies the requested logger configuration settings
+func SetLoggerConfig(config *config.Config) {
+
+	logger := config.Logger
 
 	switch config.LogFormat {
 	case "text":
@@ -54,7 +59,7 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 			// https://kgrz.io/reading-files-in-go-an-overview.html
 			config.LogFileHandle = file
 		} else {
-			log.Errorf("Failed to log to %s, will use %s instead.",
+			logger.Errorf("Failed to log to %s, will use %s instead.",
 				config.LogFilePath, config.ConsoleOutput)
 		}
 	}
@@ -87,15 +92,15 @@ func setLoggerConfig(config *Config, logger *logrus.Logger) {
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
 
 	if config.UseSyslog {
-		log.Debug("Syslog logging requested, attempting to enable it")
+		logger.Debug("Syslog logging requested, attempting to enable it")
 		if err := enableSyslogLogging(config, logger); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
-			log.Errorf("Failed to enable syslog logging: %s", err)
-			log.Warn("Proceeding without syslog logging")
+			logger.Errorf("Failed to enable syslog logging: %s", err)
+			logger.Warn("Proceeding without syslog logging")
 		}
 	} else {
-		log.Debug("Syslog logging not requested, not enabling")
+		logger.Debug("Syslog logging not requested, not enabling")
 	}
 
 }
