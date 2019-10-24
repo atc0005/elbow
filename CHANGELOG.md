@@ -26,6 +26,54 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.5.0] - 2019-10-23
+
+### Added
+
+- Add brief first draft of `godoc` compatible usage information
+- Support for processing  one or more paths via command-line or environment
+  variable
+- Logging output
+  - total paths provided
+  - current iteration in loop across provided paths
+  - ending result noted as successful completion or completion with warnings
+  - misc logging tweaks to record additional field values that could be useful
+    when troubleshooting
+
+### Changed
+
+- Updated README to cover new support for processing multiple paths
+  - examples now reference `/tmp/elbow` as the base path with
+    `/tmp/elbow/path1` and `/tmp/elbow/path2` as example multi-path arguments
+- single path command-line flag `--path` replaced by multi-path `--paths`
+  command-line flag
+- `ELBOW_PATH` environment variable replaced by `ELBOW_PATHS` which now
+  supports comma-separated list of paths
+- `Makefile`
+  - `Makefile` and test scripts updated to work with multiple paths
+  - `make testenv` now prepares `/tmp/elbow/path1` and `/tmp/elbow/path2` by
+    default
+  - override variable exposed as `TESTENVBASEDIR` (covered in README)
+  - UPX is no longer used to compress generated executables
+
+### Removed
+
+- Use of UPX for compressing executables
+  - using UPX to compress executables disables use of `go version` and `go
+    version -m -v` to determine the version of Go and associated modules used
+    to build them
+- `--path` command-line flag (see earlier notes)
+- `ELBOW_PATH` environment variable (see earlier notes)
+
+### Fixed
+
+- Early exit logic
+  - hard-coded `os.Exit(1)` calls (from before support for ignoring errors
+    were added) were adjusted to respect the `IgnoreErrors` option
+- README
+  - Add missing `--age` command-line flag option
+  - Add missing `ELBOW_FILE_AGE` environment variable
+
 ## [v0.4.0] - 2019-10-17
 
 ### Added
@@ -177,7 +225,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.0...HEAD
+[v0.5.0]: https://github.com/atc0005/elbow/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/atc0005/elbow/releases/tag/v0.4.0
 [v0.3.2]: https://github.com/atc0005/elbow/releases/tag/v0.3.2
 [v0.3.1]: https://github.com/atc0005/elbow/releases/tag/v0.3.1
