@@ -64,6 +64,7 @@ would otherwise completely clog a filesystem.
 - Match on specified file patterns
 - Flat (single-level) or recursive search
 - Process one or many paths
+- Age-based threshold for matches (e.g., match files X days old or older)
 - Keep a specified number of older or newer matches
 - Limit search to specified list of file extensions
 - Toggle file removal (read-only by default)
@@ -166,6 +167,7 @@ Aside from the built-in `-h`, short flag names are currently not supported.
 | `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
 | `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                            |
 | `keep-old`       | No       | `false`        | No     | `true`, `false`                                                                                         | Keep oldest files instead of newer.                                                                      |
+| `age`            | No       | `0`            | No     | Limit search to files that are the specified number of days old or older.                               |
 | `remove`         | Maybe    | `false`        | No     | `true`, `false`                                                                                         | Remove matched files. The default behavior is to only note what matching files *would* be removed.       |
 | `ignore-errors`  | No       | `false`        | No     | `true`, `false`                                                                                         | Ignore errors encountered during file removal.                                                           |
 | `log-format`     | No       | `text`         | No     | `text`, `json`                                                                                          | Log formatter used by logging package.                                                                   |
@@ -188,6 +190,7 @@ for more information.
 | `extensions`     | `ELBOW_EXTENSIONS`        | *Comma-separated, no spaces* | `ELBOW_EXTENSIONS=".war,.tmp"`                                                      |
 | `recurse`        | `ELBOW_RECURSE`           |                              | `ELBOW_RECURSE="true"`                                                              |
 | `keep-old`       | `ELBOW_KEEP_OLD`          |                              | `ELBOW_KEEP_OLD="true"`                                                             |
+| `age`            | `ELBOW_FILE_AGE`          |                              | `ELBOW_FILE_AGE=120`                                                                |
 | `remove`         | `ELBOW_REMOVE`            |                              | `ELBOW_REMOVE="false"`                                                              |
 | `ignore-errors`  | `ELBOW_IGNORE_ERRORS`     |                              | `ELBOW_IGNORE_ERRORS="true"`                                                        |
 | `log-format`     | `ELBOW_LOG_FORMAT`        |                              | `ELBOW_LOG_FORMAT="json"`                                                           |
