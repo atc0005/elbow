@@ -36,6 +36,20 @@ fi
 
 while read line
 do
+    # Get random number between 1-10
+    #RAND_NUM="$(shuf -i 1-10 -n 1)"
+    # https://stackoverflow.com/questions/2556190/random-number-from-a-range-in-a-bash-script
+    RAND_NUM="$(python3 -S -c 'import random; print(random.randrange(1,10))')"
+
+
+    # Use that random number to create a non-zero byte sized file for testing
+    truncate -s ${RAND_NUM}M ${TEST_DIR_PATH1}/${line}
     touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH1}/${line}
+
+    # Get random number between 1-10
+    RAND_NUM="$(python -S -c 'import random; print random.randrange(1,10)')"
+
+    # Use that random number to create a non-zero byte sized file for testing
+    truncate -s ${RAND_NUM}K ${TEST_DIR_PATH2}/${line}
     touch -d $(echo $line | awk -F\- '{print $4}') ${TEST_DIR_PATH2}/${line}
 done < ${PATH_TO_THIS_SCRIPT}/sample_files_list_dev_web_app_server.txt

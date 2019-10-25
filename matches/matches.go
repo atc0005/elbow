@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package matches provides types and functions intended to help with
+// collecting and validating file search results against required criteria.
 package matches
 
 import (
@@ -24,22 +26,47 @@ import (
 	"time"
 
 	"github.com/atc0005/elbow/config"
+	"github.com/atc0005/elbow/units"
 	"github.com/sirupsen/logrus"
 )
 
 // FileMatch represents a superset of statistics (including os.FileInfo) for a
 // file matched by provided search criteria. This allows us to record the
-// original full path while also
+// original full path while also recording file metadata used in later
+// calculations.
 type FileMatch struct {
 	os.FileInfo
 	Path string
 }
 
-// FileMatches is a slice of FileMatch objects
-// TODO: Do I really need to abstract the fact that FileMatches is a slice of
-// FileMatch objects? It seems that by hiding this it makes it harder to see
-// that we're working with a slice?
+// FileMatches is a slice of FileMatch objects that represents the search
+// results based on user-specified criteria.
 type FileMatches []FileMatch
+
+// TotalFileSize returns the cumulative size of all files in the slice in bytes
+func (fm FileMatches) TotalFileSize() int64 {
+
+	var totalSize int64
+
+	for _, file := range fm {
+
+		totalSize += file.Size()
+	}
+
+	return totalSize
+
+}
+
+// TotalFileSizeHR returns a human-readable string of the cumulative size of
+// all files in the slice of bytes
+func (fm FileMatches) TotalFileSizeHR() string {
+	return units.ByteCountIEC(fm.TotalFileSize())
+}
+
+// SizeHR returns a human-readable string of the size of a FileMatch object.
+func (fm FileMatch) SizeHR() string {
+	return units.ByteCountIEC(fm.Size())
+}
 
 // HasMatchingExtension validates whether a file has the desired extension
 func HasMatchingExtension(filename string, config *config.Config) bool {

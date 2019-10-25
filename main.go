@@ -24,6 +24,7 @@ import (
 	"github.com/atc0005/elbow/logging"
 	"github.com/atc0005/elbow/matches"
 	"github.com/atc0005/elbow/paths"
+	"github.com/atc0005/elbow/units"
 
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
@@ -96,6 +97,9 @@ func main() {
 		"file_age":     appConfig.FileAge,
 	}).Info("Starting evaluation of paths list")
 
+	// Used as a global counter/bucket for presentation/logging purposes
+	var appResults paths.ProcessingResults
+
 	var pass int
 	var totalPaths int = len(appConfig.Paths)
 	for _, path := range appConfig.Paths {
@@ -103,8 +107,9 @@ func main() {
 		pass++
 
 		log.WithFields(logrus.Fields{
-			"total_paths": totalPaths,
-			"iteration":   pass,
+			"total_paths":   totalPaths,
+			"iteration":     pass,
+			"ignore_errors": appConfig.IgnoreErrors,
 		}).Infof("Beginning processing of path %q (%d of %d)",
 			path, pass, totalPaths)
 
@@ -165,7 +170,12 @@ func main() {
 				"file_age":     appConfig.FileAge,
 			}).Info("No matches found")
 
-			log.Debugf("Ending processing of path %d", pass)
+			log.WithFields(logrus.Fields{
+				"total_paths":   totalPaths,
+				"iteration":     pass,
+				"ignore_errors": appConfig.IgnoreErrors,
+			}).Infof("Ending processing of path %q (%d of %d)",
+				path, pass, totalPaths)
 			if pass < totalPaths {
 				log.Debugf("Continuing to next available path")
 			}
@@ -176,11 +186,17 @@ func main() {
 		var filesToPrune matches.FileMatches
 
 		log.WithFields(logrus.Fields{
-			"path":         path,
-			"file_pattern": appConfig.FilePattern,
-			"extensions":   appConfig.FileExtensions,
-			"file_age":     appConfig.FileAge,
-		}).Infof("%d files eligible for removal", len(fileMatches))
+			"path":            path,
+			"file_pattern":    appConfig.FilePattern,
+			"extensions":      appConfig.FileExtensions,
+			"file_age":        appConfig.FileAge,
+			"total_file_size": fileMatches.TotalFileSize(),
+		}).Infof("%d files eligible for removal (%s)",
+			len(fileMatches),
+			fileMatches.TotalFileSizeHR())
+
+		appResults.EligibleRemove += len(fileMatches)
+		appResults.EligibleFileSize += fileMatches.TotalFileSize()
 
 		log.WithFields(logrus.Fields{
 			"keep_oldest": appConfig.KeepOldest,
@@ -199,7 +215,12 @@ func main() {
 
 		if len(filesToPrune) == 0 {
 			log.Info("Nothing to prune")
-			log.Debugf("Ending processing of path %d", pass)
+			log.WithFields(logrus.Fields{
+				"total_paths":   totalPaths,
+				"iteration":     pass,
+				"ignore_errors": appConfig.IgnoreErrors,
+			}).Infof("Ending processing of path %q (%d of %d)",
+				path, pass, totalPaths)
 			if pass < totalPaths {
 				log.Debugf("Continuing to next available path")
 			}
@@ -207,25 +228,37 @@ func main() {
 		}
 
 		log.WithFields(logrus.Fields{
-			"files_to_prune": len(filesToPrune),
+			"files_to_prune":  len(filesToPrune),
+			"total_file_size": filesToPrune.TotalFileSizeHR(),
 		}).Debug("Calling cleanPath")
 		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
 		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
 
+		appResults.SuccessRemoved += len(removalResults.SuccessfulRemovals)
+		appResults.SuccessTotalFileSize += removalResults.SuccessfulRemovals.TotalFileSize()
+		appResults.FailedRemoved += len(removalResults.FailedRemovals)
+		appResults.FailedTotalFileSize += removalResults.FailedRemovals.TotalFileSize()
+
 		// Show what we WERE able to successfully remove
 		// TODO: Refactor this into a function to handle displaying results?
-		log.Infof("%d files successfully removed", len(removalResults.SuccessfulRemovals))
+		log.Infof("%d files successfully removed (%s)",
+			len(removalResults.SuccessfulRemovals),
+			removalResults.SuccessfulRemovals.TotalFileSizeHR())
 		for _, file := range removalResults.SuccessfulRemovals {
 			log.WithFields(logrus.Fields{
 				"failed_removal": false,
-			}).Info(file.Name())
+				"file_size":      file.SizeHR(),
+			}).Info(file.Path)
 		}
 
-		log.Infof("%d files failed to remove", len(removalResults.FailedRemovals))
+		log.Infof("%d files failed to remove (%s)",
+			len(removalResults.FailedRemovals),
+			removalResults.FailedRemovals.TotalFileSizeHR())
 		for _, file := range removalResults.FailedRemovals {
 			log.WithFields(logrus.Fields{
 				"failed_removal": true,
-			}).Info(file.Name())
+				"file_size":      file.SizeHR(),
+			}).Info(file.Path)
 		}
 
 		if err != nil {
@@ -242,16 +275,33 @@ func main() {
 		}
 
 		log.WithFields(logrus.Fields{
-			"total_paths": totalPaths,
-			"iteration":   pass,
-		}).Infof("Ending processing of %q (%d of %d)", path, pass, totalPaths)
+			"total_paths":   totalPaths,
+			"iteration":     pass,
+			"ignore_errors": appConfig.IgnoreErrors,
+		}).Infof("Ending processing of path %q (%d of %d)",
+			path, pass, totalPaths)
 
 	}
 
+	// Configure fields for execution summary results
+	summaryLogger := log.WithFields(logrus.Fields{
+		"success_removed": appResults.SuccessRemoved,
+		"success_size":    units.ByteCountIEC(appResults.SuccessTotalFileSize),
+		"failed_removed":  appResults.FailedRemoved,
+		"failed_size":     units.ByteCountIEC(appResults.FailedTotalFileSize),
+		"eligible_remove": appResults.EligibleRemove,
+		"eligible_size":   units.ByteCountIEC(appResults.EligibleFileSize),
+
+		// Not sure this "adds" anything to the summary and could be confusing
+		// "total_processed": appResults.FailedRemoved + appResults.SuccessRemoved,
+		// "total_size":      appResults.FailedTotalFileSize + appResults.SuccessTotalFileSize,
+
+	})
+
 	if problemsEncountered {
-		log.Warnf("%s completed, but issues were encountered.", appConfig.AppName)
+		summaryLogger.Warnf("%s completed, but issues were encountered.", appConfig.AppName)
 	} else {
-		log.Infof("%s successfully completed.", appConfig.AppName)
+		summaryLogger.Infof("%s successfully completed.", appConfig.AppName)
 	}
 
 }
