@@ -26,6 +26,12 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.5.2] - 2019-10-24
+
+### Fixed
+
+- nil pointer dereference due to not initializing the logger handle before use
+
 ## [v0.5.1] - 2019-10-24
 
 ### Changed
@@ -257,7 +263,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.2...HEAD
+[v0.5.2]: https://github.com/atc0005/elbow/releases/tag/v0.5.2
 [v0.5.1]: https://github.com/atc0005/elbow/releases/tag/v0.5.1
 [v0.5.0]: https://github.com/atc0005/elbow/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/atc0005/elbow/releases/tag/v0.4.0
