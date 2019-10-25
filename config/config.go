@@ -92,6 +92,9 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// Note: The majority of the default settings are supplied via struct tags
 	var config Config
 
+	// Initialize logger "handle" for later use
+	config.Logger = logrus.New()
+
 	config.AppName = appName
 	config.AppDescription = appDescription
 	config.AppURL = appURL
