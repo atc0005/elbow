@@ -26,6 +26,38 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.5.1] - 2019-10-24
+
+### Changed
+
+- Logging level for file removal "intent" messages changed from INFO to DEBUG
+  level in order to de-duplicate the coverage for removing files (e.g., noting
+  before and after)
+- Refactored `main` package to create multiple sub-packages in the hope that
+  this will make it easier to create unit tests later
+- Apply default settings via `default` struct tag
+- `alexflint/go-arg` package updated to v1.2.0
+- README, godoc coverage
+  - updates to reflect updated Help output
+- the `--keep` command-line flag defaults to `0` instead of being a required
+  flag
+
+### Removed
+
+- `required` constraint for the `--keep` flag (now defaults to `0`)
+
+### Fixed
+
+- README
+  - `--age` command-line flag notes had description details in the wrong column
+- syntax of godoc documentation so that it properly renders on godoc.org or
+  local godoc instance
+- golangci-lint linting errors
+  - unintentional duplicate `arg` struct tags
+  - unused function (refactored to separate package)
+- `Makefile`
+  - minor tweaks to output to adjust spacing after removal of UPX calls
+
 ## [v0.5.0] - 2019-10-23
 
 ### Added
@@ -225,7 +257,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.1...HEAD
+[v0.5.1]: https://github.com/atc0005/elbow/releases/tag/v0.5.1
 [v0.5.0]: https://github.com/atc0005/elbow/releases/tag/v0.5.0
 [v0.4.0]: https://github.com/atc0005/elbow/releases/tag/v0.4.0
 [v0.3.2]: https://github.com/atc0005/elbow/releases/tag/v0.3.2
