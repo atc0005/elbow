@@ -63,7 +63,10 @@ jobs:
         go-version: [1.12.x, 1.13.x]
 
         # Supported LTS and latest version of Ubuntu Linux
-        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-latest]
+        #os: [ubuntu-16.04, ubuntu-18.04, ubuntu-latest]
+
+        # This should be good enough until we learn otherwise
+        os: [ubuntu-latest]
 
     steps:
       - name: Set up Go
