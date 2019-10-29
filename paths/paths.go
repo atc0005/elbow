@@ -14,6 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package paths provides various functions and types related to processing
+// paths in the filesystem, often for the purpose of removing older/unwanted
+// files.
 package paths
 
 import (
@@ -26,6 +29,35 @@ import (
 	"github.com/atc0005/elbow/matches"
 	"github.com/sirupsen/logrus"
 )
+
+// ProcessingResults is used to collect execution results for use in logging
+// and output summary presentation to the user
+type ProcessingResults struct {
+
+	// Number of files eligible for removal. This is before files are excluded
+	// by request per user request.
+	EligibleRemove int
+
+	// Number of files successfully removed.
+	SuccessRemoved int
+
+	// Number of files failed to remove.
+	FailedRemoved int
+
+	// Size of all files eligible for removal.
+	EligibleFileSize int64
+
+	// Size of all files successfully removed.
+	SuccessTotalFileSize int64
+
+	// Size of all files failed to remove.
+	FailedTotalFileSize int64
+
+	// Size of all files successfully and unsuccessfully removed. This is
+	// essentially the size of eligible files to be removed minus any files
+	// that are excluded by user request.
+	TotalProcessedFileSize int64
+}
 
 // PathPruningResults represents the number of files that were successfully
 // removed and those that were not. This is used in various calculations and
