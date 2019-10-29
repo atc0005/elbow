@@ -43,7 +43,7 @@ func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 	// currently supported on UNIX only.
 
 	if !config.UseSyslog {
-		return fmt.Errorf("Syslog logging not requested, not enabling")
+		return fmt.Errorf("syslog logging not requested, not enabling")
 	}
 
 	// Use roughly the same logging level as specified for the general logger
