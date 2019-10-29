@@ -1,11 +1,11 @@
-name: Go
+name: Lint and Build codebase
 
 # Run builds for Pull Requests (new, updated)
-on: [pull_request]
-  # push:
-  #   branches:
-  #     - master
-  # pull_request:
+# `synchronized` seems to equate to pushing new commits to a linked branch
+# (whether force-pushed or not)
+on:
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
 
