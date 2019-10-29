@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package config provides types and functions to collect, validate and apply
+// user-provided settings.
 package config
 
 import (
