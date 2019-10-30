@@ -8,12 +8,13 @@ on:
     types: [opened, synchronize]
 
 jobs:
-
   # Run linting job first to allow the workflow to fail without wasting time
   # and CI resources
   lint:
     name: Lint codebase
     runs-on: ${{ matrix.os }}
+    # Default: 360 minutes
+    timeout-minutes: 10
     strategy:
       matrix:
         # Supported versions of Go
@@ -51,11 +52,12 @@ jobs:
           go get -u honnef.co/go/tools/cmd/staticcheck
           staticcheck ./...
 
-
   build:
     # Don't build until all linting checks have passed
     needs: lint
     name: Build codebase
+    # Default: 360 minutes
+    timeout-minutes: 10
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
