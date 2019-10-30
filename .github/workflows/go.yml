@@ -59,7 +59,7 @@ jobs:
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:$(go env GOPATH)/bin
           # https://stackoverflow.com/a/42510278/903870
-          diff -u <(echo -n) <(-l -e -d .)
+          diff -u <(echo -n) <(gofmt -l -e -d .)
 
       - name: go vet
         run: |
