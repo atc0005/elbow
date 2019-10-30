@@ -19,7 +19,6 @@
 package logging
 
 import (
-
 	"fmt"
 
 	"github.com/atc0005/elbow/config"
@@ -34,7 +33,6 @@ import (
 	lSyslog "github.com/sirupsen/logrus/hooks/syslog"
 
 	"log/syslog"
-
 )
 
 func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
