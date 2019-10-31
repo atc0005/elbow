@@ -52,53 +52,13 @@ jobs:
         if: contains(matrix.os, 'ubuntu')
         run: sudo apt update && sudo apt install -y --no-install-recommends make gcc
 
-      - name: gofmt
+      - name: Run Go linting tools using project Makefile
         run: |
           # add executables installed with go get to PATH
           # TODO: this will hopefully be fixed by
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:$(go env GOPATH)/bin
-          # https://stackoverflow.com/a/42510278/903870
-          diff -u <(echo -n) <(gofmt -l -e -d .)
-
-      - name: go vet
-        run: |
-          # add executables installed with go get to PATH
-          # TODO: this will hopefully be fixed by
-          # https://github.com/actions/setup-go/issues/14
-          export PATH=${PATH}:$(go env GOPATH)/bin
-          go vet ./...
-
-      - name: golint
-        run: |
-          # add executables installed with go get to PATH
-          # TODO: this will hopefully be fixed by
-          # https://github.com/actions/setup-go/issues/14
-          export PATH=${PATH}:$(go env GOPATH)/bin
-          golint -set_exit_status ./...
-
-      - name: golangci-lint
-        run: |
-          # add executables installed with go get to PATH
-          # TODO: this will hopefully be fixed by
-          # https://github.com/actions/setup-go/issues/14
-          export PATH=${PATH}:$(go env GOPATH)/bin
-          # https://github.com/golangci/golangci-lint#supported-linters
-          golangci-lint run \
-            -E goimports \
-            -E gosec \
-            -E stylecheck \
-            -E goconst \
-            -E depguard \
-            -E prealloc
-
-      - name: Staticcheck
-        run: |
-          # add executables installed with go get to PATH
-          # TODO: this will hopefully be fixed by
-          # https://github.com/actions/setup-go/issues/14
-          export PATH=${PATH}:$(go env GOPATH)/bin
-          staticcheck ./...
+          make linting
 
       - name: Build with default options
         run: go build -v .
