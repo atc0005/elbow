@@ -41,6 +41,8 @@ VERSION 				= $(shell git describe --always --long --dirty)
 BUILDCMD				=	go build -a -ldflags="-s -w -X main.version=${VERSION}"
 GOCLEANCMD				=	go clean
 GITCLEANCMD				= 	git clean -xfd
+CHECKSUMCMD				=	sha256sum -b
+
 TESTENVCMD				=   bash testing/setup_testenv.sh
 TESTRUNCMD				=   bash testing/run_with_test_settings.sh
 LINTINGCMD				=   bash testing/run_linting_checks.sh
@@ -82,6 +84,15 @@ linting:
 goclean:
 	@echo "Removing object files and cached files ..."
 	@$(GOCLEANCMD)
+	@echo "Removing any existing release assets"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-386)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-386.sha256)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-amd64)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-amd64.sha256)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-386.exe)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-386.exe.sha256)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-amd64.exe)"
+	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-amd64.exe.sha256)"
 
 # Setup alias for user reference
 clean: goclean
@@ -97,20 +108,24 @@ pristine: goclean gitclean
 all: clean windows linux
 	@echo "Completed all cross-platform builds ..."
 
-windows: OS=windows
-windows: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME).exe
-# FIXME: Figure out how to have one `build` recipe and have it called
-# for `windows` and for `linux`.
 windows:
-	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
-	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo "Completed build for $(OS)"
+	@echo "Building release assets for Windows ..."
+	@echo "Building 386 binary"
+	@env GOOS=linux GOARCH=386 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe
+	@echo "Building amd64 binary"
+	@env GOOS=linux GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe
+	@echo "Generating checksum files"
+	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe > $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe.sha256
+	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe > $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe.sha256
+	@echo "Completed build for Windows"
 
-linux: OS=linux
-linux: OUTPUT_FILENAME=$(OUTPUTBASEFILENAME)
-# FIXME: Figure out how to have one `build` recipe and have it called
-# for `windows` and for `linux`.
 linux:
-	@echo "Building $(OUTPUTBASEFILENAME) for $(OS) ..."
-	@env GOOS=$(OS) $(BUILDCMD) -o $(OUTPUT_FILENAME)
-	@echo "Completed build for $(OS)"
+	@echo "Building release assets for Linux ..."
+	@echo "Building 386 binary"
+	@env GOOS=linux GOARCH=386 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386
+	@echo "Building amd64 binary"
+	@env GOOS=linux GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64
+	@echo "Generating checksum files"
+	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386 > $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386.sha256
+	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64 > $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64.sha256
+	@echo "Completed build for Linux"
