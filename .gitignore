@@ -15,10 +15,19 @@
 # limitations under the License.
 
 *.test
+
+# Potential/temporary non-release build binaries
 *.exe
 
-# When building on non-Windows platform
-elbow
+# Release assets
+*-linux-386
+*-linux-386.sha256
+*-linux-amd64
+*-linux-amd64.sha256
+*-windows-386.exe
+*-windows-386.exe.sha256
+*-windows-amd64.exe
+*-windows-amd64.exe.sha256
 
 # UPX backup files
 elbow.ex~
