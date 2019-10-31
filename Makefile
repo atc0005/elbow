@@ -46,13 +46,14 @@ CHECKSUMCMD				=	sha256sum -b
 TESTENVCMD				=   bash testing/setup_testenv.sh
 TESTRUNCMD				=   bash testing/run_with_test_settings.sh
 LINTINGCMD				=   bash testing/run_linting_checks.sh
+LINTINSTALLCMD			=   bash testing/install_linting_tools.sh
 
 .DEFAULT_GOAL := help
 
 # Targets will not work properly if a file with the same name is ever created
 # in this directory. We explicitly declare our targets to be phony by
 # making them a prerequisite of the special target .PHONY
-.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun linting
+.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun linting lintinstall
 
 # WARNING: Make expects you to use tabs to introduce recipe lines
 help:
@@ -64,6 +65,7 @@ help:
 	@echo "  linux          to generate a binary file for Linux distros"
 	@echo "  testenv        setup test environment in Windows Subsystem for Linux or other Linux system"
 	@echo "  testrun        use wrapper script to call binary with test settings"
+	@echo "  lintinstall    use wrapper script to install common linting tools"
 	@echo "  linting        use wrapper script to run common linting checks"
 
 testenv:
@@ -75,6 +77,11 @@ testrun:
 	@echo "Calling wrapper script: $(TESTRUNCMD)"
 	@$(TESTRUNCMD) "$(OUTPUTBASEFILENAME)" "$(TESTENVDIR1)" "$(TESTENVDIR2)"
 	@echo "Finished running wrapper script"
+
+lintinstall:
+	@echo "Calling wraper script: $(LINTINSTALLCMD)"
+	@$(LINTINSTALLCMD)
+	@echo "Finished running linting tools install script"
 
 linting:
 	@echo "Calling wraper script: $(LINTINGCMD)"

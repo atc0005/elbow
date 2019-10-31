@@ -41,10 +41,10 @@ if ! which golint > /dev/null; then
 cat <<\EOF
 Error: Unable to locate "golint"
 
-Change your current working directory (e.g., "cd $HOME") and install golint
-with the following command:
+Install golint with the following command:
 
-go get -u golang.org/x/lint/golint
+make lintinstall
+
 EOF
     exit 1
 else
@@ -55,10 +55,10 @@ if ! which golangci-lint > /dev/null; then
 cat <<\EOF
 Error: Unable to locate "golangci-lint"
 
-Change your current working directory (e.g., "cd $HOME") and install golangci-lint
-with the following command:
+Install golangci-lint with the following command:
 
-go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+make lintinstall
+
 EOF
     exit 1
 else
@@ -76,10 +76,10 @@ if ! which staticcheck > /dev/null; then
 cat <<\EOF
 Error: Unable to locate "staticcheck"
 
-Change your current working directory (e.g., "cd $HOME") and install staticcheck
-with the following command:
+Install staticcheck with the following command:
 
-go get -u honnef.co/go/tools/cmd/staticcheck
+make lintinstall
+
 EOF
     exit 1
 else
