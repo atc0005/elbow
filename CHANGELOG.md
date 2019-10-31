@@ -26,6 +26,42 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.6.0] - 2019-10-31
+
+Mention:
+
+### Added
+
+- GitHub Actions Workflow
+  - Run linting checks
+  - Run build checks
+
+- Documentation
+  - Add CI badge to README to note current codebase state
+
+- Makefile
+  - new recipe: `make linting`
+    - runs suite of linting checks, suggests `make lintinstall` if tools are
+      not found
+  - new recipe: `make lintinstall`
+    - this recipe is used by the GitHub Actions Workflow as part of pre-test setup
+    - this same recipe can be used locally on-demand as part of a
+      pre-commit/pre-push workflow
+
+- Report total size of files (eligible for removal, failed and success) for
+  each path that is processed
+
+### Changed
+
+- Makefile
+  - `make all` now builds x86 binaries for Linux and Windows in addition to
+    the existing x64 binaries
+
+### Fixed
+
+- Additional godoc coverage for subpackages
+- Fix various linting errors exposed by CI-related work
+
 ## [v0.5.2] - 2019-10-24
 
 ### Fixed
@@ -263,7 +299,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.6.0...HEAD
+[v0.6.0]: https://github.com/atc0005/elbow/releases/tag/v0.6.0
 [v0.5.2]: https://github.com/atc0005/elbow/releases/tag/v0.5.2
 [v0.5.1]: https://github.com/atc0005/elbow/releases/tag/v0.5.1
 [v0.5.0]: https://github.com/atc0005/elbow/releases/tag/v0.5.0
