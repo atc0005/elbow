@@ -31,18 +31,16 @@ jobs:
           go-version: ${{ matrix.go-version }}
         id: go
 
-      - name: Install Go linting tools outside of Go module directory
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v1
+
+      - name: Install Go linting tools
         run: |
           # add executables installed with go get to PATH
           # TODO: this will hopefully be fixed by
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:$(go env GOPATH)/bin
-          go get -u golang.org/x/lint/golint
-          go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-          go get -u honnef.co/go/tools/cmd/staticcheck
-
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v1
+          make lintinstall
 
       - name: Get dependencies
         run: |
