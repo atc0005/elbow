@@ -4,7 +4,8 @@ Elbow, Elbow grease.
 
 [![Latest Release](https://img.shields.io/github/release/atc0005/elbow.svg?style=flat-square)](https://github.com/atc0005/elbow/releases/latest)
 [![GoDoc](https://godoc.org/github.com/atc0005/elbow?status.svg)](https://godoc.org/github.com/atc0005/elbow)
-![Validate Pull Request](https://github.com/atc0005/elbow/workflows/Validate%20Pull%20Request/badge.svg)
+![Validate Codebase](https://github.com/atc0005/elbow/workflows/Validate%20Codebase/badge.svg)
+![Validate Docs](https://github.com/atc0005/elbow/workflows/Validate%20Docs/badge.svg)
 
 - [elbow](#elbow)
   - [Project home](#project-home)
