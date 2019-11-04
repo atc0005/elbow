@@ -59,9 +59,10 @@ would otherwise completely clog a filesystem.
 
 ## Features
 
-- Extensive command-line flags with detailed help output
-- (Optional) Use environment variables instead of or in addition to
-  command-line arguments
+- Supports multiple (merged) sources for supplying configuration settings
+  - Environment variables
+  - TOML format configuration file
+  - Command-line flags (with detailed help output)
   - Note: See the [Precedence](#precedence) list for how multiple
     configuration sources are processed
 - Match on specified file patterns
@@ -83,9 +84,9 @@ Worth noting: This project uses Go modules (vs classic `GOPATH` setup)
 
 See the [`CHANGELOG.md`](CHANGELOG.md) file for the changes associated with
 each release of this application. Changes that have been merged to `master`,
-but not yet an official release are also noted in the file under the
+but not yet an official release may also be noted in the file under the
 `Unreleased` section. A helpful link to the Git commit history since the last
-official release is also provided.
+official release is also provided for further review.
 
 ## Requirements
 
@@ -155,8 +156,9 @@ The priority order is:
 
 1. Command line flags (highest priority)
 1. Configuration file
+1. Environment variables
+1. Environment variables loaded from `.env` files (lowest priority)
    - **Not supported yet**
-1. Environment variables (lowest priority)
 
 ### Command-line Arguments
 
@@ -204,7 +206,30 @@ for more information.
 
 ### Configuration File
 
-Not yet supported.
+If set, configuration file settings override equivalent environment variables,
+but "lose" to command-line flags. See the [Command-line
+Arguments](#command-line-arguments) table for more information, including the
+available values for the listed configuration settings.
+
+| Flag Name        | Config file Setting Name | Section Name   | Notes                                                                    |
+| ---------------- | ------------------------ | -------------- | ------------------------------------------------------------------------ |
+| `pattern`        | `pattern`                | `filehandling` |                                                                          |
+| `extensions`     | `file_extensions`        | `filehandling` |                                                                          |
+| `age`            | `file_age`               | `filehandling` |                                                                          |
+| `keep`           | `files_to_keep`          | `filehandling` |                                                                          |
+| `keep-old`       | `keep_oldest`            | `filehandling` |                                                                          |
+| `remove`         | `remove`                 | `filehandling` |                                                                          |
+| `ignore-errors`  | `ignore_errors`          | `filehandling` |                                                                          |
+| `paths`          | `paths`                  | `search`       | [Multi-line array](https://github.com/toml-lang/toml#user-content-array) |
+| `recurse`        | `recursive_search`       | `search`       |                                                                          |
+| `log-level`      | `log_level`              | `logging`      |                                                                          |
+| `log-format`     | `log_format`             | `logging`      |                                                                          |
+| `log-file`       | `log_file_path`          | `logging`      |                                                                          |
+| `console-output` | `console_output`         | `logging`      |                                                                          |
+| `use-syslog`     | `use_syslog`             | `logging`      |                                                                          |
+
+See the [`config.example.toml`](config.example.toml) file for an example of
+how to use these settings.
 
 ## Examples
 
@@ -242,26 +267,27 @@ We had little control over the name of these branches.
 ```
 
 ```ShellSession
-ERRO[0000] Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error
-WARN[0000] Proceeding without syslog logging
+INFO[0000] Syslog logging requested, attempting to enable it  use_syslog=true
+ERRO[0000] Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error  use_syslog=true
+WARN[0000] Proceeding without syslog logging             use_syslog=true
 INFO[0000] Starting evaluation of paths list             extensions="[]" file_age=0 file_pattern=reach-master paths="[/tmp/elbow/path1 /tmp/elbow/path2]"
-INFO[0000] Beginning processing of path "/tmp/elbow/path1" (1 of 2)  iteration=1 total_paths=2
-INFO[0000] 183 files eligible for removal                extensions="[]" file_age=0 file_pattern=reach-master path=/tmp/elbow/path1
-INFO[0000] 1 files to keep as requested                  keep_oldest=true
+INFO[0000] Beginning processing of path "/tmp/elbow/path1" (1 of 2)  ignore_errors=true iteration=1 total_paths=2
+INFO[0000] 183 files eligible for removal (910.0 MiB)    extensions="[]" file_age=0 file_pattern=reach-master iteration=1 path=/tmp/elbow/path1 total_file_size=954204160
+INFO[0000] 1 files to keep as requested                  iteration=1 keep_oldest=true
 INFO[0000] Ignoring file removal errors: true
 INFO[0000] File removal not enabled, not removing files
-INFO[0000] 0 files successfully removed
-INFO[0000] 0 files failed to remove
-INFO[0000] Ending processing of "/tmp/elbow/path1" (1 of 2)  iteration=1 total_paths=2
-INFO[0000] Beginning processing of path "/tmp/elbow/path2" (2 of 2)  iteration=2 total_paths=2
-INFO[0000] 183 files eligible for removal                extensions="[]" file_age=0 file_pattern=reach-master path=/tmp/elbow/path2
-INFO[0000] 1 files to keep as requested                  keep_oldest=true
+INFO[0000] 0 files successfully removed (0 B)
+INFO[0000] 0 files failed to remove (0 B)
+INFO[0000] Ending processing of path "/tmp/elbow/path1" (1 of 2)  ignore_errors=true iteration=1 total_paths=2
+INFO[0000] Beginning processing of path "/tmp/elbow/path2" (2 of 2)  ignore_errors=true iteration=2 total_paths=2
+INFO[0000] 183 files eligible for removal (954.0 KiB)    extensions="[]" file_age=0 file_pattern=reach-master iteration=2 path=/tmp/elbow/path2 total_file_size=976896
+INFO[0000] 1 files to keep as requested                  iteration=2 keep_oldest=true
 INFO[0000] Ignoring file removal errors: true
 INFO[0000] File removal not enabled, not removing files
-INFO[0000] 0 files successfully removed
-INFO[0000] 0 files failed to remove
-INFO[0000] Ending processing of "/tmp/elbow/path2" (2 of 2)  iteration=2 total_paths=2
-INFO[0000] Elbow successfully completed.
+INFO[0000] 0 files successfully removed (0 B)
+INFO[0000] 0 files failed to remove (0 B)
+INFO[0000] Ending processing of path "/tmp/elbow/path2" (2 of 2)  ignore_errors=true iteration=2 total_paths=2
+INFO[0000] Elbow successfully completed.                 eligible_remove=366 eligible_size="910.9 MiB" failed_removed=0 failed_size="0 B" success_removed=0 success_size="0 B"
 ```
 
 Where supported, the output is colored.
@@ -289,26 +315,27 @@ While working on support for multiple paths per [issue
 ```
 
 ```json
-{"level":"error","msg":"Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error","time":"2019-10-22T21:25:50-05:00"}
-{"level":"warning","msg":"Proceeding without syslog logging","time":"2019-10-22T21:25:50-05:00"}
-{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"Starting evaluation of paths list","paths":["/tmp/elbow/path1","/tmp/elbow/path2"],"time":"2019-10-22T21:25:50-05:00"}
-{"iteration":1,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path1\" (1 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
-{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"183 files eligible for removal","path":"/tmp/elbow/path1","time":"2019-10-22T21:25:50-05:00"}
-{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"0 files successfully removed","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"0 files failed to remove","time":"2019-10-22T21:25:50-05:00"}
-{"iteration":1,"level":"info","msg":"Ending processing of \"/tmp/elbow/path1\" (1 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
-{"iteration":2,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path2\" (2 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
-{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"183 files eligible for removal","path":"/tmp/elbow/path2","time":"2019-10-22T21:25:50-05:00"}
-{"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"0 files successfully removed","time":"2019-10-22T21:25:50-05:00"}
-{"level":"info","msg":"0 files failed to remove","time":"2019-10-22T21:25:50-05:00"}
-{"iteration":2,"level":"info","msg":"Ending processing of \"/tmp/elbow/path2\" (2 of 2)","time":"2019-10-22T21:25:50-05:00","total_paths":2}
-{"level":"info","msg":"Elbow successfully completed.","time":"2019-10-22T21:25:50-05:00"}
+{"level":"info","msg":"Syslog logging requested, attempting to enable it","time":"2019-11-12T06:51:50-06:00","use_syslog":true}
+{"level":"error","msg":"Failed to enable syslog logging: unable to connect to syslog socket: Unix syslog delivery error","time":"2019-11-12T06:51:50-06:00","use_syslog":true}
+{"level":"warning","msg":"Proceeding without syslog logging","time":"2019-11-12T06:51:50-06:00","use_syslog":true}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","level":"info","msg":"Starting evaluation of paths list","paths":["/tmp/elbow/path1","/tmp/elbow/path2"],"time":"2019-11-12T06:51:50-06:00"}
+{"ignore_errors":true,"iteration":1,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path1\" (1 of 2)","time":"2019-11-12T06:51:50-06:00","total_paths":2}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","iteration":1,"level":"info","msg":"183 files eligible for removal (910.0 MiB)","path":"/tmp/elbow/path1","time":"2019-11-12T06:51:50-06:00","total_file_size":954204160}
+{"iteration":1,"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"0 files successfully removed (0 B)","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"0 files failed to remove (0 B)","time":"2019-11-12T06:51:50-06:00"}
+{"ignore_errors":true,"iteration":1,"level":"info","msg":"Ending processing of path \"/tmp/elbow/path1\" (1 of 2)","time":"2019-11-12T06:51:50-06:00","total_paths":2}
+{"ignore_errors":true,"iteration":2,"level":"info","msg":"Beginning processing of path \"/tmp/elbow/path2\" (2 of 2)","time":"2019-11-12T06:51:50-06:00","total_paths":2}
+{"extensions":null,"file_age":0,"file_pattern":"reach-master","iteration":2,"level":"info","msg":"183 files eligible for removal (954.0 KiB)","path":"/tmp/elbow/path2","time":"2019-11-12T06:51:50-06:00","total_file_size":976896}
+{"iteration":2,"keep_oldest":true,"level":"info","msg":"1 files to keep as requested","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"Ignoring file removal errors: true","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"File removal not enabled, not removing files","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"0 files successfully removed (0 B)","time":"2019-11-12T06:51:50-06:00"}
+{"level":"info","msg":"0 files failed to remove (0 B)","time":"2019-11-12T06:51:50-06:00"}
+{"ignore_errors":true,"iteration":2,"level":"info","msg":"Ending processing of path \"/tmp/elbow/path2\" (2 of 2)","time":"2019-11-12T06:51:50-06:00","total_paths":2}
+{"eligible_remove":366,"eligible_size":"910.9 MiB","failed_removed":0,"failed_size":"0 B","level":"info","msg":"Elbow successfully completed.","success_removed":0,"success_size":"0 B","time":"2019-11-12T06:51:50-06:00"}
 ```
 
 ### Help Output
@@ -320,17 +347,17 @@ Elbow prunes content matching specific patterns, either in a single directory or
 ELBOW x.y.z
 https://github.com/atc0005/elbow
 
-Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--age AGE] --keep KEEP [--keep-old] [--remove] [--ignore-errors] [--log-level LOG-LEVEL] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--use-syslog] --paths PATHS [--recurse]
+Usage: elbow [--pattern PATTERN] [--extensions EXTENSIONS] [--age AGE] [--keep KEEP] [--keep-old] [--remove] [--ignore-errors] [--log-level LOG-LEVEL] [--log-format LOG-FORMAT] [--log-file LOG-FILE] [--console-output CONSOLE-OUTPUT] [--use-syslog] [--paths PATHS] [--recurse] [--config-file CONFIG-FILE]
 
 Options:
   --pattern PATTERN      Substring pattern to compare filenames against. Wildcards are not supported.
   --extensions EXTENSIONS
                          Limit search to specified file extensions. Specify as space separated list to match multiple required extensions.
-  --age AGE              Limit search to files that are the specified number of days old or older. [default: 0]
-  --keep KEEP            Keep specified number of matching files per provided path.
-  --keep-old             Keep oldest files instead of newer per provided path. [default: false]
-  --remove               Remove matched files per provided path. [default: false]
-  --ignore-errors        Ignore errors encountered during file removal. [default: false]
+  --age AGE              Limit search to files that are the specified number of days old or older.
+  --keep KEEP            Keep specified number of matching files per provided path. [default: -1]
+  --keep-old             Keep oldest files instead of newer per provided path.
+  --remove               Remove matched files per provided path.
+  --ignore-errors        Ignore errors encountered during file removal.
   --log-level LOG-LEVEL
                          Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. [default: info]
   --log-format LOG-FORMAT
@@ -338,9 +365,11 @@ Options:
   --log-file LOG-FILE    Optional log file used to hold logged messages. If set, log messages are not displayed on the console.
   --console-output CONSOLE-OUTPUT
                          Specify how log messages are logged to the console. [default: stdout]
-  --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows. [default: false]
+  --use-syslog           Log messages to syslog in addition to other outputs. Not supported on Windows.
   --paths PATHS          List of comma or space-separated paths to process.
-  --recurse              Perform recursive search into subdirectories per provided path. [default: false]
+  --recurse              Perform recursive search into subdirectories per provided path.
+  --config-file CONFIG-FILE
+                         Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template.
   --help, -h             display this help and exit
   --version              display version and exit
 ```
