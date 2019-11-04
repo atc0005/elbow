@@ -20,10 +20,12 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/alexflint/go-arg"
+	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 )
 
@@ -58,14 +60,11 @@ type SearchOptions struct {
 // LoggingOptions represents options specific to how this application handles
 // logging.
 type LoggingOptions struct {
-
-	// https://godoc.org/github.com/sirupsen/logrus#Level
-	// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logrus.go#L81
-	LogLevel      string `arg:"--log-level,env:ELBOW_LOG_LEVEL" default:"info" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     string `arg:"--log-format,env:ELBOW_LOG_FORMAT" default:"text" help:"Log formatter used by logging package."`
-	LogFilePath   string `arg:"--log-file,env:ELBOW_LOG_FILE" default:"" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput string `arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" default:"stdout" help:"Specify how log messages are logged to the console."`
-	UseSyslog     bool   `arg:"--use-syslog,env:ELBOW_USE_SYSLOG" default:"false" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	ConsoleOutput string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	UseSyslog     bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -85,6 +84,9 @@ type Config struct {
 	LogFileHandle *os.File       `arg:"-"`
 	Logger        *logrus.Logger `arg:"-"`
 	FlagParser    *arg.Parser    `arg:"-"`
+
+	// Path to (optional) configuration file
+	ConfigFile string `arg:"-"`
 }
 
 // NewConfig returns a newly configured object representing a collection of
@@ -109,6 +111,28 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	return &config
 
+}
+
+func LoadConfigFile(c *Config) error {
+
+	config := NewConfig("placeholder", "placeholder", "placeholder", "placeholder")
+
+	// TODO: Add more error handling here
+	// Read file to byte slice
+	configFile, err := ioutil.ReadFile("config.toml")
+	if err != nil {
+		panic(err)
+	}
+
+	toml.Unmarshal(configFile, &config)
+
+	// Is this supported?
+	fmt.Printf("%v\n", config)
+
+	fmt.Println("LogFormat:", config.LogFormat)
+
+	// FIXME: Placeholder
+	return nil
 }
 
 // Description provides an overview as part of the application Help output
