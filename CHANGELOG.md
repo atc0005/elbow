@@ -26,6 +26,12 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.6.2] - 2019-11-04
+
+### Fixed
+
+- Add missing ALT text to CI badge
+
 ## [v0.6.1] - 2019-10-31
 
 ### Fixed
@@ -304,7 +310,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.6.2...HEAD
+[v0.6.2]: https://github.com/atc0005/elbow/releases/tag/v0.6.2
 [v0.6.1]: https://github.com/atc0005/elbow/releases/tag/v0.6.1
 [v0.6.0]: https://github.com/atc0005/elbow/releases/tag/v0.6.0
 [v0.5.2]: https://github.com/atc0005/elbow/releases/tag/v0.5.2
