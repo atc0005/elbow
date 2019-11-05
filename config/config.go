@@ -125,7 +125,7 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 	var field reflect.StructField
 	var ok bool
-	var tag string
+	var tagValue string
 
 	// this struct field does not have a `default` tag
 	fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
@@ -135,13 +135,13 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 	}
 
 	fmt.Println(field.Tag)
-	if tag, ok = field.Tag.Lookup(tagName); !ok {
+	if tagValue, ok = field.Tag.Lookup(tagName); !ok {
 		// return "", fmt.Errorf("%q tag not found", tag)
 		return "", false
 	}
 
-	fmt.Printf("%q, %t\n", tag, ok)
-	return tag, true
+	fmt.Printf("%q, %t\n", tagValue, ok)
+	return tagValue, true
 
 }
 
@@ -155,7 +155,10 @@ func MergeConfig(source *Config, destination *Config) error {
 	// TODO: Parse `default` struct tags and compare against fields in the
 	// `source` and `destination` config objects. If `source` field is not
 	// default,  replace the same field in `destination` config object.
-	fmt.Printf("%+v\n%+v\n", source, destination)
+	fmt.Printf("%+v\n%+v\n", *source, *destination)
+
+	var tagValue string
+	var ok bool
 
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
@@ -165,7 +168,7 @@ func MergeConfig(source *Config, destination *Config) error {
 	// fields listed below to string?
 
 	// FilePattern
-	// FileExtensions
+	// FileExtensions: Slice type, does not have a default value, so skip
 	// FileAge
 	// NumFilesToKeep
 	// KeepOldest
@@ -179,12 +182,25 @@ func MergeConfig(source *Config, destination *Config) error {
 	// ConsoleOutput
 	// UseSyslog
 
-	if value, ok := GetStructTag(*source, "FilePattern", "default"); ok {
-		source.FilePattern = value
+	if tagValue, ok = GetStructTag(*destination, "FilePattern", "default"); ok {
+		// If we were able to get the value for the requested "destination"
+		// struct tag, go ahead and convert the value for the source struct
+		// field to a string for comparison purposes; this converted string is not
+		// used for value assignment.
+		//
+		// Then, check to see if the destination field value is the configured
+		// default. If it is, then take whatever is in the source struct field
+		// and overwrite the destination struct field of the same name.
+		if string(destination.FilePattern) == tagValue {
+			destination.FilePattern = source.FilePattern
+		}
+
 	}
 
-	if value, ok := GetStructTag(*source, "FileExtensions", "default"); ok {
-		source.FileExtensions = value
+	if tagValue, ok = GetStructTag(*destination, "FileAge", "default"); ok {
+		if string(destination.FileAge) == tagValue {
+			destination.FileAge = source.FileAge
+		}
 	}
 
 	// FIXME: Placeholder
