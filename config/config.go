@@ -113,7 +113,9 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 }
 
-func LoadConfigFile(c *Config) error {
+// LoadConfigFile is a stub method intended to help prototype the process of
+// supporting multiple valid ways to load configuration settings
+func (c *Config) LoadConfigFile() error {
 
 	config := NewConfig("placeholder", "placeholder", "placeholder", "placeholder")
 
