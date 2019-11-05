@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-[FileHandlingOptions]
+[filehandling]
 
 pattern = "reach-masterdev-"
 
@@ -34,7 +34,7 @@ remove = false
 ignore_errors = true
 
 
-[SearchOptions]
+[search]
 
 # Multi-line array
 # https://github.com/toml-lang/toml#user-content-array
@@ -46,7 +46,7 @@ paths = [
 recursive_search = true
 
 
-[LoggingOptions]
+[logging]
 
 log_level = "info"
 

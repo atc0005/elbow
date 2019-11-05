@@ -38,9 +38,9 @@ type AppMetadata struct {
 	AppURL         string `arg:"-"`
 }
 
-// FileHandlingOptions represents options specific to how this application
+// FileHandling represents options specific to how this application
 // handles files.
-type FileHandlingOptions struct {
+type FileHandling struct {
 	FilePattern    string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" default:"" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
 	FileAge        int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" default:"0" help:"Limit search to files that are the specified number of days old or older."`
@@ -50,16 +50,16 @@ type FileHandlingOptions struct {
 	IgnoreErrors   bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" default:"false" help:"Ignore errors encountered during file removal."`
 }
 
-// SearchOptions represents options specific to controlling how this
-// application performs searches in the filesystem
-type SearchOptions struct {
+// Search represents options specific to controlling how this application
+// performs searches in the filesystem
+type Search struct {
 	Paths           []string `toml:"paths" arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
 	RecursiveSearch bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" default:"false" help:"Perform recursive search into subdirectories per provided path."`
 }
 
-// LoggingOptions represents options specific to how this application handles
+// Logging represents options specific to how this application handles
 // logging.
-type LoggingOptions struct {
+type Logging struct {
 	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" default:"info" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
 	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" default:"text" help:"Log formatter used by logging package."`
 	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" default:"" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
@@ -74,9 +74,9 @@ type Config struct {
 
 	// Embed other structs in an effort to better group related settings
 	AppMetadata
-	FileHandlingOptions
-	LoggingOptions
-	SearchOptions
+	FileHandling
+	Logging
+	Search
 
 	// Embedded to allow for easier carrying of "handles" between functions
 	// TODO: Confirm that this is both needed and that it doesn't violate
