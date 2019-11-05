@@ -41,30 +41,30 @@ type AppMetadata struct {
 // FileHandlingOptions represents options specific to how this application
 // handles files.
 type FileHandlingOptions struct {
-	FilePattern    string   `arg:"--pattern,env:ELBOW_FILE_PATTERN" default:"" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	FileExtensions []string `arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        int      `arg:"--age,env:ELBOW_FILE_AGE" default:"0" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep int      `arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     bool     `arg:"--keep-old,env:ELBOW_KEEP_OLD" default:"false" help:"Keep oldest files instead of newer per provided path."`
-	Remove         bool     `arg:"--remove,env:ELBOW_REMOVE" default:"false" help:"Remove matched files per provided path."`
-	IgnoreErrors   bool     `arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" default:"false" help:"Ignore errors encountered during file removal."`
+	FilePattern    string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" default:"" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	FileAge        int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" default:"0" help:"Limit search to files that are the specified number of days old or older."`
+	NumFilesToKeep int      `toml:"files_to_keep" arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	KeepOldest     bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" default:"false" help:"Keep oldest files instead of newer per provided path."`
+	Remove         bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" default:"false" help:"Remove matched files per provided path."`
+	IgnoreErrors   bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" default:"false" help:"Ignore errors encountered during file removal."`
 }
 
 // SearchOptions represents options specific to controlling how this
 // application performs searches in the filesystem
 type SearchOptions struct {
-	Paths           []string `arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch bool     `arg:"--recurse,env:ELBOW_RECURSE" default:"false" help:"Perform recursive search into subdirectories per provided path."`
+	Paths           []string `toml:"paths" arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" default:"false" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // LoggingOptions represents options specific to how this application handles
 // logging.
 type LoggingOptions struct {
-	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	UseSyslog     bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" default:"info" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" default:"text" help:"Log formatter used by logging package."`
+	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" default:"" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	ConsoleOutput string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" default:"stdout" help:"Specify how log messages are logged to the console."`
+	UseSyslog     bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" default:"false" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -124,7 +124,9 @@ func LoadConfigFile(c *Config) error {
 		panic(err)
 	}
 
-	toml.Unmarshal(configFile, &config)
+	if err := toml.Unmarshal(configFile, &config); err != nil {
+		panic(err)
+	}
 
 	// Is this supported?
 	fmt.Printf("%v\n", config)
