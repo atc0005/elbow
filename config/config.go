@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -111,6 +112,83 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	return &config
 
+}
+
+// GetStructTag returns the requested struct tag value, if set, and an error
+// value indicating whether any problems were encountered.
+func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
+
+	t := reflect.TypeOf(c)
+
+	// TODO: Rip out all of the print statements after confirming this works
+	// as expected.
+
+	var field reflect.StructField
+	var ok bool
+	var tag string
+
+	// this struct field does not have a `default` tag
+	fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
+	if field, ok = t.FieldByName("fieldname"); !ok {
+		//return "", fmt.Errorf("%q field not found", fieldname)
+		return "", false
+	}
+
+	fmt.Println(field.Tag)
+	if tag, ok = field.Tag.Lookup(tagName); !ok {
+		// return "", fmt.Errorf("%q tag not found", tag)
+		return "", false
+	}
+
+	fmt.Printf("%q, %t\n", tag, ok)
+	return tag, true
+
+}
+
+// MergeConfig receives a source and destination Config object and merges
+// non-default field values from the source Config object to the destination
+// config object, overwriting any current non-default field values. The goal
+// is to respect the current documented configuration precedence for multiple
+// configuration sources (e.g., config file and command-line flags).
+func MergeConfig(source *Config, destination *Config) error {
+
+	// TODO: Parse `default` struct tags and compare against fields in the
+	// `source` and `destination` config objects. If `source` field is not
+	// default,  replace the same field in `destination` config object.
+	fmt.Printf("%+v\n%+v\n", source, destination)
+
+	// FIXME: How can we get all field names programatically so we don't have to
+	// manually reference each field?
+
+	// TODO: Will we have to cast each value returned from GetStructTag
+	// in order to compare? Perhaps we can cast the value of the struct
+	// fields listed below to string?
+
+	// FilePattern
+	// FileExtensions
+	// FileAge
+	// NumFilesToKeep
+	// KeepOldest
+	// Remove
+	// IgnoreErrors
+	// Paths
+	// RecursiveSearch
+	// LogLevel
+	// LogFormat
+	// LogFilePath
+	// ConsoleOutput
+	// UseSyslog
+
+	if value, ok := GetStructTag(*source, "FilePattern", "default"); ok {
+		source.FilePattern = value
+	}
+
+	if value, ok := GetStructTag(*source, "FileExtensions", "default"); ok {
+		source.FileExtensions = value
+	}
+
+	// FIXME: Placeholder
+	return nil
 }
 
 // LoadConfigFile is a stub method intended to help prototype the process of
