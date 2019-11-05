@@ -154,9 +154,14 @@ against these newly created test files.
 The priority order is:
 
 1. Command line flags (highest priority)
+   - Q: How do you keep the `default` struct tags from applying here and
+     taking precedence over other config sources?
 1. Configuration file
+   - Note: The same `default` struct tags originally intended for `go-arg` is
+     also used by `go-toml`
+1. Environment variables
+1. Environment variables loaded from `.env` files (lowest priority)
    - **Not supported yet**
-1. Environment variables (lowest priority)
 
 ### Command-line Arguments
 
