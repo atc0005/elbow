@@ -129,7 +129,9 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 	// this struct field does not have a `default` tag
 	fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
-	if field, ok = t.FieldByName("fieldname"); !ok {
+	//if field, ok = t.FieldByName("fieldname"); !ok {
+	// FIXME: Are the quotes needed?
+	if field, ok = t.FieldByName(fieldname); !ok {
 		//return "", fmt.Errorf("%q field not found", fieldname)
 		return "", false
 	}
