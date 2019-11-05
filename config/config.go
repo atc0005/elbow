@@ -126,6 +126,24 @@ func (c *Config) LoadConfigFile() error {
 		panic(err)
 	}
 
+	// Unmarshal parses the TOML-encoded data and stores the result in the
+	// value pointed to by v. Behavior is similar to the Go json encoder,
+	// except that there is no concept of an Unmarshaler interface or
+	// UnmarshalTOML function for sub-structs, and currently only definite
+	// types can be unmarshaled to (i.e. no `interface{}`).
+	//
+	// The following struct annotations are supported:
+	//
+	// toml:"Field" Overrides the field's name to map to.
+	// default:"foo" Provides a default value.
+	// For default values, only fields of the following types are supported:
+	//
+	// * string
+	// * bool
+	// * int
+	// * int64
+	// * float64
+
 	if err := toml.Unmarshal(configFile, &config); err != nil {
 		panic(err)
 	}
