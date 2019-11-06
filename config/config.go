@@ -126,13 +126,20 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// Check for a configuration file and load it if found.
 	// FIXME: The method needs to be updated to reference the path provided
 	// via environment variable or command-line flag
-	fileConfig.LoadConfigFile("config.toml")
+	if err := fileConfig.LoadConfigFile("config.toml"); err != nil {
+		fmt.Printf("Error loading config file: %s", err)
+	}
 
 	// At this point `config` is our base config. We merge the other
 	// configuration objects into it to create a unified configuration object
 	// that we return to the caller.
-	MergeConfig(&config, fileConfig)
-	MergeConfig(&config, argsConfig)
+	if err := MergeConfig(&config, fileConfig); err != nil {
+		fmt.Printf("Error merging config file settings with base config: %s", err)
+	}
+
+	if err := MergeConfig(&config, argsConfig); err != nil {
+		fmt.Printf("Error merging args config settings with base config: %s", err)
+	}
 
 	return &config
 
@@ -178,20 +185,13 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 // configuration sources (e.g., config file and command-line flags).
 func MergeConfig(destination *Config, source Config) error {
 
-	// TODO: Parse `default` struct tags and compare against fields in the
-	// `source` and `destination` config objects. If `source` field is not
-	// default,  replace the same field in `destination` config object.
-	fmt.Printf("%+v\n%+v\n", source, *destination)
-
 	var tagValue string
 	var ok bool
 
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
 
-	// TODO: Will we have to cast each value returned from GetStructTag
-	// in order to compare? Perhaps we can cast the value of the struct
-	// fields listed below to string?
+	fmt.Printf("%+v\n%+v\n", source, *destination)
 
 	if tagValue, ok = GetStructTag(*destination, "FilePattern", "default"); ok {
 		// If we were able to get the value for the requested "destination"
