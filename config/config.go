@@ -96,7 +96,19 @@ type Config struct {
 func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	// Note: The majority of the default settings are supplied via struct tags
+
+	// The base configuration object that will be returned to the caller
 	var config Config
+
+	// Settings provided via command-line flags and environment variables.
+	// This object will always be set in some manner as either flags or env
+	// vars will be needed to bootstrap the application. While we may support
+	// using a configuration file to provide settings, it is not used by
+	// default.
+	var argsConfig Config
+
+	// Settings provided via config file
+	var fileConfig Config
 
 	// Initialize logger "handle" for later use
 	config.Logger = logrus.New()
@@ -109,7 +121,18 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
 	// user-provided settings fail validation.
-	config.FlagParser = arg.MustParse(&config)
+	config.FlagParser = arg.MustParse(&argsConfig)
+
+	// Check for a configuration file and load it if found.
+	// FIXME: The method needs to be updated to reference the path provided
+	// via environment variable or command-line flag
+	fileConfig.LoadConfigFile("config.toml")
+
+	// At this point `config` is our base config. We merge the other
+	// configuration objects into it to create a unified configuration object
+	// that we return to the caller.
+	MergeConfig(&config, fileConfig)
+	MergeConfig(&config, argsConfig)
 
 	return &config
 
@@ -153,12 +176,12 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 // config object, overwriting any current non-default field values. The goal
 // is to respect the current documented configuration precedence for multiple
 // configuration sources (e.g., config file and command-line flags).
-func MergeConfig(source *Config, destination *Config) error {
+func MergeConfig(destination *Config, source Config) error {
 
 	// TODO: Parse `default` struct tags and compare against fields in the
 	// `source` and `destination` config objects. If `source` field is not
 	// default,  replace the same field in `destination` config object.
-	fmt.Printf("%+v\n%+v\n", *source, *destination)
+	fmt.Printf("%+v\n%+v\n", source, *destination)
 
 	var tagValue string
 	var ok bool
@@ -268,15 +291,12 @@ func MergeConfig(source *Config, destination *Config) error {
 
 // LoadConfigFile is a stub method intended to help prototype the process of
 // supporting multiple valid ways to load configuration settings
-func (c *Config) LoadConfigFile() error {
+func (c *Config) LoadConfigFile(filename string) error {
 
-	config := NewConfig("placeholder", "placeholder", "placeholder", "placeholder")
-
-	// TODO: Add more error handling here
 	// Read file to byte slice
-	configFile, err := ioutil.ReadFile("config.toml")
+	configFile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Unmarshal parses the TOML-encoded data and stores the result in the
@@ -297,16 +317,14 @@ func (c *Config) LoadConfigFile() error {
 	// * int64
 	// * float64
 
-	if err := toml.Unmarshal(configFile, &config); err != nil {
-		panic(err)
+	if err := toml.Unmarshal(configFile, &c); err != nil {
+		return err
 	}
 
 	// Is this supported?
-	fmt.Printf("%v\n", config)
+	fmt.Printf("%v\n", c)
+	fmt.Println("LogFormat:", c.LogFormat)
 
-	fmt.Println("LogFormat:", config.LogFormat)
-
-	// FIXME: Placeholder
 	return nil
 }
 
