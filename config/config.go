@@ -141,6 +141,8 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 		fmt.Printf("Error merging args config settings with base config: %s", err)
 	}
 
+	fmt.Printf("The config object that we are returning:\n%+v", config)
+
 	return &config
 
 }
@@ -159,7 +161,7 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 	var tagValue string
 
 	// this struct field does not have a `default` tag
-	fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
+	//fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
 	//if field, ok = t.FieldByName("fieldname"); !ok {
 	// FIXME: Are the quotes needed?
 	if field, ok = t.FieldByName(fieldname); !ok {
@@ -167,13 +169,13 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 		return "", false
 	}
 
-	fmt.Println(field.Tag)
+	//fmt.Println(field.Tag)
 	if tagValue, ok = field.Tag.Lookup(tagName); !ok {
 		// return "", fmt.Errorf("%q tag not found", tag)
 		return "", false
 	}
 
-	fmt.Printf("%q, %t\n", tagValue, ok)
+	//fmt.Printf("%q, %t\n", tagValue, ok)
 	return tagValue, true
 
 }
@@ -191,7 +193,20 @@ func MergeConfig(destination *Config, source Config) error {
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
 
-	fmt.Printf("%+v\n%+v\n", source, *destination)
+	fmt.Println("MergeConfig called")
+	fmt.Printf("Source struct: %+v\n", source)
+	fmt.Printf("Dest struct: %+v\n", *destination)
+
+	// Copy over select source struct field values if destination struct field
+	// values are empty or some other invalid state. These fields are not
+	// supported by `default` value logic.
+	if len(destination.Paths) <= 0 {
+		destination.Paths = source.Paths
+	}
+
+	if len(destination.FileExtensions) <= 0 {
+		destination.FileExtensions = source.FileExtensions
+	}
 
 	if tagValue, ok = GetStructTag(*destination, "FilePattern", "default"); ok {
 		// If we were able to get the value for the requested "destination"
@@ -259,6 +274,10 @@ func MergeConfig(destination *Config, source Config) error {
 	}
 
 	if tagValue, ok = GetStructTag(*destination, "LogFormat", "default"); ok {
+
+		fmt.Printf("destination.LogFormat: %v", destination.LogFormat)
+		fmt.Printf("source.LogFormat: %v", source.LogFormat)
+		fmt.Printf("tagValue: %v", tagValue)
 		if string(destination.LogFormat) == tagValue {
 			destination.LogFormat = source.LogFormat
 		}
@@ -317,13 +336,13 @@ func (c *Config) LoadConfigFile(filename string) error {
 	// * int64
 	// * float64
 
-	if err := toml.Unmarshal(configFile, &c); err != nil {
+	if err := toml.Unmarshal(configFile, c); err != nil {
 		return err
 	}
 
 	// Is this supported?
-	fmt.Printf("%v\n", c)
-	fmt.Println("LogFormat:", c.LogFormat)
+	// fmt.Printf("%v\n", c)
+	// fmt.Println("LogFormat:", c.LogFormat)
 
 	return nil
 }
