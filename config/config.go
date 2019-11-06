@@ -279,6 +279,9 @@ func MergeConfig(destination *Config, source Config) error {
 		fmt.Printf("source.LogFormat: %v\n", source.LogFormat)
 		fmt.Printf("tagValue: %v\n", tagValue)
 		if string(destination.LogFormat) == tagValue {
+			// FIXME: We need to take into consideration that the user may
+			// have explicitly opted into using the same value as the
+			// `default` struct tag value.
 			destination.LogFormat = source.LogFormat
 		}
 	}
