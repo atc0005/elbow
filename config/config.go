@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -169,21 +170,6 @@ func MergeConfig(source *Config, destination *Config) error {
 	// in order to compare? Perhaps we can cast the value of the struct
 	// fields listed below to string?
 
-	// FilePattern
-	// FileExtensions: Slice type, does not have a default value, so skip
-	// FileAge
-	// NumFilesToKeep
-	// KeepOldest
-	// Remove
-	// IgnoreErrors
-	// Paths
-	// RecursiveSearch
-	// LogLevel
-	// LogFormat
-	// LogFilePath
-	// ConsoleOutput
-	// UseSyslog
-
 	if tagValue, ok = GetStructTag(*destination, "FilePattern", "default"); ok {
 		// If we were able to get the value for the requested "destination"
 		// struct tag, go ahead and convert the value for the source struct
@@ -205,7 +191,78 @@ func MergeConfig(source *Config, destination *Config) error {
 		}
 	}
 
+	if tagValue, ok = GetStructTag(*destination, "NumFilesToKeep", "default"); ok {
+		if string(destination.NumFilesToKeep) == tagValue {
+			destination.NumFilesToKeep = source.NumFilesToKeep
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "KeepOldest", "default"); ok {
+		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
+			if destination.KeepOldest == defaultValue {
+				destination.KeepOldest = source.KeepOldest
+			}
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "Remove", "default"); ok {
+		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
+			if destination.Remove == defaultValue {
+				destination.Remove = source.Remove
+			}
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "IgnoreErrors", "default"); ok {
+		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
+			if destination.IgnoreErrors == defaultValue {
+				destination.IgnoreErrors = source.IgnoreErrors
+			}
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "RecursiveSearch", "default"); ok {
+		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
+			if destination.RecursiveSearch == defaultValue {
+				destination.RecursiveSearch = source.RecursiveSearch
+			}
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "LogLevel", "default"); ok {
+		if string(destination.LogLevel) == tagValue {
+			destination.LogLevel = source.LogLevel
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "LogFormat", "default"); ok {
+		if string(destination.LogFormat) == tagValue {
+			destination.LogFormat = source.LogFormat
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "LogFilePath", "default"); ok {
+		if string(destination.LogFilePath) == tagValue {
+			destination.LogFilePath = source.LogFilePath
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "ConsoleOutput", "default"); ok {
+		if string(destination.ConsoleOutput) == tagValue {
+			destination.ConsoleOutput = source.ConsoleOutput
+		}
+	}
+
+	if tagValue, ok = GetStructTag(*destination, "UseSyslog", "default"); ok {
+		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
+			if destination.UseSyslog == defaultValue {
+				destination.UseSyslog = source.UseSyslog
+			}
+		}
+	}
+
 	// FIXME: Placeholder
+	// FIXME: What useful error code would we return from this function?
 	return nil
 }
 
