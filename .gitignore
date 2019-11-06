@@ -35,3 +35,7 @@ elbow.~
 
 .upx
 elbow.upx
+
+
+# Ignore local copy of config file
+config.toml
