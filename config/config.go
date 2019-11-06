@@ -275,9 +275,9 @@ func MergeConfig(destination *Config, source Config) error {
 
 	if tagValue, ok = GetStructTag(*destination, "LogFormat", "default"); ok {
 
-		fmt.Printf("destination.LogFormat: %v", destination.LogFormat)
-		fmt.Printf("source.LogFormat: %v", source.LogFormat)
-		fmt.Printf("tagValue: %v", tagValue)
+		fmt.Printf("destination.LogFormat: %v\n", destination.LogFormat)
+		fmt.Printf("source.LogFormat: %v\n", source.LogFormat)
+		fmt.Printf("tagValue: %v\n", tagValue)
 		if string(destination.LogFormat) == tagValue {
 			destination.LogFormat = source.LogFormat
 		}
