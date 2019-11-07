@@ -39,8 +39,8 @@ ignore_errors = true
 # Multi-line array
 # https://github.com/toml-lang/toml#user-content-array
 paths = [
-    "/tmp",
-    "/tmp2",
+    "/tmp/elbow/path1",
+    "/tmp/elbow/path2",
 ]
 
 recursive_search = true
