@@ -227,14 +227,6 @@ func (fm FileMatches) FilesToPrune(c *config.Config) FileMatches {
 	var pruneStartRange int
 	var pruneEndRange int
 
-	log.WithFields(logrus.Fields{
-		"start_range": pruneStartRange,
-		"end_range":   pruneEndRange,
-		"num_to_keep": c.NumFilesToKeep,
-	}).Debug("Building list of files to prune by skipping forward specified number of files to keep")
-	pruneStartRange = 0
-	pruneEndRange = (len(fm) - c.NumFilesToKeep)
-
 	switch {
 	case c.NumFilesToKeep > len(fm):
 		log.Debug("Specified number to keep is larger than total matches; will process all matches")
@@ -243,10 +235,20 @@ func (fm FileMatches) FilesToPrune(c *config.Config) FileMatches {
 	case c.KeepOldest:
 		fm.SortByModTimeAsc()
 		log.Debug("Keeping older files by sorting in ascending order")
+		pruneStartRange = 0
+		pruneEndRange = (len(fm) - c.NumFilesToKeep)
 	case !c.KeepOldest:
 		fm.SortByModTimeDesc()
 		log.Debug("Keeping newer files by sorting in descending order")
+		pruneStartRange = 0
+		pruneEndRange = (len(fm) - c.NumFilesToKeep)
 	}
+
+	log.WithFields(logrus.Fields{
+		"start_range": pruneStartRange,
+		"end_range":   pruneEndRange,
+		"num_to_keep": c.NumFilesToKeep,
+	}).Debug("Building list of files to prune by skipping forward specified number of files to keep")
 
 	return fm[pruneStartRange:pruneEndRange]
 }
