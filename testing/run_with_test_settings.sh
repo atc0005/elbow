@@ -149,3 +149,30 @@ if [[ $? -ne 0 ]]; then
   echo "${BINARY_NAME} execution failed. See earlier output for details."
   sleep 3
 fi
+
+
+# Attempt to use config.toml config file from the root of the repo
+echo -e "\n\nCalling ${BINARY_NAME} with config file flag"
+
+# Reset all environment variables to prevent shadowing tests with config file
+unset ELBOW_PATHS
+unset ELBOW_FILE_PATTERN
+unset ELBOW_EXTENSIONS
+unset ELBOW_KEEP
+unset ELBOW_FILE_AGE
+unset ELBOW_RECURSE
+unset ELBOW_KEEP_OLD
+unset ELBOW_IGNORE_ERRORS
+unset ELBOW_LOG_LEVEL
+unset ELBOW_USE_SYSLOG
+unset ELBOW_LOG_FORMAT
+unset ELBOW_REMOVE
+
+./${BINARY_NAME} \
+  --paths "${PATH1}" \
+  --config-file "config.toml"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
