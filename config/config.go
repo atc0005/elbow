@@ -152,7 +152,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	if argsConfig.ConfigFile != "" {
 		// Check for a configuration file and load it if found.
 		if err := fileConfig.LoadConfigFile(argsConfig.ConfigFile); err != nil {
-			fmt.Printf("Error loading config file: %s", err)
+			fmt.Printf("Error loading config file: %s\n", err)
 		}
 	}
 
@@ -162,10 +162,10 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func([]string)
 	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func(*runtime.Frame) (string, string)
-	fmt.Println("Processing fileConfig object with MergeConfig func")
+	fmt.Printf("\n\nProcessing fileConfig object with MergeConfig func")
 	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error merging config file settings with base config: %s", line, err)
+		fmt.Printf("(line %d) Error merging config file settings with base config: %s\n", line, err)
 	}
 
 	if ok, err := config.Validate(); !ok {
@@ -174,9 +174,10 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 			line, "fileConfig", err)
 	}
 
+	fmt.Printf("\n\nProcessing argsConfig object with MergeConfig func")
 	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error merging args config settings with base config: %s", line, err)
+		fmt.Printf("(line %d) Error merging args config settings with base config: %s\n", line, err)
 	}
 
 	if ok, err := config.Validate(); !ok {
@@ -224,9 +225,9 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 	// manually reference each field?
 
 	fmt.Println("MergeConfig called")
-	// fmt.Printf("Source struct: %+v\n", source)
-	// fmt.Printf("Dest struct: %+v\n", *destination)
-	// fmt.Printf("Default struct: %+v\n", defaultConfig)
+	fmt.Printf("Source struct: %+v\n", source)
+	fmt.Printf("Dest struct: %+v\n", *destination)
+	fmt.Printf("Default struct: %+v\n", defaultConfig)
 
 	// Copy over select source struct field values if destination struct field
 	// values are empty or some other invalid state. These fields are not
