@@ -17,7 +17,8 @@
 *.test
 
 # Potential/temporary non-release build binaries
-*.exe
+elbow
+elbow.exe
 
 # Release assets
 *-linux-386
@@ -29,10 +30,9 @@
 *-windows-amd64.exe
 *-windows-amd64.exe.sha256
 
-# UPX backup files
+# UPX related files
 elbow.ex~
 elbow.~
-
 .upx
 elbow.upx
 
