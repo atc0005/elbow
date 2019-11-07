@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -99,30 +98,34 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	// The base configuration object that will be returned to the caller
 	var config Config
+	var defaultConfig Config
+
+	// Common metadata
+	defaultConfig.AppName = appName
+	defaultConfig.AppDescription = appDescription
+	defaultConfig.AppURL = appURL
+	defaultConfig.AppVersion = appVersion
 
 	// Apply default settings that other configuration sources will be allowed
 	// to override
-	config.FilePattern = ""
-	config.FileAge = 0
-	config.NumFilesToKeep = 0
-	config.KeepOldest = false
-	config.Remove = false
-	config.IgnoreErrors = false
-	config.RecursiveSearch = false
-	config.LogLevel = "info"
-	config.LogFormat = "text"
-	config.LogFilePath = ""
-	config.ConsoleOutput = "stdout"
-	config.UseSyslog = false
-	config.ConfigFile = ""
+	defaultConfig.FilePattern = ""
+	defaultConfig.FileAge = 0
+	defaultConfig.NumFilesToKeep = 0
+	defaultConfig.KeepOldest = false
+	defaultConfig.Remove = false
+	defaultConfig.IgnoreErrors = false
+	defaultConfig.RecursiveSearch = false
+	defaultConfig.LogLevel = "info"
+	defaultConfig.LogFormat = "text"
+	defaultConfig.LogFilePath = ""
+	defaultConfig.ConsoleOutput = "stdout"
+	defaultConfig.UseSyslog = false
+	defaultConfig.ConfigFile = ""
+
+	config = defaultConfig
 
 	// Initialize logger "handle" for later use
 	config.Logger = logrus.New()
-
-	config.AppName = appName
-	config.AppDescription = appDescription
-	config.AppURL = appURL
-	config.AppVersion = appVersion
 
 	// Settings provided via command-line flags and environment variables.
 	// This object will always be set in some manner as either flags or env
@@ -152,11 +155,11 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// At this point `config` is our base config. We merge the other
 	// configuration objects into it to create a unified configuration object
 	// that we return to the caller.
-	if err := MergeConfig(&config, fileConfig); err != nil {
+	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging config file settings with base config: %s", err)
 	}
 
-	if err := MergeConfig(&config, argsConfig); err != nil {
+	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging args config settings with base config: %s", err)
 	}
 
@@ -199,15 +202,12 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 }
 
-// MergeConfig receives a source and destination Config object and merges
-// non-default field values from the source Config object to the destination
-// config object, overwriting any current non-default field values. The goal
-// is to respect the current documented configuration precedence for multiple
-// configuration sources (e.g., config file and command-line flags).
-func MergeConfig(destination *Config, source Config) error {
-
-	var tagValue string
-	var ok bool
+// MergeConfig receives source, destination and default Config objects and
+// merges non-default field values from the source Config object to the
+// destination config object, overwriting any field values already present.
+// The goal is to respect the current documented configuration precedence for
+// multiple configuration sources (e.g., config file and command-line flags).
+func MergeConfig(destination *Config, source Config, defaultConfig Config) error {
 
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
@@ -215,114 +215,71 @@ func MergeConfig(destination *Config, source Config) error {
 	fmt.Println("MergeConfig called")
 	fmt.Printf("Source struct: %+v\n", source)
 	fmt.Printf("Dest struct: %+v\n", *destination)
+	fmt.Printf("Default struct: %+v\n", defaultConfig)
 
 	// Copy over select source struct field values if destination struct field
 	// values are empty or some other invalid state. These fields are not
 	// supported by `default` value logic.
-	if len(destination.Paths) <= 0 {
+	if len(source.Paths) > len(defaultConfig.Paths) {
 		destination.Paths = source.Paths
 	}
 
-	if len(destination.FileExtensions) <= 0 {
+	if len(source.FileExtensions) > len(defaultConfig.FileExtensions) {
 		destination.FileExtensions = source.FileExtensions
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "FilePattern", "default"); ok {
-		// If we were able to get the value for the requested "destination"
-		// struct tag, go ahead and convert the value for the source struct
-		// field to a string for comparison purposes; this converted string is not
-		// used for value assignment.
-		//
-		// Then, check to see if the destination field value is the configured
-		// default. If it is, then take whatever is in the source struct field
-		// and overwrite the destination struct field of the same name.
-		if string(destination.FilePattern) == tagValue {
-			destination.FilePattern = source.FilePattern
-		}
-
+	if source.FilePattern != defaultConfig.FilePattern {
+		destination.FilePattern = source.FilePattern
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "FileAge", "default"); ok {
-		if string(destination.FileAge) == tagValue {
-			destination.FileAge = source.FileAge
-		}
+	// source and destination config structs already have usable default
+	// values upon creation using our NewConfig() constructor; only copy if
+	// source struct has a different value
+	if source.FileAge > defaultConfig.FileAge {
+		destination.FileAge = source.FileAge
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "NumFilesToKeep", "default"); ok {
-		if string(destination.NumFilesToKeep) == tagValue {
-			destination.NumFilesToKeep = source.NumFilesToKeep
-		}
+	if source.NumFilesToKeep > defaultConfig.NumFilesToKeep {
+		destination.NumFilesToKeep = source.NumFilesToKeep
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "KeepOldest", "default"); ok {
-		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
-			if destination.KeepOldest == defaultValue {
-				destination.KeepOldest = source.KeepOldest
-			}
-		}
+	// TODO: any reason to check this? Perhaps just direct copy for boolean
+	// variables?
+	if source.KeepOldest != defaultConfig.KeepOldest {
+		destination.KeepOldest = source.KeepOldest
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "Remove", "default"); ok {
-		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
-			if destination.Remove == defaultValue {
-				destination.Remove = source.Remove
-			}
-		}
+	if source.Remove != defaultConfig.Remove {
+		destination.Remove = source.Remove
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "IgnoreErrors", "default"); ok {
-		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
-			if destination.IgnoreErrors == defaultValue {
-				destination.IgnoreErrors = source.IgnoreErrors
-			}
-		}
+	if source.IgnoreErrors != defaultConfig.IgnoreErrors {
+		destination.IgnoreErrors = source.IgnoreErrors
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "RecursiveSearch", "default"); ok {
-		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
-			if destination.RecursiveSearch == defaultValue {
-				destination.RecursiveSearch = source.RecursiveSearch
-			}
-		}
+	if source.RecursiveSearch != defaultConfig.RecursiveSearch {
+		destination.RecursiveSearch = source.RecursiveSearch
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "LogLevel", "default"); ok {
-		if string(destination.LogLevel) == tagValue {
-			destination.LogLevel = source.LogLevel
-		}
+	// only copy source field value if non-default
+	if source.LogLevel != defaultConfig.LogLevel {
+		destination.LogLevel = source.LogLevel
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "LogFormat", "default"); ok {
-
-		fmt.Printf("destination.LogFormat: %v\n", destination.LogFormat)
-		fmt.Printf("source.LogFormat: %v\n", source.LogFormat)
-		fmt.Printf("tagValue: %v\n", tagValue)
-		if string(destination.LogFormat) == tagValue {
-			// FIXME: We need to take into consideration that the user may
-			// have explicitly opted into using the same value as the
-			// `default` struct tag value.
-			destination.LogFormat = source.LogFormat
-		}
+	if source.LogFormat != defaultConfig.LogFormat {
+		destination.LogFormat = source.LogFormat
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "LogFilePath", "default"); ok {
-		if string(destination.LogFilePath) == tagValue {
-			destination.LogFilePath = source.LogFilePath
-		}
+	if source.LogFilePath != defaultConfig.LogFilePath {
+		destination.LogFilePath = source.LogFilePath
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "ConsoleOutput", "default"); ok {
-		if string(destination.ConsoleOutput) == tagValue {
-			destination.ConsoleOutput = source.ConsoleOutput
-		}
+	if source.ConsoleOutput != defaultConfig.ConsoleOutput {
+		destination.ConsoleOutput = source.ConsoleOutput
 	}
 
-	if tagValue, ok = GetStructTag(*destination, "UseSyslog", "default"); ok {
-		if defaultValue, err := strconv.ParseBool(tagValue); err == nil {
-			if destination.UseSyslog == defaultValue {
-				destination.UseSyslog = source.UseSyslog
-			}
-		}
+	if source.UseSyslog != defaultConfig.UseSyslog {
+		destination.UseSyslog = source.UseSyslog
 	}
 
 	// FIXME: Placeholder
