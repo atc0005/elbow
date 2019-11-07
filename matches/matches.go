@@ -201,14 +201,16 @@ func InList(needle string, haystack []string) bool {
 	return false
 }
 
-// SortByModTimeAsc sorts slice of FileMatches in ascending order
+// SortByModTimeAsc sorts slice of FileMatches in ascending order with older
+// values listed first.
 func (fm FileMatches) SortByModTimeAsc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().Before(fm[j].ModTime())
 	})
 }
 
-// SortByModTimeDesc sorts slice of FileMatches in descending order
+// SortByModTimeDesc sorts slice of FileMatches in descending order with newer
+// values listed first.
 func (fm FileMatches) SortByModTimeDesc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().After(fm[j].ModTime())
