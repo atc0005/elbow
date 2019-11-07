@@ -160,11 +160,6 @@ func main() {
 			log.Warn("Error encountered, but continuing as requested.")
 		}
 
-		// NOTE: If this sort order changes, make sure to update the later logic
-		// which retains the top or bottom X items (specific flag to preserve X
-		// number of files while pruning the others)
-		fileMatches.SortByModTimeAsc()
-
 		log.Debugf("Length of matches slice: %d", len(fileMatches))
 
 		log.Debugf("Early exit if no matching files were found.")
@@ -209,15 +204,41 @@ func main() {
 			"keep_oldest": appConfig.KeepOldest,
 		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
 
-		if appConfig.KeepOldest {
-			// TODO: Is debug output still useful?
-			log.Debug("Keeping older files")
-			log.Debug("start at specified number to keep, go until end of slice")
-			filesToPrune = fileMatches[appConfig.NumFilesToKeep:]
+		// NOTE: If this sort order changes, make sure to update the logic for
+		// `appConfig.KeepOldest` which retains the top or bottom X items
+		// (specific flag to preserve X number of files while pruning the
+		// others)
+		fileMatches.SortByModTimeAsc()
+
+		if appConfig.NumFilesToKeep > len(fileMatches) {
+			log.Debug("specified number to keep is larger than total matches; will process all matches")
+			filesToPrune = fileMatches
 		} else {
-			log.Debug("Keeping newer files")
-			log.Debug("start at beginning, go until specified number to keep")
-			filesToPrune = fileMatches[:(len(fileMatches) - appConfig.NumFilesToKeep)]
+			if appConfig.KeepOldest {
+				log.Debug("Keeping older files by skipping files towards the beginning of the list")
+
+				startRange := appConfig.NumFilesToKeep
+				endRange := len(fileMatches)
+				log.WithFields(logrus.Fields{
+					"start_range": startRange,
+					"end_range":   endRange,
+					"num_to_keep": appConfig.NumFilesToKeep,
+				}).Debug("select matches from list at specified number to keep")
+				filesToPrune = fileMatches[startRange:endRange]
+
+			} else {
+				log.Debug("Keeping newer files by skipping files towards the end of the list")
+
+				startRange := 0
+				endRange := (len(fileMatches) - appConfig.NumFilesToKeep)
+				log.WithFields(logrus.Fields{
+					"start_range": startRange,
+					"end_range":   endRange,
+					"num_to_keep": appConfig.NumFilesToKeep,
+				}).Debug("select matches from list starting with index 0 and ending with total length minus specified number to keep")
+
+				filesToPrune = fileMatches[0:endRange]
+			}
 		}
 
 		if len(filesToPrune) == 0 {
