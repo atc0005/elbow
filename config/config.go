@@ -23,6 +23,7 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
+	"runtime"
 	"strings"
 
 	"github.com/alexflint/go-arg"
@@ -168,7 +169,9 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 		fmt.Printf("Error merging args config settings with base config: %s", err)
 	}
 
-	fmt.Printf("The config object that we are returning:\n%+v", config)
+	_, _, line, _ := runtime.Caller(0)
+	fmt.Printf("Line %d\n", line)
+	fmt.Println("The config object that we are returning:", config.String())
 
 	return &config
 
