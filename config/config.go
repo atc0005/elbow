@@ -171,7 +171,8 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	_, _, line, _ := runtime.Caller(0)
 	fmt.Printf("Line %d\n", line)
-	fmt.Println("The config object that we are returning:", config.String())
+	// fmt.Println("The config object that we are returning:", config.String())
+	fmt.Println("The config object that we are returning:", config.StringThing())
 
 	return &config
 
@@ -419,7 +420,7 @@ func (c Config) Validate() (bool, error) {
 
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
-func (c *Config) String() string {
+func (c *Config) StringThing() string {
 	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t",
 
 		// TODO: Finish syncing this against the config struct fields
