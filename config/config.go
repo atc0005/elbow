@@ -151,8 +151,6 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// If user specified a config file, let's try to use it
 	if argsConfig.ConfigFile != "" {
 		// Check for a configuration file and load it if found.
-		// FIXME: The method needs to be updated to reference the path provided
-		// via environment variable or command-line flag
 		if err := fileConfig.LoadConfigFile(argsConfig.ConfigFile); err != nil {
 			fmt.Printf("Error loading config file: %s", err)
 		}
@@ -166,27 +164,25 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func(*runtime.Frame) (string, string)
 	fmt.Println("Processing fileConfig object with MergeConfig func")
 	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
-		fmt.Printf("Error merging config file settings with base config: %s", err)
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("Line %d\n", line)
+		fmt.Printf("(line %d) Error merging config file settings with base config: %s", line, err)
 	}
 
 	if ok, err := config.Validate(); !ok {
-		fmt.Printf("Error validating config after merging %s: %s\n", "fileConfig", err)
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("Line %d\n", line)
+		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
+			line, "fileConfig", err)
 	}
 
 	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
-		fmt.Printf("Error merging args config settings with base config: %s", err)
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("Line %d\n", line)
+		fmt.Printf("(line %d) Error merging args config settings with base config: %s", line, err)
 	}
 
 	if ok, err := config.Validate(); !ok {
-		fmt.Printf("Error validating config after merging %s: %s\n", "argsConfig", err)
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("Line %d\n", line)
+		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
+			line, "argsConfig", err)
 	}
 
 	// fmt.Println("The config object that we are returning:", config.String())
@@ -201,29 +197,18 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 	t := reflect.TypeOf(c)
 
-	// TODO: Rip out all of the print statements after confirming this works
-	// as expected.
-
 	var field reflect.StructField
 	var ok bool
 	var tagValue string
 
-	// this struct field does not have a `default` tag
-	//fmt.Printf("\nProcessing %s struct field ...\n", fieldname)
-	//if field, ok = t.FieldByName("fieldname"); !ok {
-	// FIXME: Are the quotes needed?
 	if field, ok = t.FieldByName(fieldname); !ok {
-		//return "", fmt.Errorf("%q field not found", fieldname)
 		return "", false
 	}
 
-	//fmt.Println(field.Tag)
 	if tagValue, ok = field.Tag.Lookup(tagName); !ok {
-		// return "", fmt.Errorf("%q tag not found", tag)
 		return "", false
 	}
 
-	//fmt.Printf("%q, %t\n", tagValue, ok)
 	return tagValue, true
 
 }
