@@ -34,10 +34,10 @@ import (
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	AppName        string `arg:"-"`
-	AppDescription string `arg:"-"`
-	AppVersion     string `arg:"-"`
-	AppURL         string `arg:"-"`
+	AppName        string `toml:"-" arg:"-"`
+	AppDescription string `toml:"-" arg:"-"`
+	AppVersion     string `toml:"-" arg:"-"`
+	AppURL         string `toml:"-" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
@@ -83,9 +83,9 @@ type Config struct {
 	// Embedded to allow for easier carrying of "handles" between functions
 	// TODO: Confirm that this is both needed and that it doesn't violate
 	// best practices.
-	LogFileHandle *os.File       `arg:"-"`
-	Logger        *logrus.Logger `arg:"-"`
-	FlagParser    *arg.Parser    `arg:"-"`
+	LogFileHandle *os.File       `toml:"-" arg:"-"`
+	Logger        *logrus.Logger `toml:"-" arg:"-"`
+	FlagParser    *arg.Parser    `toml:"-" arg:"-"`
 
 	// Path to (optional) configuration file
 	ConfigFile string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
@@ -161,18 +161,29 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// At this point `config` is our base config. We merge the other
 	// configuration objects into it to create a unified configuration object
 	// that we return to the caller.
+
+	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func([]string)
+	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func(*runtime.Frame) (string, string)
+	fmt.Println("Processing fileConfig object with MergeConfig func")
 	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging config file settings with base config: %s", err)
+	}
+
+	if ok, err := config.Validate(); !ok {
+		fmt.Printf("Error validating config after merging %s: %s", "fileConfig", err)
 	}
 
 	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging args config settings with base config: %s", err)
 	}
 
+	if ok, err := config.Validate(); !ok {
+		fmt.Printf("Error validating config after merging %s: %s", "argsConfig", err)
+	}
+
 	_, _, line, _ := runtime.Caller(0)
 	fmt.Printf("Line %d\n", line)
 	// fmt.Println("The config object that we are returning:", config.String())
-	fmt.Println("The config object that we are returning:", config.StringThing())
 
 	return &config
 
@@ -222,9 +233,9 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 	// manually reference each field?
 
 	fmt.Println("MergeConfig called")
-	fmt.Printf("Source struct: %+v\n", source)
-	fmt.Printf("Dest struct: %+v\n", *destination)
-	fmt.Printf("Default struct: %+v\n", defaultConfig)
+	// fmt.Printf("Source struct: %+v\n", source)
+	// fmt.Printf("Dest struct: %+v\n", *destination)
+	// fmt.Printf("Default struct: %+v\n", defaultConfig)
 
 	// Copy over select source struct field values if destination struct field
 	// values are empty or some other invalid state. These fields are not
@@ -367,11 +378,6 @@ func (c Config) Validate() (bool, error) {
 	// Remove is optional
 	// IgnoreErrors is optional
 
-	// go-flags `choice:""` struct tags enforce valid options
-	// if !inList(c.LogFormat, c.validLogFormats) {
-	// 	return false
-	// }
-
 	switch c.LogFormat {
 	case "text":
 	case "json":
@@ -389,11 +395,6 @@ func (c Config) Validate() (bool, error) {
 	default:
 		return false, fmt.Errorf("invalid option %q provided for console output destination", c.ConsoleOutput)
 	}
-
-	// go-flags `choice:""` struct tags enforce valid options
-	// if !inList(c.LogLevel, c.validLogLevels) {
-	// 	return false
-	// }
 
 	switch c.LogLevel {
 	case "emergency":
