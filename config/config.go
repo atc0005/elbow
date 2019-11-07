@@ -43,30 +43,30 @@ type AppMetadata struct {
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern    string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" default:"" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FilePattern    string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" default:"0" help:"Limit search to files that are the specified number of days old or older."`
+	FileAge        int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
 	NumFilesToKeep int      `toml:"files_to_keep" arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" default:"false" help:"Keep oldest files instead of newer per provided path."`
-	Remove         bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" default:"false" help:"Remove matched files per provided path."`
-	IgnoreErrors   bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" default:"false" help:"Ignore errors encountered during file removal."`
+	KeepOldest     bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	Remove         bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	IgnoreErrors   bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
 	Paths           []string `toml:"paths" arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" default:"false" help:"Perform recursive search into subdirectories per provided path."`
+	RecursiveSearch bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" default:"info" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" default:"text" help:"Log formatter used by logging package."`
-	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" default:"" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" default:"stdout" help:"Specify how log messages are logged to the console."`
-	UseSyslog     bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" default:"false" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel      string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	LogFilePath   string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	ConsoleOutput string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	UseSyslog     bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -88,7 +88,7 @@ type Config struct {
 	FlagParser    *arg.Parser    `arg:"-"`
 
 	// Path to (optional) configuration file
-	ConfigFile string `arg:"-"`
+	ConfigFile string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
 // NewConfig returns a newly configured object representing a collection of
@@ -100,6 +100,30 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// The base configuration object that will be returned to the caller
 	var config Config
 
+	// Apply default settings that other configuration sources will be allowed
+	// to override
+	config.FilePattern = ""
+	config.FileAge = 0
+	config.NumFilesToKeep = 0
+	config.KeepOldest = false
+	config.Remove = false
+	config.IgnoreErrors = false
+	config.RecursiveSearch = false
+	config.LogLevel = "info"
+	config.LogFormat = "text"
+	config.LogFilePath = ""
+	config.ConsoleOutput = "stdout"
+	config.UseSyslog = false
+	config.ConfigFile = ""
+
+	// Initialize logger "handle" for later use
+	config.Logger = logrus.New()
+
+	config.AppName = appName
+	config.AppDescription = appDescription
+	config.AppURL = appURL
+	config.AppVersion = appVersion
+
 	// Settings provided via command-line flags and environment variables.
 	// This object will always be set in some manner as either flags or env
 	// vars will be needed to bootstrap the application. While we may support
@@ -110,24 +134,19 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// Settings provided via config file
 	var fileConfig Config
 
-	// Initialize logger "handle" for later use
-	config.Logger = logrus.New()
-
-	config.AppName = appName
-	config.AppDescription = appDescription
-	config.AppURL = appURL
-	config.AppVersion = appVersion
-
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
 	// user-provided settings fail validation.
 	config.FlagParser = arg.MustParse(&argsConfig)
 
-	// Check for a configuration file and load it if found.
-	// FIXME: The method needs to be updated to reference the path provided
-	// via environment variable or command-line flag
-	if err := fileConfig.LoadConfigFile("config.toml"); err != nil {
-		fmt.Printf("Error loading config file: %s", err)
+	// If user specified a config file, let's try to use it
+	if argsConfig.ConfigFile != "" {
+		// Check for a configuration file and load it if found.
+		// FIXME: The method needs to be updated to reference the path provided
+		// via environment variable or command-line flag
+		if err := fileConfig.LoadConfigFile(argsConfig.ConfigFile); err != nil {
+			fmt.Printf("Error loading config file: %s", err)
+		}
 	}
 
 	// At this point `config` is our base config. We merge the other
@@ -311,8 +330,7 @@ func MergeConfig(destination *Config, source Config) error {
 	return nil
 }
 
-// LoadConfigFile is a stub method intended to help prototype the process of
-// supporting multiple valid ways to load configuration settings
+// LoadConfigFile reads and unmarshals a configuration file in TOML format
 func (c *Config) LoadConfigFile(filename string) error {
 
 	// Read file to byte slice
@@ -321,31 +339,9 @@ func (c *Config) LoadConfigFile(filename string) error {
 		return err
 	}
 
-	// Unmarshal parses the TOML-encoded data and stores the result in the
-	// value pointed to by v. Behavior is similar to the Go json encoder,
-	// except that there is no concept of an Unmarshaler interface or
-	// UnmarshalTOML function for sub-structs, and currently only definite
-	// types can be unmarshaled to (i.e. no `interface{}`).
-	//
-	// The following struct annotations are supported:
-	//
-	// toml:"Field" Overrides the field's name to map to.
-	// default:"foo" Provides a default value.
-	// For default values, only fields of the following types are supported:
-	//
-	// * string
-	// * bool
-	// * int
-	// * int64
-	// * float64
-
 	if err := toml.Unmarshal(configFile, c); err != nil {
 		return err
 	}
-
-	// Is this supported?
-	// fmt.Printf("%v\n", c)
-	// fmt.Println("LogFormat:", c.LogFormat)
 
 	return nil
 }
