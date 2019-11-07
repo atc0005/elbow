@@ -98,7 +98,19 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	// The base configuration object that will be returned to the caller
 	var config Config
+
+	// Our baseline
 	var defaultConfig Config
+
+	// Settings provided via command-line flags and environment variables.
+	// This object will always be set in some manner as either flags or env
+	// vars will be needed to bootstrap the application. While we may support
+	// using a configuration file to provide settings, it is not used by
+	// default.
+	var argsConfig Config
+
+	// Settings provided via config file
+	var fileConfig Config
 
 	// Common metadata
 	defaultConfig.AppName = appName
@@ -122,20 +134,13 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	defaultConfig.UseSyslog = false
 	defaultConfig.ConfigFile = ""
 
+	// Apply baseline before loading custom settings
 	config = defaultConfig
+	fileConfig = defaultConfig
+	argsConfig = defaultConfig
 
 	// Initialize logger "handle" for later use
 	config.Logger = logrus.New()
-
-	// Settings provided via command-line flags and environment variables.
-	// This object will always be set in some manner as either flags or env
-	// vars will be needed to bootstrap the application. While we may support
-	// using a configuration file to provide settings, it is not used by
-	// default.
-	var argsConfig Config
-
-	// Settings provided via config file
-	var fileConfig Config
 
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
