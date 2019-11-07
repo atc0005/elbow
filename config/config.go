@@ -167,22 +167,28 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	fmt.Println("Processing fileConfig object with MergeConfig func")
 	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging config file settings with base config: %s", err)
+		_, _, line, _ := runtime.Caller(0)
+		fmt.Printf("Line %d\n", line)
 	}
 
 	if ok, err := config.Validate(); !ok {
-		fmt.Printf("Error validating config after merging %s: %s", "fileConfig", err)
+		fmt.Printf("Error validating config after merging %s: %s\n", "fileConfig", err)
+		_, _, line, _ := runtime.Caller(0)
+		fmt.Printf("Line %d\n", line)
 	}
 
 	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
 		fmt.Printf("Error merging args config settings with base config: %s", err)
+		_, _, line, _ := runtime.Caller(0)
+		fmt.Printf("Line %d\n", line)
 	}
 
 	if ok, err := config.Validate(); !ok {
-		fmt.Printf("Error validating config after merging %s: %s", "argsConfig", err)
+		fmt.Printf("Error validating config after merging %s: %s\n", "argsConfig", err)
+		_, _, line, _ := runtime.Caller(0)
+		fmt.Printf("Line %d\n", line)
 	}
 
-	_, _, line, _ := runtime.Caller(0)
-	fmt.Printf("Line %d\n", line)
 	// fmt.Println("The config object that we are returning:", config.String())
 
 	return &config
@@ -421,13 +427,13 @@ func (c Config) Validate() (bool, error) {
 
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
-func (c *Config) StringThing() string {
-	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t",
+func (c *Config) String() string {
+	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, Logger=%v, FlagParser=%v), ConfigFile=%q, EndOfStringMethod",
 
-		// TODO: Finish syncing this against the config struct fields
 		c.AppName,
 		c.AppDescription,
 		c.AppVersion,
+		c.AppURL,
 		c.FilePattern,
 		c.FileExtensions,
 		c.Paths,
@@ -443,5 +449,8 @@ func (c *Config) StringThing() string {
 		c.ConsoleOutput,
 		c.LogLevel,
 		c.UseSyslog,
+		c.Logger,
+		c.FlagParser,
+		c.ConfigFile,
 	)
 }

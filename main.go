@@ -88,6 +88,9 @@ func main() {
 		"config": appConfig,
 	}).Debug("Our configuration")
 
+	// FIXME: Remove this after finishing troubleshooting work
+	fmt.Println("Where does this show?")
+
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if appConfig.LogFileHandle != nil {
 		log.Debug("Deferring closure of log file")
