@@ -46,7 +46,7 @@ type FileHandling struct {
 	FilePattern    string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
 	FileAge        int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep int      `toml:"files_to_keep" arg:"--keep,required,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	NumFilesToKeep int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
 	KeepOldest     bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
 	Remove         bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
 	IgnoreErrors   bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
@@ -55,7 +55,7 @@ type FileHandling struct {
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	Paths           []string `toml:"paths" arg:"--paths,required,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
 	RecursiveSearch bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
@@ -120,10 +120,10 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	defaultConfig.AppVersion = appVersion
 
 	// Apply default settings that other configuration sources will be allowed
-	// to override
+	// to (and for a few settings MUST) override
 	defaultConfig.FilePattern = ""
 	defaultConfig.FileAge = 0
-	defaultConfig.NumFilesToKeep = 0
+	defaultConfig.NumFilesToKeep = -1
 	defaultConfig.KeepOldest = false
 	defaultConfig.Remove = false
 	defaultConfig.IgnoreErrors = false
@@ -369,7 +369,7 @@ func (c Config) Validate() (bool, error) {
 	// a non-negative number. AFAIK, this is not currently enforced any other
 	// way.
 	if c.NumFilesToKeep < 0 {
-		return false, fmt.Errorf("negative number not supported for files to keep")
+		return false, fmt.Errorf("invalid value provided for files to keep")
 	}
 
 	// We only want to work with positive file modification times 0 is
