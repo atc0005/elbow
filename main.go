@@ -22,7 +22,6 @@ import (
 
 	"github.com/atc0005/elbow/config"
 	"github.com/atc0005/elbow/logging"
-	"github.com/atc0005/elbow/matches"
 	"github.com/atc0005/elbow/paths"
 	"github.com/atc0005/elbow/units"
 
@@ -202,41 +201,7 @@ func main() {
 			"keep_oldest": appConfig.KeepOldest,
 		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
 
-		// NOTE: If this sort order changes, make sure to update the logic for
-		// `appConfig.KeepOldest` which retains the top or bottom X items
-		// (specific flag to preserve X number of files while pruning the
-		// others)
-		fileMatches.SortByModTimeAsc()
-
-		var pruneStartRange int
-		var pruneEndRange int
-		var filesToPrune matches.FileMatches
-
-		switch {
-		case appConfig.NumFilesToKeep > len(fileMatches):
-			log.Debug("Specified number to keep is larger than total matches; will process all matches")
-			pruneStartRange = 0
-			pruneEndRange = len(fileMatches)
-
-		case appConfig.KeepOldest:
-			log.Debug("Keeping older files by skipping files towards the beginning of the list")
-			log.Debug("Select matches from list at specified number to keep")
-			pruneStartRange = appConfig.NumFilesToKeep
-			pruneEndRange = len(fileMatches)
-
-		case !appConfig.KeepOldest:
-			log.Debug("Keeping newer files by skipping files towards the end of the list")
-			log.Debug("Select matches from list starting with first item and ending with total length minus specified number to keep")
-			pruneStartRange = 0
-			pruneEndRange = (len(fileMatches) - appConfig.NumFilesToKeep)
-		}
-
-		log.WithFields(logrus.Fields{
-			"start_range": pruneStartRange,
-			"end_range":   pruneEndRange,
-			"num_to_keep": appConfig.NumFilesToKeep,
-		}).Debug("Building list of files to prune")
-		filesToPrune = fileMatches[pruneStartRange:pruneEndRange]
+		filesToPrune := fileMatches.FilesToPrune(appConfig)
 
 		if len(filesToPrune) == 0 {
 			log.Info("Nothing to prune")

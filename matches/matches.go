@@ -201,18 +201,52 @@ func InList(needle string, haystack []string) bool {
 	return false
 }
 
-// SortByModTimeAsc sorts slice of FileMatches in ascending order with older
-// values listed first.
+// SortByModTimeAsc sorts slice of FileMatch objects in ascending order with
+// older values listed first.
 func (fm FileMatches) SortByModTimeAsc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().Before(fm[j].ModTime())
 	})
 }
 
-// SortByModTimeDesc sorts slice of FileMatches in descending order with newer
-// values listed first.
+// SortByModTimeDesc sorts slice of FileMatch objects in descending order with
+// newer values listed first.
 func (fm FileMatches) SortByModTimeDesc() {
 	sort.Slice(fm, func(i, j int) bool {
 		return fm[i].ModTime().After(fm[j].ModTime())
 	})
+}
+
+// FilesToPrune receives a slice of FileMatch objects and a config object.
+// Returns a slice of FileMatch objects selected based on the current config
+// object settings.
+func (fm FileMatches) FilesToPrune(c *config.Config) FileMatches {
+
+	log := c.Logger
+
+	var pruneStartRange int
+	var pruneEndRange int
+
+	log.WithFields(logrus.Fields{
+		"start_range": pruneStartRange,
+		"end_range":   pruneEndRange,
+		"num_to_keep": c.NumFilesToKeep,
+	}).Debug("Building list of files to prune by skipping forward specified number of files to keep")
+	pruneStartRange = 0
+	pruneEndRange = (len(fm) - c.NumFilesToKeep)
+
+	switch {
+	case c.NumFilesToKeep > len(fm):
+		log.Debug("Specified number to keep is larger than total matches; will process all matches")
+		pruneStartRange = 0
+		pruneEndRange = len(fm)
+	case c.KeepOldest:
+		fm.SortByModTimeAsc()
+		log.Debug("Keeping older files by sorting in ascending order")
+	case !c.KeepOldest:
+		fm.SortByModTimeDesc()
+		log.Debug("Keeping newer files by sorting in descending order")
+	}
+
+	return fm[pruneStartRange:pruneEndRange]
 }
