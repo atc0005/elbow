@@ -73,16 +73,10 @@ func main() {
 
 	log.Debug("Config object created")
 
-	// Apply our custom logging settings
-
-	fmt.Println("JSON unmarshal error here")
-	fmt.Printf("defaultConfig struct: %+v\n", defaultConfig)
 	log.WithFields(logrus.Fields{
 		"defaultConfig": defaultConfig,
 	}).Debug("Default configuration")
 
-	fmt.Println("JSON unmarshal error here")
-	fmt.Printf("appConfig struct: %+v\n", appConfig)
 	log.WithFields(logrus.Fields{
 		"config": appConfig,
 	}).Debug("Our configuration")
