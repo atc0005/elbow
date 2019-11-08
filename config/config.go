@@ -267,6 +267,8 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 	// source and destination config structs already have usable default
 	// values upon creation using our NewConfig() constructor; only copy if
 	// source struct has a different value
+	// TODO: While this makes sense NOW, what is the best way to handle this
+	// if the default value becomes non-zero?
 	if source.FileAge > defaultConfig.FileAge {
 		destination.FileAge = source.FileAge
 	}
