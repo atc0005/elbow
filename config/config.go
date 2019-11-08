@@ -31,6 +31,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Package global intended to help "collect" log messages during configuration
+// initialization in order to properly handle after configuration object is
+// finalized.
+var initLogger *logrus.Logger = logrus.New()
+
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
@@ -91,27 +96,14 @@ type Config struct {
 	ConfigFile string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
-// NewConfig returns a newly configured object representing a collection of
-// user-provided and default settings.
-func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
+// DefaultConfig returns a configuration object with baseline settings applied
+// for further extension by the caller.
+func DefaultConfig(appName, appDescription, appURL, appVersion string) Config {
 
-	// Note: The majority of the default settings are supplied via struct tags
+	// Our baseline. The majority of the default settings were previously
+	// supplied via struct tags
 
-	// The base configuration object that will be returned to the caller
-	var config Config
-
-	// Our baseline
 	var defaultConfig Config
-
-	// Settings provided via command-line flags and environment variables.
-	// This object will always be set in some manner as either flags or env
-	// vars will be needed to bootstrap the application. While we may support
-	// using a configuration file to provide settings, it is not used by
-	// default.
-	var argsConfig Config
-
-	// Settings provided via config file
-	var fileConfig Config
 
 	// Common metadata
 	defaultConfig.AppName = appName
@@ -135,18 +127,45 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	defaultConfig.UseSyslog = false
 	defaultConfig.ConfigFile = ""
 
-	// Apply baseline before loading custom settings
-	config = defaultConfig
-	fileConfig = defaultConfig
-	argsConfig = defaultConfig
+	return defaultConfig
+
+}
+
+// NewConfig returns a pointer to a newly configured object representing a
+// collection of user-provided and default settings.
+func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
+
+	// Baseline collection of settings before loading custom config sources
+	defaultConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+
+	// The base configuration object that will be returned to the caller
+	baseConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+
+	// Settings provided via config file
+	fileConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+
+	// Settings provided via command-line flags and environment variables.
+	// This object will always be set in some manner as either flags or env
+	// vars will be needed to bootstrap the application. While we may support
+	// using a configuration file to provide settings, it is not used by
+	// default.
+	argsConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
 
 	// Initialize logger "handle" for later use
-	config.Logger = logrus.New()
+	baseConfig.Logger = logrus.New()
 
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
 	// user-provided settings fail validation.
-	config.FlagParser = arg.MustParse(&argsConfig)
+	baseConfig.FlagParser = arg.MustParse(&argsConfig)
+
+	/*************************************************************************
+		At this point `config` is our base config object containing default
+		settings and various handles to other resources. We do not apply those
+		same resource handles to other config structs. We merge the other
+		configuration objects into it the base config object to create a
+		unified configuration object that we return to the caller.
+	*************************************************************************/
 
 	// If user specified a config file, let's try to use it
 	if argsConfig.ConfigFile != "" {
@@ -156,37 +175,38 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 		}
 	}
 
-	// At this point `config` is our base config. We merge the other
-	// configuration objects into it to create a unified configuration object
-	// that we return to the caller.
-
+	// Some number of commits back the following error messages were returned
+	// when attempting to use logrus package to log the contents of the
+	// struct. Remove this comment and the following error messages once this
+	// code proves stable.
+	//
 	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func([]string)
 	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func(*runtime.Frame) (string, string)
-	fmt.Printf("\n\nProcessing fileConfig object with MergeConfig func")
-	if err := MergeConfig(&config, fileConfig, defaultConfig); err != nil {
+	fmt.Printf("\n\nProcessing fileConfig object with MergeConfig func\n")
+	if err := MergeConfig(&baseConfig, fileConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
 		fmt.Printf("(line %d) Error merging config file settings with base config: %s\n", line, err)
 	}
 
-	if ok, err := config.Validate(); !ok {
+	if ok, err := baseConfig.Validate(); !ok {
 		_, _, line, _ := runtime.Caller(0)
 		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
 			line, "fileConfig", err)
 	}
 
-	fmt.Printf("\n\nProcessing argsConfig object with MergeConfig func")
-	if err := MergeConfig(&config, argsConfig, defaultConfig); err != nil {
+	fmt.Printf("\n\nProcessing argsConfig object with MergeConfig func\n")
+	if err := MergeConfig(&baseConfig, argsConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
 		fmt.Printf("(line %d) Error merging args config settings with base config: %s\n", line, err)
 	}
 
-	if ok, err := config.Validate(); !ok {
+	if ok, err := baseConfig.Validate(); !ok {
 		_, _, line, _ := runtime.Caller(0)
 		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
 			line, "argsConfig", err)
 	}
 
-	// fmt.Println("The config object that we are returning:", config.String())
+	fmt.Println("The config object that we are returning:", baseConfig)
 
 	return &config
 

@@ -49,7 +49,7 @@ func main() {
 
 	// If this fails, the application will immediately exit.
 	appConfig := config.NewConfig(appName, appDescription, appURL, version)
-	defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
+	// defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
 
 	// Validate configuration
 	if ok, err := appConfig.Validate(); !ok {
@@ -73,13 +73,14 @@ func main() {
 
 	log.Debug("Config object created")
 
-	log.WithFields(logrus.Fields{
-		"defaultConfig": defaultConfig,
-	}).Debug("Default configuration")
+	// FIXME: Shouldn't this be handled by the NewConfig() func?
+	// log.WithFields(logrus.Fields{
+	// 	"defaultConfig": defaultConfig,
+	// }).Debug("Default configuration")
 
-	log.WithFields(logrus.Fields{
-		"config": appConfig,
-	}).Debug("Our configuration")
+	// log.WithFields(logrus.Fields{
+	// 	"config": appConfig,
+	// }).Debug("Our configuration")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if appConfig.LogFileHandle != nil {
