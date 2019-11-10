@@ -28,6 +28,62 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Record holds logrus.Field values along with additional metadata that can be
+// used later to complete the log message submission process.
+type Record struct {
+	Level   logrus.Level
+	Message string
+	Fields  logrus.Fields
+}
+
+// LogBuffer represents a slice of Record objects
+type LogBuffer []Record
+
+// Add passed Record type to slice of Record objects
+func (lb *LogBuffer) Add(r Record) {
+	*lb = append(*lb, r)
+}
+
+// Flush Record entries after applying user-provided logging settings
+func (lb LogBuffer) Flush(logger *logrus.Logger) {
+
+	for _, entry := range lb {
+
+		switch {
+
+		case entry.Level == logrus.PanicLevel:
+			// fmt.Println("The next message should be in text format")
+			logrus.SetFormatter(&logrus.TextFormatter{})
+			logger.WithFields(entry.Fields).Panic(entry.Message)
+
+		case entry.Level == logrus.FatalLevel:
+			// fmt.Println("The next message should be in text format")
+			logrus.SetFormatter(&logrus.TextFormatter{})
+			logger.WithFields(entry.Fields).Fatal(entry.Message)
+
+		case entry.Level == logrus.WarnLevel:
+			// fmt.Println("The next message should be in text format")
+			logrus.SetFormatter(&logrus.TextFormatter{})
+			logger.WithFields(entry.Fields).Warn(entry.Message)
+
+		case entry.Level == logrus.InfoLevel:
+			// fmt.Println("The next message should be in JSON format")
+			logrus.SetFormatter(&logrus.JSONFormatter{})
+			logger.WithFields(entry.Fields).Info(entry.Message)
+
+		case entry.Level == logrus.DebugLevel:
+			// fmt.Println("The next message should be in JSON format")
+			logrus.SetFormatter(&logrus.JSONFormatter{})
+			logger.WithFields(entry.Fields).Debug(entry.Message)
+
+		}
+
+	}
+
+	// TODO: Empty slice now that we're done processing all items
+
+}
+
 // SetLoggerConfig applies the requested logger configuration settings
 func SetLoggerConfig(config *config.Config) {
 

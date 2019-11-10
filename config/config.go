@@ -31,11 +31,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Package global intended to help "collect" log messages during configuration
-// initialization in order to properly handle after configuration object is
-// finalized.
-var initLogger *logrus.Logger = logrus.New()
-
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
@@ -208,7 +203,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
 	fmt.Println("The config object that we are returning:", baseConfig)
 
-	return &config
+	return &baseConfig
 
 }
 
