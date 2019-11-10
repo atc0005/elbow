@@ -26,10 +26,14 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/atc0005/elbow/logging"
+
 	"github.com/alexflint/go-arg"
 	"github.com/pelletier/go-toml"
 	"github.com/sirupsen/logrus"
 )
+
+var logBuffer logging.LogBuffer
 
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
