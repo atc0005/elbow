@@ -85,6 +85,9 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 }
 
 // SetLoggerConfig applies the requested logger configuration settings
+// TODO: Move to config package?
+// Once the specific blocks inside this function are extracted, it should
+// be feasible to do so?
 func SetLoggerConfig(config *config.Config) {
 
 	logger := config.Logger
