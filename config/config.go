@@ -170,47 +170,71 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	if argsConfig.ConfigFile != "" {
 		// Check for a configuration file and load it if found.
 		if err := fileConfig.LoadConfigFile(argsConfig.ConfigFile); err != nil {
-			fmt.Printf("Error loading config file: %s\n", err)
+			logBuffer.Add(logging.LogRecord{
+				Level:   logrus.ErrorLevel,
+				Message: fmt.Sprintf("Error loading config file: %s", err),
+				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
+			})
 		}
 	}
 
-	// Some number of commits back the following error messages were returned
-	// when attempting to use logrus package to log the contents of the
-	// struct. Remove this comment and the following error messages once this
-	// code proves stable.
-	//
-	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func([]string)
-	// Failed to obtain reader, failed to marshal fields to JSON, json: unsupported type: func(*runtime.Frame) (string, string)
-	fmt.Printf("\n\nProcessing fileConfig object with MergeConfig func\n")
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "Processing fileConfig object with MergeConfig func",
+	})
 	if err := MergeConfig(&baseConfig, fileConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error merging config file settings with base config: %s\n", line, err)
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.ErrorLevel,
+			Message: fmt.Sprintf("Error merging config file settings with base config: %s", err),
+			Fields:  logrus.Fields{"line": line},
+		})
 	}
 
 	if ok, err := baseConfig.Validate(); !ok {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
-			line, "fileConfig", err)
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.ErrorLevel,
+			Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
+			Fields:  logrus.Fields{"line": line},
+		})
 	}
 
-	fmt.Printf("\n\nProcessing argsConfig object with MergeConfig func\n")
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "Processing argsConfig object with MergeConfig func",
+	})
+
 	if err := MergeConfig(&baseConfig, argsConfig, defaultConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error merging args config settings with base config: %s\n", line, err)
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.ErrorLevel,
+			Message: fmt.Sprintf("Error merging args config settings with base config: %s", err),
+			Fields:  logrus.Fields{"line": line},
+		})
 	}
 
 	if ok, err := baseConfig.Validate(); !ok {
 		_, _, line, _ := runtime.Caller(0)
-		fmt.Printf("(line %d) Error validating config after merging %s: %s\n",
-			line, "argsConfig", err)
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.ErrorLevel,
+			Message: fmt.Sprintf("Error validating config after merging %s: %s", "argsConfig", err),
+			Fields:  logrus.Fields{"line": line},
+		})
 	}
 
 	// Apply logging configuration
 	baseConfig.SetLoggerConfig()
 
-	fmt.Println("The config object that we are returning:", baseConfig)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("The config object that we are returning: %v", baseConfig),
+	})
 
-	// Empty queued up log messages using user-specified logging settings.
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
+	})
 	logBuffer.Flush(baseConfig.Logger)
 
 	return &baseConfig
