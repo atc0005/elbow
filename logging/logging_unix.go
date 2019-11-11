@@ -87,7 +87,7 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer LogBuffer, logLevel st
 
 	logBuffer.Add(LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: "syslog log level set to %v", syslogLogLevel,
+		Message: fmt.Sprintf("syslog log level set to %v", syslogLogLevel),
 		Fields:  logrus.Fields{"log_level": logLevel},
 	})
 
@@ -105,14 +105,14 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer LogBuffer, logLevel st
 
 		// FIXME: Confirm that we can use Record{} without specifying the
 		// `Fields` struct file key/value pair.
-		logBuffer.Add(Record{
+		logBuffer.Add(LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Connected to syslog socket",
 		})
 
 		logger.AddHook(hook)
 
-		logBuffer.Add(Record{
+		logBuffer.Add(LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Finished using AddHook() to enable syslog logging",
 		})
