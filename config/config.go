@@ -205,7 +205,13 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 			line, "argsConfig", err)
 	}
 
+	// Apply logging configuration
+	baseConfig.SetLoggerConfig()
+
 	fmt.Println("The config object that we are returning:", baseConfig)
+
+	// Empty queued up log messages using user-specified logging settings.
+	logBuffer.Flush(baseConfig.Logger)
 
 	return &baseConfig
 
@@ -460,4 +466,63 @@ func (c *Config) String() string {
 		c.FlagParser,
 		c.ConfigFile,
 	)
+}
+
+// SetLoggerConfig applies chosen configuration settings that control logging
+// output.
+func (c *Config) SetLoggerConfig() {
+
+	logging.SetLoggerFormatter(c.Logger, c.LogFormat)
+	logging.SetLoggerConsoleOutput(c.Logger, c.ConsoleOutput)
+
+	if fileHandle, err := logging.SetLoggerLogFile(c.Logger, c.LogFilePath); err == nil {
+		c.LogFileHandle = fileHandle
+	} else {
+		// Need to collect the error for display later
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.ErrorLevel,
+			Message: fmt.Sprintf("%s", err),
+			Fields:  logrus.Fields{"log_file": c.LogFilePath},
+		})
+	}
+
+	logging.SetLoggerLevel(c.Logger, c.LogLevel)
+
+	// https://godoc.org/github.com/sirupsen/logrus#New
+	// https://godoc.org/github.com/sirupsen/logrus#Logger
+
+	// make sure that the user actually requested syslog logging as it is
+	// currently supported on UNIX only.
+	if c.UseSyslog {
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.DebugLevel,
+			Message: "Syslog logging requested, attempting to enable it",
+			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+		})
+
+		if err := logging.EnableSyslogLogging(c.Logger, logBuffer, c.LogLevel); err != nil {
+			// TODO: Is this sufficient cause for failing? Perhaps if a local
+			// log file is not also set consider it a failure?
+
+			logBuffer.Add(logging.LogRecord{
+				Level:   logrus.ErrorLevel,
+				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
+				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			})
+
+			logBuffer.Add(logging.LogRecord{
+				Level:   logrus.WarnLevel,
+				Message: "Proceeding without syslog logging",
+				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			})
+		}
+	} else {
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.DebugLevel,
+			Message: "Syslog logging not requested, not enabling",
+			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+		})
+
+	}
+
 }

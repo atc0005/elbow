@@ -21,7 +21,6 @@ import (
 	"os"
 
 	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/logging"
 	"github.com/atc0005/elbow/paths"
 	"github.com/atc0005/elbow/units"
 
@@ -66,8 +65,6 @@ func main() {
 		// appConfig.FlagParser.Fail(failMessage)
 
 	}
-
-	logging.SetLoggerConfig(appConfig)
 
 	log := appConfig.Logger
 

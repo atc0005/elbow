@@ -20,27 +20,26 @@
 package logging
 
 import (
+	"fmt"
 	"os"
 	"strings"
-
-	"github.com/atc0005/elbow/config"
 
 	"github.com/sirupsen/logrus"
 )
 
-// Record holds logrus.Field values along with additional metadata that can be
+// LogRecord holds logrus.Field values along with additional metadata that can be
 // used later to complete the log message submission process.
-type Record struct {
+type LogRecord struct {
 	Level   logrus.Level
 	Message string
 	Fields  logrus.Fields
 }
 
 // LogBuffer represents a slice of Record objects
-type LogBuffer []Record
+type LogBuffer []LogRecord
 
 // Add passed Record type to slice of Record objects
-func (lb *LogBuffer) Add(r Record) {
+func (lb *LogBuffer) Add(r LogRecord) {
 	*lb = append(*lb, r)
 }
 
@@ -84,56 +83,66 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 
 }
 
-// SetLoggerConfig applies the requested logger configuration settings
-// TODO: Move to config package?
-// Once the specific blocks inside this function are extracted, it should
-// be feasible to do so?
-func SetLoggerConfig(config *config.Config) {
-
-	logger := config.Logger
-
-	switch config.LogFormat {
+// SetLoggerFormatter sets a user-specified logging format for the provided
+// logger object.
+func SetLoggerFormatter(logger *logrus.Logger, format string) {
+	switch format {
 	case "text":
 		logger.SetFormatter(&logrus.TextFormatter{})
 	case "json":
 		// Log as JSON instead of the default ASCII formatter.
 		logger.SetFormatter(&logrus.JSONFormatter{})
 	}
+}
 
-	// NOTE: If config.LogFile is set, console output is muted
+// SetLoggerConsoleOutput configures the chosen console output to one of
+// stdout or stderr.
+func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
 	var loggerOutput *os.File
 	switch {
-	case config.ConsoleOutput == "stdout":
+	case consoleOutput == "stdout":
 		loggerOutput = os.Stdout
-	case config.ConsoleOutput == "stderr":
+	case consoleOutput == "stderr":
 		loggerOutput = os.Stderr
-	}
-
-	if strings.TrimSpace(config.LogFilePath) != "" {
-		// If this is set, do not log to console unless writing to log file fails
-		// FIXME: How do we defer the file close without killing the file handle?
-		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logger.go#L332
-		file, err := os.OpenFile(config.LogFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-		if err == nil {
-			loggerOutput = file
-
-			// This is what we'll use to close the file handle from main()
-			// https://kgrz.io/reading-files-in-go-an-overview.html
-			config.LogFileHandle = file
-		} else {
-			logger.Errorf("Failed to log to %s, will use %s instead.",
-				config.LogFilePath, config.ConsoleOutput)
-		}
 	}
 
 	// Apply chosen output based on earlier checks
 	// Note: Can be any io.Writer
 	logger.SetOutput(loggerOutput)
+}
+
+// SetLoggerLogFile configures a log file as the destination for all log
+// messages. NOTE: If successfully set, console output is muted.
+func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, error) {
+
+	var file *os.File
+	var err error
+
+	if strings.TrimSpace(logFilePath) != "" {
+		// If this is set, do not log to console unless writing to log file fails
+		// FIXME: How do we defer the file close without killing the file handle?
+		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logger.go#L332
+		file, err = os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			return nil, fmt.Errorf("failed to log to %s, will leave configuration as is",
+				logFilePath)
+		}
+		// The `file` handle is what we'll use to close the file handle from main()
+		// https://kgrz.io/reading-files-in-go-an-overview.html
+		logger.SetOutput(file)
+	}
+
+	return file, nil
+}
+
+// SetLoggerLevel applies the requested logger level to filter out messages
+// with a lower level than the one configured.
+func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://golang.org/pkg/log/syslog/#Priority
 	// https://en.wikipedia.org/wiki/Syslog#Severity_level
-	switch config.LogLevel {
+	switch logLevel {
 	case "emerg", "panic":
 		logger.SetLevel(logrus.PanicLevel)
 	case "alert", "critical", "fatal":
@@ -148,21 +157,6 @@ func SetLoggerConfig(config *config.Config) {
 		logger.SetLevel(logrus.DebugLevel)
 	case "trace":
 		logger.SetLevel(logrus.TraceLevel)
-	}
-
-	// https://godoc.org/github.com/sirupsen/logrus#New
-	// https://godoc.org/github.com/sirupsen/logrus#Logger
-
-	if config.UseSyslog {
-		logger.Debug("Syslog logging requested, attempting to enable it")
-		if err := enableSyslogLogging(config, logger); err != nil {
-			// TODO: Is this sufficient cause for failing? Perhaps if a local
-			// log file is not also set consider it a failure?
-			logger.Errorf("Failed to enable syslog logging: %s", err)
-			logger.Warn("Proceeding without syslog logging")
-		}
-	} else {
-		logger.Debug("Syslog logging not requested, not enabling")
 	}
 
 }

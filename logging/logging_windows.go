@@ -19,28 +19,17 @@
 package logging
 
 import (
-	// Use `log` if we are going to override the default `log`, otherwise
-	// import without an "override" if we want to use the `logrus` name.
-	// https://godoc.org/github.com/sirupsen/logrus
-	"fmt"
-
-	// TODO: Is this needed here with a global `log` objection already created
-	// from this package?
 	"github.com/sirupsen/logrus"
-
-	"github.com/atc0005/elbow/config"
 )
 
-func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
+// EnableSyslogLogging attempts to enable local syslog logging for non-Windows
+// systems. For Windows systems the attempt is skipped.
+func EnableSyslogLogging(logger *logrus.Logger, logBuffer LogBuffer, logLevel string) error {
 
-	// make sure that the user actually requested syslog logging as it is
-	// currently supported on UNIX only.
-
-	if !config.UseSyslog {
-		return fmt.Errorf("syslog logging not requested, not enabling")
-	}
-
-	logger.Debug("This is a Windows build. Syslog support is not currently supported for this platform.")
+	logBuffer.Add(LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "This is a Windows build. Syslog support is not currently supported for this platform.",
+	})
 
 	return nil
 
