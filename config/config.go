@@ -273,10 +273,22 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
 
-	fmt.Println("MergeConfig called")
-	fmt.Printf("Source struct: %+v\n", source)
-	fmt.Printf("Dest struct: %+v\n", *destination)
-	fmt.Printf("Default struct: %+v\n", defaultConfig)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "MergeConfig called",
+	})
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Source struct: %+v", source),
+	})
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Destination struct: %+v", *destination),
+	})
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Default struct: %+v", defaultConfig),
+	})
 
 	// Copy over select source struct field values if destination struct field
 	// values are empty or some other invalid state. These fields are not
