@@ -70,15 +70,6 @@ func main() {
 
 	log.Debug("Config object created")
 
-	// FIXME: Shouldn't this be handled by the NewConfig() func?
-	// log.WithFields(logrus.Fields{
-	// 	"defaultConfig": defaultConfig,
-	// }).Debug("Default configuration")
-
-	// log.WithFields(logrus.Fields{
-	// 	"config": appConfig,
-	// }).Debug("Our configuration")
-
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if appConfig.LogFileHandle != nil {
 		log.Debug("Deferring closure of log file")
@@ -138,6 +129,7 @@ func main() {
 
 			log.WithFields(logrus.Fields{
 				"ignore_errors": appConfig.IgnoreErrors,
+				"iteration":     pass,
 			}).Error("error:", err)
 
 			if !appConfig.IgnoreErrors {
@@ -158,6 +150,7 @@ func main() {
 				"file_pattern": appConfig.FilePattern,
 				"extensions":   appConfig.FileExtensions,
 				"file_age":     appConfig.FileAge,
+				"iteration":    pass,
 			}).Info("No matches found")
 
 			log.WithFields(logrus.Fields{
@@ -179,6 +172,7 @@ func main() {
 			"extensions":      appConfig.FileExtensions,
 			"file_age":        appConfig.FileAge,
 			"total_file_size": fileMatches.TotalFileSize(),
+			"iteration":       pass,
 		}).Infof("%d files eligible for removal (%s)",
 			len(fileMatches),
 			fileMatches.TotalFileSizeHR())
@@ -188,6 +182,7 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"keep_oldest": appConfig.KeepOldest,
+			"iteration":   pass,
 		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
 
 		filesToPrune := fileMatches.FilesToPrune(appConfig)
@@ -209,6 +204,7 @@ func main() {
 		log.WithFields(logrus.Fields{
 			"files_to_prune":  len(filesToPrune),
 			"total_file_size": filesToPrune.TotalFileSizeHR(),
+			"iteration":       pass,
 		}).Debug("Calling cleanPath")
 		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
 		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
@@ -227,6 +223,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"failed_removal": false,
 				"file_size":      file.SizeHR(),
+				"iteration":      pass,
 			}).Info(file.Path)
 		}
 
@@ -237,6 +234,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"failed_removal": true,
 				"file_size":      file.SizeHR(),
+				"iteration":      pass,
 			}).Info(file.Path)
 		}
 
@@ -247,6 +245,7 @@ func main() {
 			if !appConfig.IgnoreErrors {
 				log.WithFields(logrus.Fields{
 					"ignore_errors": appConfig.IgnoreErrors,
+					"iteration":     pass,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")
