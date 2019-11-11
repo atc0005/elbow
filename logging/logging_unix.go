@@ -37,7 +37,6 @@ import (
 // systems. For Windows systems the attempt is skipped.
 func EnableSyslogLogging(logger *logrus.Logger, logBuffer LogBuffer, logLevel string) error {
 
-
 	// Use roughly the same logging level as specified for the general logger
 	// https://golang.org/pkg/log/syslog/#Priority
 	// https://en.wikipedia.org/wiki/Syslog#Severity_level
