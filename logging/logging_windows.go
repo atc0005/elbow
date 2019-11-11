@@ -27,7 +27,10 @@ import (
 func EnableSyslogLogging(logger *logrus.Logger, logBuffer LogBuffer, logLevel string) error {
 
 	logBuffer.Add(LogRecord{
-		Level:   logrus.DebugLevel,
+		// TODO: Not sure what log level is appropriate here. We are already
+		// reporting failures enabling syslog logging from the caller, but are
+		// not noting elsewhere that Windows syslog support is not available.
+		Level:   logrus.WarnLevel,
 		Message: "This is a Windows build. Syslog support is not currently supported for this platform.",
 	})
 

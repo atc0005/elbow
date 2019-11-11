@@ -531,7 +531,7 @@ func (c *Config) SetLoggerConfig() {
 	// currently supported on UNIX only.
 	if c.UseSyslog {
 		logBuffer.Add(logging.LogRecord{
-			Level:   logrus.DebugLevel,
+			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
 			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
 		})
