@@ -152,13 +152,29 @@ against these newly created test files.
 
 ### Precedence
 
-The priority order is:
+**Note: This behavior is subject to change based on feedback.**
+
+The priority order is (mostly):
 
 1. Command line flags (highest priority)
 1. Configuration file
 1. Environment variables
 1. Environment variables loaded from `.env` files (lowest priority)
    - **Not supported yet**
+
+Configuration sources lower in the list are loaded first, with configuration
+sources above loaded sequentially (if enabled) after. Any non-default values
+specified for later sources (higher in the list) override default values
+specified previously. This means that a non-default value specified in the
+configuration file (which has to be intentionally loaded) can *survive* a
+default value explicitly provided via a command-line option.
+
+The intent of this behavior is to provide a *feathered* layering of
+configuration settings; multiple configuration sources can be used to provide
+overrides for default values, but not to override non-default values set
+previously by another configuration source.
+
+**Note: This behavior is subject to change based on feedback.**
 
 ### Command-line Arguments
 
