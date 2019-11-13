@@ -21,8 +21,6 @@ package logging
 import (
 	"fmt"
 
-	"github.com/atc0005/elbow/config"
-
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
 	// https://godoc.org/github.com/sirupsen/logrus
@@ -35,14 +33,9 @@ import (
 	"log/syslog"
 )
 
-func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
-
-	// make sure that the user actually requested syslog logging as it is
-	// currently supported on UNIX only.
-
-	if !config.UseSyslog {
-		return fmt.Errorf("syslog logging not requested, not enabling")
-	}
+// EnableSyslogLogging attempts to enable local syslog logging for non-Windows
+// systems. For Windows systems the attempt is skipped.
+func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel string) error {
 
 	// Use roughly the same logging level as specified for the general logger
 	// https://golang.org/pkg/log/syslog/#Priority
@@ -50,7 +43,7 @@ func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 	// https://pubs.opengroup.org/onlinepubs/009695399/functions/syslog.html
 	var syslogLogLevel syslog.Priority
 
-	switch config.LogLevel {
+	switch logLevel {
 	case "emerg", "panic":
 		// syslog: System is unusable; a panic condition.
 		// logrus: calls panic
@@ -91,7 +84,11 @@ func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 		syslogLogLevel = syslog.LOG_DEBUG
 	}
 
-	logger.Debugf("syslog log level set to %v", syslogLogLevel)
+	logBuffer.Add(LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("syslog log level set to %v", syslogLogLevel),
+		Fields:  logrus.Fields{"log_level": logLevel},
+	})
 
 	// Attempt to connect to local syslog
 	//
@@ -104,9 +101,21 @@ func enableSyslogLogging(config *config.Config, logger *logrus.Logger) error {
 		// https://github.com/sirupsen/logrus#hooks
 		// https://github.com/sirupsen/logrus/blob/master/hooks/syslog/README.md
 		// Seems to require `log.AddHook(hook)`` vs `log.Hooks.Add(hook)`
-		logger.Info("Connected to syslog socket")
+
+		// FIXME: Confirm that we can use Record{} without specifying the
+		// `Fields` struct file key/value pair.
+		logBuffer.Add(LogRecord{
+			Level:   logrus.InfoLevel,
+			Message: "Connected to syslog socket",
+		})
+
 		logger.AddHook(hook)
-		logger.Debug("AddHook() called for syslog logging")
+
+		logBuffer.Add(LogRecord{
+			Level:   logrus.DebugLevel,
+			Message: "Finished using AddHook() to enable syslog logging",
+		})
+
 	} else {
 		return fmt.Errorf("unable to connect to syslog socket: %s", err)
 	}

@@ -21,8 +21,6 @@ import (
 	"os"
 
 	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/logging"
-	"github.com/atc0005/elbow/matches"
 	"github.com/atc0005/elbow/paths"
 	"github.com/atc0005/elbow/units"
 
@@ -50,7 +48,7 @@ func main() {
 
 	// If this fails, the application will immediately exit.
 	appConfig := config.NewConfig(appName, appDescription, appURL, version)
-	defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
+	// defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
 
 	// Validate configuration
 	if ok, err := appConfig.Validate(); !ok {
@@ -68,21 +66,9 @@ func main() {
 
 	}
 
-	logging.SetLoggerConfig(appConfig)
-
 	log := appConfig.Logger
 
 	log.Debug("Config object created")
-
-	// Apply our custom logging settings
-
-	log.WithFields(logrus.Fields{
-		"defaultConfig": defaultConfig,
-	}).Debug("Default configuration")
-
-	log.WithFields(logrus.Fields{
-		"config": appConfig,
-	}).Debug("Our configuration")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if appConfig.LogFileHandle != nil {
@@ -143,6 +129,7 @@ func main() {
 
 			log.WithFields(logrus.Fields{
 				"ignore_errors": appConfig.IgnoreErrors,
+				"iteration":     pass,
 			}).Error("error:", err)
 
 			if !appConfig.IgnoreErrors {
@@ -152,11 +139,6 @@ func main() {
 			}
 			log.Warn("Error encountered, but continuing as requested.")
 		}
-
-		// NOTE: If this sort order changes, make sure to update the later logic
-		// which retains the top or bottom X items (specific flag to preserve X
-		// number of files while pruning the others)
-		fileMatches.SortByModTimeAsc()
 
 		log.Debugf("Length of matches slice: %d", len(fileMatches))
 
@@ -168,6 +150,7 @@ func main() {
 				"file_pattern": appConfig.FilePattern,
 				"extensions":   appConfig.FileExtensions,
 				"file_age":     appConfig.FileAge,
+				"iteration":    pass,
 			}).Info("No matches found")
 
 			log.WithFields(logrus.Fields{
@@ -183,14 +166,13 @@ func main() {
 
 		}
 
-		var filesToPrune matches.FileMatches
-
 		log.WithFields(logrus.Fields{
 			"path":            path,
 			"file_pattern":    appConfig.FilePattern,
 			"extensions":      appConfig.FileExtensions,
 			"file_age":        appConfig.FileAge,
 			"total_file_size": fileMatches.TotalFileSize(),
+			"iteration":       pass,
 		}).Infof("%d files eligible for removal (%s)",
 			len(fileMatches),
 			fileMatches.TotalFileSizeHR())
@@ -200,18 +182,10 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"keep_oldest": appConfig.KeepOldest,
+			"iteration":   pass,
 		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
 
-		if appConfig.KeepOldest {
-			// TODO: Is debug output still useful?
-			log.Debug("Keeping older files")
-			log.Debug("start at specified number to keep, go until end of slice")
-			filesToPrune = fileMatches[appConfig.NumFilesToKeep:]
-		} else {
-			log.Debug("Keeping newer files")
-			log.Debug("start at beginning, go until specified number to keep")
-			filesToPrune = fileMatches[:(len(fileMatches) - appConfig.NumFilesToKeep)]
-		}
+		filesToPrune := fileMatches.FilesToPrune(appConfig)
 
 		if len(filesToPrune) == 0 {
 			log.Info("Nothing to prune")
@@ -230,6 +204,7 @@ func main() {
 		log.WithFields(logrus.Fields{
 			"files_to_prune":  len(filesToPrune),
 			"total_file_size": filesToPrune.TotalFileSizeHR(),
+			"iteration":       pass,
 		}).Debug("Calling cleanPath")
 		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
 		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
@@ -248,6 +223,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"failed_removal": false,
 				"file_size":      file.SizeHR(),
+				"iteration":      pass,
 			}).Info(file.Path)
 		}
 
@@ -258,6 +234,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"failed_removal": true,
 				"file_size":      file.SizeHR(),
+				"iteration":      pass,
 			}).Info(file.Path)
 		}
 
@@ -268,6 +245,7 @@ func main() {
 			if !appConfig.IgnoreErrors {
 				log.WithFields(logrus.Fields{
 					"ignore_errors": appConfig.IgnoreErrors,
+					"iteration":     pass,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")

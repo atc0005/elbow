@@ -7,6 +7,8 @@
 #
 # Run `make testenv` before running this script.
 
+# Generate basic binary for testing purposes
+go build
 
 # Text output example
 ./elbow \

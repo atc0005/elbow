@@ -42,6 +42,8 @@ export ELBOW_USE_SYSLOG="false"
 export ELBOW_LOG_FORMAT="json"
 export ELBOW_REMOVE="false"
 #export ELBOW_LOG_FILE="testing-masterqa-build-removals.txt"
+#export ELBOW_CONFIG_FILE="config.example.toml"
+#export ELBOW_CONFIG_FILE="config.toml"
 
 echo -e "\n\nCalling ${BINARY_NAME} without flags; rely on env vars\n"
 ./${BINARY_NAME}
@@ -149,3 +151,48 @@ if [[ $? -ne 0 ]]; then
   echo "${BINARY_NAME} execution failed. See earlier output for details."
   sleep 3
 fi
+
+
+# Attempt to use config.toml config file from the root of the repo
+echo -e "\n\nCalling ${BINARY_NAME} with config file flag and paths command-line flag"
+
+echo "Unset all ELBOW_* environment variables to prevent shadowing tests with config file"
+unset ELBOW_PATHS
+unset ELBOW_FILE_PATTERN
+unset ELBOW_EXTENSIONS
+unset ELBOW_KEEP
+unset ELBOW_FILE_AGE
+unset ELBOW_RECURSE
+unset ELBOW_KEEP_OLD
+unset ELBOW_IGNORE_ERRORS
+unset ELBOW_LOG_LEVEL
+unset ELBOW_USE_SYSLOG
+unset ELBOW_LOG_FORMAT
+unset ELBOW_REMOVE
+unset ELBOW_LOG_FILE
+unset ELBOW_CONFIG_FILE
+
+make testenv
+
+if [[ ! -f "config.toml" ]]; then
+  echo "config.toml not found."
+  echo "Tip: Use config.example.toml as a template."
+  echo "e.g., `cp config.example.toml config.toml`"
+  exit 1
+fi
+
+./${BINARY_NAME} \
+  --paths "${PATH1}" \
+  --config-file "config.toml"
+
+if [[ $? -ne 0 ]]; then
+  echo "${BINARY_NAME} execution failed. See earlier output for details."
+  sleep 3
+fi
+
+# Attempt to ONLY use config.toml config file from the root of the repo
+echo -e "\n\nCalling ${BINARY_NAME} with config file flag ONLY"
+
+make testenv
+
+./${BINARY_NAME} --config-file "config.toml"
