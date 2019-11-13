@@ -79,12 +79,12 @@ testrun:
 	@echo "Finished running wrapper script"
 
 lintinstall:
-	@echo "Calling wraper script: $(LINTINSTALLCMD)"
+	@echo "Calling wrapper script: $(LINTINSTALLCMD)"
 	@$(LINTINSTALLCMD)
 	@echo "Finished running linting tools install script"
 
 linting:
-	@echo "Calling wraper script: $(LINTINGCMD)"
+	@echo "Calling wrapper script: $(LINTINGCMD)"
 	@$(LINTINGCMD)
 	@echo "Finished running linting checks"
 
