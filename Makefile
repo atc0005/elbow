@@ -53,7 +53,7 @@ LINTINSTALLCMD			=   bash testing/install_linting_tools.sh
 # Targets will not work properly if a file with the same name is ever created
 # in this directory. We explicitly declare our targets to be phony by
 # making them a prerequisite of the special target .PHONY
-.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun linting lintinstall
+.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun linting lintinstall gotests
 
 # WARNING: Make expects you to use tabs to introduce recipe lines
 help:
@@ -67,6 +67,7 @@ help:
 	@echo "  testrun        use wrapper script to call binary with test settings"
 	@echo "  lintinstall    use wrapper script to install common linting tools"
 	@echo "  linting        use wrapper script to run common linting checks"
+	@echo "  gotests        go test recursively, verbosely"
 
 testenv:
 	@echo "Setting up test environment in \"$(TESTENVDIR1)\" and \"$(TESTENVDIR2)\""
@@ -87,6 +88,11 @@ linting:
 	@echo "Calling wrapper script: $(LINTINGCMD)"
 	@$(LINTINGCMD)
 	@echo "Finished running linting checks"
+
+gotests:
+	@echo "Running go tests ..."
+	@go test ./...
+	@echo "Finished running go tests"
 
 goclean:
 	@echo "Removing object files and cached files ..."
