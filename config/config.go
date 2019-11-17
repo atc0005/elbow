@@ -47,20 +47,20 @@ type AppMetadata struct {
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	filePattern    *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	fileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	fileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	numFilesToKeep *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	keepOldest     *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	remove         *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	ignoreErrors   *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	filePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	fileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	fileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	numFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	keepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	ignoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	recursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	recursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
@@ -612,13 +612,130 @@ func (c *Config) FilePattern() string {
 	return *c.filePattern
 }
 
-// FileExtensions returns the fileExtensions field if it's non-nil, zero value otherwise.
+// FileExtensions returns the fileExtensions field if it's non-nil, zero value
+// otherwise.
 // TODO: Double check this one; how should we safely handle returning an
 // empty/zero value?
+// As an example, the https://github.com/google/go-github package has a
+// `Issue.GetAssignees()` method that returns nil if the `Issue.Assignees`
+// field is nil. This seems to suggest that this is all we really can do here?
+//
 func (c *Config) FileExtensions() []string {
 	if c == nil || c.fileExtensions == nil {
 		// FIXME: Isn't the goal to avoid returning nil?
 		return nil
 	}
-	return c.fileExtensions
+	return *c.fileExtensions
+}
+
+// FileAge returns the fileAge field if it's non-nil, zero value otherwise.
+func (c *Config) FileAge() int {
+	if c == nil || c.fileAge == nil {
+		return 0
+	}
+	return *c.fileAge
+}
+
+// NumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero value
+// otherwise.
+func (c *Config) NumFilesToKeep() int {
+	if c == nil || c.numFilesToKeep == nil {
+		return 0
+	}
+	return *c.numFilesToKeep
+}
+
+// KeepOldest returns the keepOldest field if it's non-nil, zero value
+// otherwise.
+func (c *Config) KeepOldest() bool {
+	if c == nil || c.keepOldest == nil {
+		return false
+	}
+	return *c.keepOldest
+}
+
+// Remove returns the remove field if it's non-nil, zero value otherwise.
+func (c *Config) Remove() bool {
+	if c == nil || c.remove == nil {
+		return false
+	}
+	return *c.remove
+}
+
+// IgnoreErrors returns the ignoreErrors field if it's non-nil, zero value
+// otherwise.
+func (c *Config) IgnoreErrors() bool {
+	if c == nil || c.ignoreErrors == nil {
+		return false
+	}
+	return *c.ignoreErrors
+}
+
+// Paths returns the paths field if it's non-nil, zero value otherwise.
+func (c *Config) Paths() []string {
+	if c == nil || c.paths == nil {
+		return nil
+	}
+	return *c.paths
+}
+
+// RecursiveSearch returns the recursiveSearch field if it's non-nil, zero
+// value otherwise.
+func (c *Config) RecursiveSearch() bool {
+	if c == nil || c.recursiveSearch == nil {
+		return false
+	}
+	return *c.recursiveSearch
+}
+
+// LogLevel returns the logLevel field if it's non-nil, zero value otherwise.
+func (c *Config) LogLevel() string {
+	if c == nil || c.logLevel == nil {
+		return ""
+	}
+	return *c.logLevel
+}
+
+// LogFormat returns the logFormat field if it's non-nil, zero value otherwise.
+func (c *Config) LogFormat() string {
+	if c == nil || c.logFormat == nil {
+		return ""
+	}
+	return *c.logFormat
+}
+
+// LogFilePath returns the logFilePath field if it's non-nil, zero value
+// otherwise.
+func (c *Config) LogFilePath() string {
+	if c == nil || c.logFilePath == nil {
+		return ""
+	}
+	return *c.logFilePath
+}
+
+// ConsoleOutput returns the consoleOutput field if it's non-nil, zero value
+// otherwise.
+func (c *Config) ConsoleOutput() string {
+	if c == nil || c.consoleOutput == nil {
+		return ""
+	}
+	return *c.consoleOutput
+}
+
+// UseSyslog returns the useSyslog field if it's non-nil, zero
+// value otherwise.
+func (c *Config) UseSyslog() bool {
+	if c == nil || c.useSyslog == nil {
+		return false
+	}
+	return *c.useSyslog
+}
+
+// ConfigFile returns the configFile field if it's non-nil, zero value
+// otherwise.
+func (c *Config) ConfigFile() string {
+	if c == nil || c.configFile == nil {
+		return ""
+	}
+	return *c.configFile
 }
