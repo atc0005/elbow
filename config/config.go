@@ -38,39 +38,39 @@ var logBuffer logging.LogBuffer
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	AppName        string `toml:"-" arg:"-"`
-	AppDescription string `toml:"-" arg:"-"`
-	AppVersion     string `toml:"-" arg:"-"`
-	AppURL         string `toml:"-" arg:"-"`
+	appName        *string `toml:"app_name" arg:"-"`
+	appDescription *string `toml:"app_description" arg:"-"`
+	appVersion     *string `toml:"app_version" arg:"-"`
+	appURL         *string `toml:"app_url" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	FileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	Remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	IgnoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	filePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	fileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	fileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	numFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	keepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	ignoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	Paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	recursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	LogLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	LogFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	UseSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	logLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	logFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	logFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	consoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	useSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -87,12 +87,13 @@ type Config struct {
 	// Embedded to allow for easier carrying of "handles" between functions
 	// TODO: Confirm that this is both needed and that it doesn't violate
 	// best practices.
-	LogFileHandle *os.File       `toml:"-" arg:"-"`
-	Logger        *logrus.Logger `toml:"-" arg:"-"`
-	FlagParser    *arg.Parser    `toml:"-" arg:"-"`
+	// TODO: Should these be exposed or kept private?
+	logFileHandle *os.File       `toml:"-" arg:"-"`
+	logger        *logrus.Logger `toml:"-" arg:"-"`
+	flagParser    *arg.Parser    `toml:"-" arg:"-"`
 
 	// Path to (optional) configuration file
-	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
+	configFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
 // DefaultConfig returns a configuration object with baseline settings applied
@@ -105,26 +106,26 @@ func DefaultConfig(appName, appDescription, appURL, appVersion string) Config {
 	var defaultConfig Config
 
 	// Common metadata
-	defaultConfig.AppName = appName
-	defaultConfig.AppDescription = appDescription
-	defaultConfig.AppURL = appURL
-	defaultConfig.AppVersion = appVersion
+	*defaultConfig.appName = appName
+	*defaultConfig.appDescription = appDescription
+	*defaultConfig.appURL = appURL
+	*defaultConfig.appVersion = appVersion
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
-	*defaultConfig.FilePattern = ""
-	*defaultConfig.FileAge = 0
-	*defaultConfig.NumFilesToKeep = -1
-	*defaultConfig.KeepOldest = false
-	*defaultConfig.Remove = false
-	*defaultConfig.IgnoreErrors = false
-	*defaultConfig.RecursiveSearch = false
-	*defaultConfig.LogLevel = "info"
-	*defaultConfig.LogFormat = "text"
-	*defaultConfig.LogFilePath = ""
-	*defaultConfig.ConsoleOutput = "stdout"
-	*defaultConfig.UseSyslog = false
-	*defaultConfig.ConfigFile = ""
+	*defaultConfig.filePattern = ""
+	*defaultConfig.fileAge = 0
+	*defaultConfig.numFilesToKeep = -1
+	*defaultConfig.keepOldest = false
+	*defaultConfig.remove = false
+	*defaultConfig.ignoreErrors = false
+	*defaultConfig.recursiveSearch = false
+	*defaultConfig.logLevel = "info"
+	*defaultConfig.logFormat = "text"
+	*defaultConfig.logFilePath = ""
+	*defaultConfig.consoleOutput = "stdout"
+	*defaultConfig.useSyslog = false
+	*defaultConfig.configFile = ""
 
 	return defaultConfig
 
@@ -151,15 +152,15 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	argsConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
 
 	// Initialize logger "handle" for later use
-	baseConfig.Logger = logrus.New()
+	baseConfig.logger = logrus.New()
 
 	// Bundle the returned `*.arg.Parser` for later use from `main()` so that
 	// we can explicitly display usage or help details should the
 	// user-provided settings fail validation.
-	baseConfig.FlagParser = arg.MustParse(&argsConfig)
+	baseConfig.flagParser = arg.MustParse(&argsConfig)
 
 	fmt.Println("Dumping FlagParser for review")
-	fmt.Printf("%+v", baseConfig.FlagParser)
+	fmt.Printf("%+v", baseConfig.flagParser)
 
 	/*************************************************************************
 		At this point `baseConfig` is our baseline config object containing
@@ -170,13 +171,13 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	*************************************************************************/
 
 	// If user specified a config file, let's try to use it
-	if argsConfig.ConfigFile != nil {
+	if argsConfig.configFile != nil {
 		// Check for a configuration file and load it if found.
-		if err := fileConfig.LoadConfigFile(*argsConfig.ConfigFile); err != nil {
+		if err := fileConfig.LoadConfigFile(*argsConfig.configFile); err != nil {
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error loading config file: %s", err),
-				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
+				Fields:  logrus.Fields{"config_file": argsConfig.configFile},
 			})
 		}
 
@@ -243,7 +244,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 		Level:   logrus.DebugLevel,
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
 	})
-	logBuffer.Flush(baseConfig.Logger)
+	logBuffer.Flush(baseConfig.logger)
 
 	return &baseConfig
 
@@ -271,6 +272,8 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 }
 
+// FIXME: The description for this function is now broken
+//
 // MergeConfig receives source, destination and default Config objects and
 // merges select, non-default field values from the source Config object to
 // the destination config object, overwriting any field value already present.
@@ -306,60 +309,60 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 		Message: fmt.Sprintf("Default struct: %+v", defaultConfig),
 	})
 
-	if source.Paths != nil {
-		*destination.Paths = *source.Paths
+	if source.paths != nil {
+		*destination.paths = *source.paths
 	}
 
-	if source.FileExtensions != nil {
-		*destination.FileExtensions = *source.FileExtensions
+	if source.fileExtensions != nil {
+		*destination.fileExtensions = *source.fileExtensions
 	}
 
-	if source.FilePattern != nil {
-		*destination.FilePattern = *source.FilePattern
+	if source.filePattern != nil {
+		*destination.filePattern = *source.filePattern
 	}
 
-	if source.FileAge != nil {
-		*destination.FileAge = *source.FileAge
+	if source.fileAge != nil {
+		*destination.fileAge = *source.fileAge
 	}
 
-	if source.NumFilesToKeep != nil {
-		*destination.NumFilesToKeep = *source.NumFilesToKeep
+	if source.numFilesToKeep != nil {
+		*destination.numFilesToKeep = *source.numFilesToKeep
 	}
 
-	if source.KeepOldest != nil {
-		*destination.KeepOldest = *source.KeepOldest
+	if source.keepOldest != nil {
+		*destination.keepOldest = *source.keepOldest
 	}
 
-	if source.Remove != nil {
-		*destination.Remove = *source.Remove
+	if source.remove != nil {
+		*destination.remove = *source.remove
 	}
 
-	if source.IgnoreErrors != nil {
-		*destination.IgnoreErrors = *source.IgnoreErrors
+	if source.ignoreErrors != nil {
+		*destination.ignoreErrors = *source.ignoreErrors
 	}
 
-	if source.RecursiveSearch != nil {
-		*destination.RecursiveSearch = *source.RecursiveSearch
+	if source.recursiveSearch != nil {
+		*destination.recursiveSearch = *source.recursiveSearch
 	}
 
-	if source.LogLevel != nil {
-		*destination.LogLevel = *source.LogLevel
+	if source.logLevel != nil {
+		*destination.logLevel = *source.logLevel
 	}
 
-	if source.LogFormat != nil {
-		*destination.LogFormat = *source.LogFormat
+	if source.logFormat != nil {
+		*destination.logFormat = *source.logFormat
 	}
 
-	if source.LogFilePath != nil {
-		*destination.LogFilePath = *source.LogFilePath
+	if source.logFilePath != nil {
+		*destination.logFilePath = *source.logFilePath
 	}
 
-	if source.ConsoleOutput != nil {
-		*destination.ConsoleOutput = *source.ConsoleOutput
+	if source.consoleOutput != nil {
+		*destination.consoleOutput = *source.consoleOutput
 	}
 
-	if source.UseSyslog != nil {
-		*destination.UseSyslog = *source.UseSyslog
+	if source.useSyslog != nil {
+		*destination.useSyslog = *source.useSyslog
 	}
 
 	// FIXME: Placeholder
@@ -386,7 +389,7 @@ func (c *Config) LoadConfigFile(filename string) error {
 // Description provides an overview as part of the application Help output
 func (c Config) Description() string {
 
-	return fmt.Sprintf("%s %s", c.AppName, c.AppDescription)
+	return fmt.Sprintf("%s %s", *c.appName, *c.appDescription)
 }
 
 // Version provides a version string that appears at the top of the
@@ -394,7 +397,7 @@ func (c Config) Description() string {
 func (c Config) Version() string {
 
 	versionString := fmt.Sprintf("%s %s\n%s",
-		strings.ToTitle(c.AppName), c.AppVersion, c.AppURL)
+		strings.ToTitle(*c.appName), *c.appVersion, *c.appURL)
 
 	//divider := strings.Repeat("-", len(versionString))
 
@@ -413,16 +416,16 @@ func (c Config) Validate() (bool, error) {
 	// FileExtensions is optional
 	//   Discovered files are checked against FileExtensions later
 
-	if len(*c.Paths) == 0 {
+	if len(*c.paths) == 0 {
 		return false, fmt.Errorf("one or more paths not provided")
 	}
 
-	// RecursiveSearch is optional
+	// recursiveSearch is optional
 
 	// NumFilesToKeep is optional, but if specified we should make sure it is
 	// a non-negative number. AFAIK, this is not currently enforced any other
 	// way.
-	if *c.NumFilesToKeep < 0 {
+	if *c.numFilesToKeep < 0 {
 		return false, fmt.Errorf("invalid value provided for files to keep")
 	}
 
@@ -430,33 +433,33 @@ func (c Config) Validate() (bool, error) {
 	// acceptable as it is the default value and indicates that the user has
 	// not chosen to use the flag (or has chosen improperly and it will be
 	// ignored).
-	if *c.FileAge < 0 {
+	if *c.fileAge < 0 {
 		return false, fmt.Errorf("negative number for file age not supported")
 	}
 
-	// KeepOldest is optional
+	// keepOldest is optional
 	// Remove is optional
-	// IgnoreErrors is optional
+	// ignoreErrors is optional
 
-	switch *c.LogFormat {
+	switch *c.logFormat {
 	case "text":
 	case "json":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
+		return false, fmt.Errorf("invalid option %q provided for log format", *c.logFormat)
 	}
 
-	// LogFilePath is optional
+	// logFilePath is optional
 	// TODO: String validation if it is set?
 
 	// Do nothing for valid choices, return false if invalid value specified
-	switch *c.ConsoleOutput {
+	switch *c.consoleOutput {
 	case "stdout":
 	case "stderr":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for console output destination", *c.ConsoleOutput)
+		return false, fmt.Errorf("invalid option %q provided for console output destination", *c.consoleOutput)
 	}
 
-	switch *c.LogLevel {
+	switch *c.logLevel {
 	case "emergency":
 	case "alert":
 	case "critical":
@@ -469,10 +472,10 @@ func (c Config) Validate() (bool, error) {
 	case "debug":
 	case "trace":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for log level", *c.LogLevel)
+		return false, fmt.Errorf("invalid option %q provided for log level", *c.logLevel)
 	}
 
-	// UseSyslog is optional
+	// useSyslog is optional
 
 	// Optimist
 	return true, nil
@@ -482,30 +485,30 @@ func (c Config) Validate() (bool, error) {
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, LogFileHandle=%v, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, Logger=%v, FlagParser=%v), ConfigFile=%q, EndOfStringMethod",
+	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, recursiveSearch=%t, fileAge=%d, NumFilesToKeep=%d, keepOldest=%t, Remove=%t, ignoreErrors=%t, logFormat=%q, logFilePath=%q, LogFileHandle=%v, consoleOutput=%q, logLevel=%q, useSyslog=%t, Logger=%v, FlagParser=%v), ConfigFile=%q, EndOfStringMethod",
 
-		c.AppName,
-		c.AppDescription,
-		c.AppVersion,
-		c.AppURL,
-		*c.FilePattern,
-		*c.FileExtensions,
-		*c.Paths,
-		*c.RecursiveSearch,
-		*c.FileAge,
-		*c.NumFilesToKeep,
-		*c.KeepOldest,
-		*c.Remove,
-		*c.IgnoreErrors,
-		*c.LogFormat,
-		*c.LogFilePath,
-		*c.LogFileHandle,
-		*c.ConsoleOutput,
-		*c.LogLevel,
-		*c.UseSyslog,
-		c.Logger,
-		*c.FlagParser,
-		*c.ConfigFile,
+		*c.appName,
+		*c.appDescription,
+		*c.appVersion,
+		*c.appURL,
+		*c.filePattern,
+		*c.fileExtensions,
+		*c.paths,
+		*c.recursiveSearch,
+		*c.fileAge,
+		*c.numFilesToKeep,
+		*c.keepOldest,
+		*c.remove,
+		*c.ignoreErrors,
+		*c.logFormat,
+		*c.logFilePath,
+		*c.logFileHandle,
+		*c.consoleOutput,
+		*c.logLevel,
+		*c.useSyslog,
+		c.logger,
+		*c.flagParser,
+		*c.configFile,
 	)
 }
 
@@ -513,57 +516,89 @@ func (c *Config) String() string {
 // output.
 func (c *Config) SetLoggerConfig() {
 
-	logging.SetLoggerFormatter(c.Logger, *c.LogFormat)
-	logging.SetLoggerConsoleOutput(c.Logger, *c.ConsoleOutput)
+	logging.SetLoggerFormatter(c.logger, *c.logFormat)
+	logging.SetLoggerConsoleOutput(c.logger, *c.consoleOutput)
 
-	if fileHandle, err := logging.SetLoggerLogFile(c.Logger, *c.LogFilePath); err == nil {
-		c.LogFileHandle = fileHandle
+	if fileHandle, err := logging.SetLoggerLogFile(c.logger, *c.logFilePath); err == nil {
+		c.logFileHandle = fileHandle
 	} else {
 		// Need to collect the error for display later
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("%s", err),
-			Fields:  logrus.Fields{"log_file": c.LogFilePath},
+			Fields:  logrus.Fields{"log_file": c.logFilePath},
 		})
 	}
 
-	logging.SetLoggerLevel(c.Logger, *c.LogLevel)
+	logging.SetLoggerLevel(c.logger, *c.logLevel)
 
 	// https://godoc.org/github.com/sirupsen/logrus#New
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
 
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.
-	if *c.UseSyslog {
+	if *c.useSyslog {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
-			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.useSyslog},
 		})
 
-		if err := logging.EnableSyslogLogging(c.Logger, &logBuffer, *c.LogLevel); err != nil {
+		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, *c.logLevel); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
-				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.useSyslog},
 			})
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.WarnLevel,
 				Message: "Proceeding without syslog logging",
-				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.useSyslog},
 			})
 		}
 	} else {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Syslog logging not requested, not enabling",
-			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.useSyslog},
 		})
 
 	}
 
+}
+
+// AppVersion returns the appVersion field if it's non-nil, zero value otherwise.
+func (c *Config) AppVersion() string {
+	if c == nil || c.appVersion == nil {
+		return ""
+	}
+	return *c.appVersion
+}
+
+// AppName returns the appName field if it's non-nil, zero value otherwise.
+func (c *Config) AppName() string {
+	if c == nil || c.appName == nil {
+		return ""
+	}
+	return *c.appName
+}
+
+// AppDescription returns the appDescription field if it's non-nil, zero value otherwise.
+func (c *Config) AppDescription() string {
+	if c == nil || c.appDescription == nil {
+		return ""
+	}
+	return *c.appDescription
+}
+
+// AppURL returns the appURL field if it's non-nil, zero value otherwise.
+func (c *Config) AppURL() string {
+	if c == nil || c.appURL == nil {
+		return ""
+	}
+	return *c.appURL
 }
