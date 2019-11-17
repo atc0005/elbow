@@ -20,10 +20,13 @@ import (
 	"bytes"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/alexflint/go-arg"
 )
+
+// TODO: Evaluate replacing bare strings with constants (see constants.go)
 
 // TestMergeConfigUsingIncompleteConfigObjects creates multiple Config structs
 // and merges them in sequence, verifying that after each MergeConfig
@@ -122,13 +125,14 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	// settings that we are not overriding
 	// NOTE: Paths and FileExtensions are set below after config struct is
 	// instantiated
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	expectedPathsAfterFileMerge := []string{"/tmp/elbow/path1"}
 	expectedFileExtensionsAfterFileMerge := []string{".war"}
 	expectedFileAgeAfterFileMerge := 90
 	expectedNumFilesToKeepAfterFileMerge := 1
 	expectedRecursiveSearchAfterFileMerge := true
 	expectedLogLevelAfterFileMerge := "notice"
-	expectedLogFormatAfterFileMerge := "text"
+	expectedLogFormatAfterFileMerge := logFormatText
 	expectedUseSyslogAfterFileMerge := true
 
 	expectedKeepOldestAfterFileMerge := baseConfig.GetKeepOldest()
@@ -205,6 +209,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	// Setup subset of total environment variables for parsing with
 	// alexflint/go-arg package. These values should override baseConfig
 	// settings
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	envVarTables := []struct {
 		envVar string
 		value  string
@@ -266,6 +271,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	// settings that we are not overriding
 	// NOTE: Paths and FileExtensions are set below after config struct is
 	// instantiated
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	expectedPathsAfterEnvVarsMerge := []string{"/tmp/elbow/path3"}
 	expectedFileExtensionsAfterEnvVarsMerge := []string{".docx", ".pptx"}
 	expectedFilePatternAfterEnvVarsMerge := "reach-masterqa-"
@@ -273,7 +279,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	expectedNumFilesToKeepAfterEnvVarsMerge := 4
 	expectedKeepOldestAfterEnvVarsMerge := false
 	expectedRemoveAfterEnvVarsMerge := true
-	expectedLogFormatAfterEnvVarsMerge := "text"
+	expectedLogFormatAfterEnvVarsMerge := logFormatText
 	expectedLogFilePathAfterEnvVarsMerge := "/var/log/elbow/env.log"
 
 	expectedRecursiveSearchAfterEnvVarsMerge := baseConfig.GetRecursiveSearch()
@@ -356,13 +362,14 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	flagsConfig.AppDescription = baseConfig.GetAppDescription()
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := "elbow"
-	if runtime.GOOS == "windows" {
-		appName += ".exe"
+	appName := strings.ToLower(defaultAppName)
+	if runtime.GOOS == windowsOSName {
+		appName += windowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
 	// them away and the application never sees them.
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	os.Args = []string{
 		appName,
 		"--pattern", "reach-master-",
@@ -402,12 +409,13 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	// settings that we are not overriding
 	// NOTE: Paths and FileExtensions are set below after config struct is
 	// instantiated
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	expectedFileExtensionsAfterFlagsMerge := []string{".java", ".class"}
 	expectedFilePatternAfterFlagsMerge := "reach-master-"
 	expectedFileAgeAfterFlagsMerge := 5
 	expectedNumFilesToKeepAfterFlagsMerge := 6
 	expectedRemoveAfterFlagsMerge := true
-	expectedLogFormatAfterFlagsMerge := "json"
+	expectedLogFormatAfterFlagsMerge := logFormatJSON
 	expectedLogLevelAfterFlagsMerge := "panic"
 	expectedConsoleOutputAfterFlagsMerge := "stderr"
 

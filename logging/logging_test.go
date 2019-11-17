@@ -123,6 +123,7 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 		loggerLevel logrus.Level
 	}
 
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
 		test{logLevel: "emerg", loggerLevel: logrus.PanicLevel},
 		test{logLevel: "panic", loggerLevel: logrus.PanicLevel},
@@ -181,6 +182,7 @@ func TestSetLoggerFormatterShouldSucceed(t *testing.T) {
 
 	logger := logrus.New()
 
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
 		test{format: "text", result: nil},
 		test{format: "json", result: nil},
@@ -217,6 +219,7 @@ func TestSetLoggerConsoleOutputShouldSucceed(t *testing.T) {
 
 	logger := logrus.New()
 
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
 		test{consoleOutput: "stdout", result: nil},
 		test{consoleOutput: "stderr", result: nil},

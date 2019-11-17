@@ -21,6 +21,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/atc0005/elbow/units"
@@ -49,9 +50,9 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := "elbow"
-	if runtime.GOOS == "windows" {
-		appName += ".exe"
+	appName := strings.ToLower(defaultAppName)
+	if runtime.GOOS == windowsOSName {
+		appName += windowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips

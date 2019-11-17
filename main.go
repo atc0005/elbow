@@ -36,6 +36,7 @@ var version = "x.y.z"
 
 // TODO: Move this elsewhere to a dedicated location.
 // TODO: Create a metadata subpackage?
+// TODO: Evaluate replacing bare strings with constants (see constants.go)
 var defaultAppName = "Elbow"
 
 func main() {

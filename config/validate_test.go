@@ -20,9 +20,7 @@ import (
 	"testing"
 )
 
-// Fix linting error
-// string `fakeValue` has 3 occurrences, make it a constant (goconst)
-const fakeValue = "fakeValue"
+// TODO: Evaluate replacing bare strings with constants (see constants.go)
 
 // This is *mostly* a default config struct with the addition of config.Paths
 // and config.FileExtensions fields set to fill out the set.

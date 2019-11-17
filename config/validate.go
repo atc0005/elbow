@@ -99,8 +99,8 @@ func (c Config) Validate() error {
 	switch {
 	case c.LogFormat == nil:
 		return fmt.Errorf("field LogFormat not configured")
-	case *c.LogFormat == "text":
-	case *c.LogFormat == "json":
+	case *c.LogFormat == logFormatText:
+	case *c.LogFormat == logFormatJSON:
 	default:
 		return fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
 	}
@@ -114,6 +114,7 @@ func (c Config) Validate() error {
 	switch {
 	case c.ConsoleOutput == nil:
 		return fmt.Errorf("field ConsoleOutput not configured")
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	case *c.ConsoleOutput == "stdout":
 	case *c.ConsoleOutput == "stderr":
 	default:
@@ -123,6 +124,7 @@ func (c Config) Validate() error {
 	switch {
 	case c.LogLevel == nil:
 		return fmt.Errorf("field LogLevel not configured")
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	case *c.LogLevel == "emergency":
 	case *c.LogLevel == "alert":
 	case *c.LogLevel == "critical":

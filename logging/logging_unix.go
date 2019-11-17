@@ -44,6 +44,7 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel s
 	var syslogLogLevel syslog.Priority
 
 	switch logLevel {
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	case "emerg", "panic":
 		// syslog: System is unusable; a panic condition.
 		// logrus: calls panic

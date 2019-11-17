@@ -42,6 +42,7 @@ func TestMain(t *testing.T) {
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
 	// them away and the application never sees them.
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	os.Args = []string{
 		appName,
 		"--paths", "/tmp/elbow/path1",

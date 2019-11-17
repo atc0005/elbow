@@ -410,16 +410,16 @@ func (c *Config) String() string {
 	// If the AppMetadata fields are empty, note that to aid in
 	// troubleshooting elsewhere in the codebase
 	if c.AppName == "" {
-		c.AppName = "NotSet"
+		c.AppName = fieldValueNotSet
 	}
 	if c.AppDescription == "" {
-		c.AppDescription = "NotSet"
+		c.AppDescription = fieldValueNotSet
 	}
 	if c.AppVersion == "" {
-		c.AppVersion = "NotSet"
+		c.AppVersion = fieldValueNotSet
 	}
 	if c.AppURL == "" {
-		c.AppURL = "NotSet"
+		c.AppURL = fieldValueNotSet
 	}
 
 	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, ConfigFile=%q, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, logger=%v, flagParser=%v,  logFileHandle=%v",
