@@ -732,3 +732,27 @@ func (c *Config) ConfigFile() string {
 	}
 	return *c.configFile
 }
+
+// Logger returns the logger field if it's non-nil, zero value otherwise.
+func (c *Config) Logger() *logrus.Logger {
+	if c == nil || c.logger == nil {
+		return nil
+	}
+	return c.logger
+}
+
+// FlagParser returns the flagParser field if it's non-nil, zero value otherwise.
+func (c *Config) FlagParser() *arg.Parser {
+	if c == nil || c.flagParser == nil {
+		return nil
+	}
+	return c.flagParser
+}
+
+// LogFileHandle returns the logFileHandle field if it's non-nil, zero value otherwise.
+func (c *Config) LogFileHandle() *os.File {
+	if c == nil || c.logFileHandle == nil {
+		return nil
+	}
+	return c.logFileHandle
+}

@@ -74,7 +74,7 @@ type PathPruningResults struct {
 // code (nil if no errors were encountered).
 func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningResults, error) {
 
-	log := config.Logger
+	log := config.Logger()
 
 	for _, file := range files {
 		log.WithFields(logrus.Fields{
@@ -82,13 +82,13 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 			"shortpath":       file.Name(),
 			"size":            file.Size(),
 			"modified":        file.ModTime().Format("2006-01-02 15:04:05"),
-			"removal_enabled": config.Remove,
+			"removal_enabled": config.Remove(),
 		}).Debug("Matching file")
 	}
 
 	var removalResults PathPruningResults
 
-	if !config.Remove {
+	if !config.Remove() {
 
 		log.Info("File removal not enabled, not removing files")
 
@@ -100,7 +100,7 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 	for _, file := range files {
 
 		log.WithFields(logrus.Fields{
-			"removal_enabled": config.Remove,
+			"removal_enabled": config.Remove(),
 
 			// fully-qualified path to the file
 			"file": file.Path,
@@ -121,7 +121,7 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 			removalResults.FailedRemovals = append(removalResults.FailedRemovals, file)
 
 			// Confirm that we should ignore errors (likely enabled)
-			if !config.IgnoreErrors {
+			if !config.IgnoreErrors() {
 				remainingFiles := len(files) - len(removalResults.FailedRemovals) - len(removalResults.SuccessfulRemovals)
 				log.Debugf("Abandoning removal of %d remaining files", remainingFiles)
 				break
@@ -142,7 +142,7 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 // PathExists confirms that the specified path exists
 func PathExists(path string, config *config.Config) bool {
 
-	log := config.Logger
+	log := config.Logger()
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
@@ -166,16 +166,16 @@ func PathExists(path string, config *config.Config) bool {
 // returns a slice of FileMatch objects
 func ProcessPath(config *config.Config, path string) (matches.FileMatches, error) {
 
-	log := config.Logger
+	log := config.Logger()
 
 	var fileMatches matches.FileMatches
 	var err error
 
 	log.WithFields(logrus.Fields{
-		"recursive_search": config.RecursiveSearch,
-	}).Debugf("Recursive search: %t", config.RecursiveSearch)
+		"recursive_search": config.RecursiveSearch(),
+	}).Debugf("Recursive search: %t", config.RecursiveSearch())
 
-	if config.RecursiveSearch {
+	if config.RecursiveSearch() {
 
 		// Walk walks the file tree rooted at root, calling the anonymous function
 		// for each file or directory in the tree, including root. All errors that

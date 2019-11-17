@@ -57,7 +57,7 @@ func main() {
 
 		// Provide user with error and valid usage details
 		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
-		appConfig.FlagParser.WriteUsage(os.Stdout)
+		appConfig.FlagParser().WriteUsage(os.Stdout)
 		problemsEncountered = true
 		os.Exit(1)
 
@@ -66,36 +66,36 @@ func main() {
 
 	}
 
-	log := appConfig.Logger
+	log := appConfig.Logger()
 
 	log.Debug("Config object created")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
-	if appConfig.LogFileHandle != nil {
+	if appConfig.LogFileHandle() != nil {
 		log.Debug("Deferring closure of log file")
-		defer appConfig.LogFileHandle.Close()
+		defer appConfig.LogFileHandle().Close()
 	}
 
 	log.WithFields(logrus.Fields{
-		"paths":        appConfig.Paths,
-		"file_pattern": appConfig.FilePattern,
-		"extensions":   appConfig.FileExtensions,
-		"file_age":     appConfig.FileAge,
+		"paths":        appConfig.Paths(),
+		"file_pattern": appConfig.FilePattern(),
+		"extensions":   appConfig.FileExtensions(),
+		"file_age":     appConfig.FileAge(),
 	}).Info("Starting evaluation of paths list")
 
 	// Used as a global counter/bucket for presentation/logging purposes
 	var appResults paths.ProcessingResults
 
 	var pass int
-	var totalPaths int = len(appConfig.Paths)
-	for _, path := range appConfig.Paths {
+	var totalPaths int = len(appConfig.Paths())
+	for _, path := range appConfig.Paths() {
 
 		pass++
 
 		log.WithFields(logrus.Fields{
 			"total_paths":   totalPaths,
 			"iteration":     pass,
-			"ignore_errors": appConfig.IgnoreErrors,
+			"ignore_errors": appConfig.IgnoreErrors(),
 		}).Infof("Beginning processing of path %q (%d of %d)",
 			path, pass, totalPaths)
 
@@ -105,17 +105,17 @@ func main() {
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors(),
 			}).Errorf("Requested path not found: %q", path)
 
-			if appConfig.IgnoreErrors {
+			if appConfig.IgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors(),
 				}).Warn("Error encountered, but continuing as requested.")
 				continue
 			} else {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors(),
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 
 				os.Exit(1)
@@ -128,13 +128,13 @@ func main() {
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors(),
 				"iteration":     pass,
 			}).Error("error:", err)
 
-			if !appConfig.IgnoreErrors {
+			if !appConfig.IgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors(),
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")
@@ -147,16 +147,16 @@ func main() {
 
 			log.WithFields(logrus.Fields{
 				"path":         path,
-				"file_pattern": appConfig.FilePattern,
-				"extensions":   appConfig.FileExtensions,
-				"file_age":     appConfig.FileAge,
+				"file_pattern": appConfig.FilePattern(),
+				"extensions":   appConfig.FileExtensions(),
+				"file_age":     appConfig.FileAge(),
 				"iteration":    pass,
 			}).Info("No matches found")
 
 			log.WithFields(logrus.Fields{
 				"total_paths":   totalPaths,
 				"iteration":     pass,
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors(),
 			}).Infof("Ending processing of path %q (%d of %d)",
 				path, pass, totalPaths)
 			if pass < totalPaths {
@@ -168,9 +168,9 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"path":            path,
-			"file_pattern":    appConfig.FilePattern,
-			"extensions":      appConfig.FileExtensions,
-			"file_age":        appConfig.FileAge,
+			"file_pattern":    appConfig.FilePattern(),
+			"extensions":      appConfig.FileExtensions(),
+			"file_age":        appConfig.FileAge(),
 			"total_file_size": fileMatches.TotalFileSize(),
 			"iteration":       pass,
 		}).Infof("%d files eligible for removal (%s)",
@@ -181,9 +181,9 @@ func main() {
 		appResults.EligibleFileSize += fileMatches.TotalFileSize()
 
 		log.WithFields(logrus.Fields{
-			"keep_oldest": appConfig.KeepOldest,
+			"keep_oldest": appConfig.KeepOldest(),
 			"iteration":   pass,
-		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
+		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep())
 
 		filesToPrune := fileMatches.FilesToPrune(appConfig)
 
@@ -192,7 +192,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"total_paths":   totalPaths,
 				"iteration":     pass,
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.IgnoreErrors(),
 			}).Infof("Ending processing of path %q (%d of %d)",
 				path, pass, totalPaths)
 			if pass < totalPaths {
@@ -206,7 +206,7 @@ func main() {
 			"total_file_size": filesToPrune.TotalFileSizeHR(),
 			"iteration":       pass,
 		}).Debug("Calling cleanPath")
-		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
+		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors())
 		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
 
 		appResults.SuccessRemoved += len(removalResults.SuccessfulRemovals)
@@ -242,9 +242,9 @@ func main() {
 
 			log.Warnf("Error encountered while processing %s: %s", path, err)
 
-			if !appConfig.IgnoreErrors {
+			if !appConfig.IgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.IgnoreErrors(),
 					"iteration":     pass,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
@@ -255,7 +255,7 @@ func main() {
 		log.WithFields(logrus.Fields{
 			"total_paths":   totalPaths,
 			"iteration":     pass,
-			"ignore_errors": appConfig.IgnoreErrors,
+			"ignore_errors": appConfig.IgnoreErrors(),
 		}).Infof("Ending processing of path %q (%d of %d)",
 			path, pass, totalPaths)
 
@@ -277,9 +277,9 @@ func main() {
 	})
 
 	if problemsEncountered {
-		summaryLogger.Warnf("%s completed, but issues were encountered.", appConfig.AppName)
+		summaryLogger.Warnf("%s completed, but issues were encountered.", appConfig.AppName())
 	} else {
-		summaryLogger.Infof("%s successfully completed.", appConfig.AppName)
+		summaryLogger.Infof("%s successfully completed.", appConfig.AppName())
 	}
 
 }
