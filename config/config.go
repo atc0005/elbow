@@ -47,20 +47,20 @@ type AppMetadata struct {
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	filePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	fileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	fileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	numFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	keepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	ignoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	filePattern    *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	fileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	fileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	numFilesToKeep *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	keepOldest     *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	remove         *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	ignoreErrors   *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	recursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	recursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
@@ -571,14 +571,6 @@ func (c *Config) SetLoggerConfig() {
 
 }
 
-// AppVersion returns the appVersion field if it's non-nil, zero value otherwise.
-func (c *Config) AppVersion() string {
-	if c == nil || c.appVersion == nil {
-		return ""
-	}
-	return *c.appVersion
-}
-
 // AppName returns the appName field if it's non-nil, zero value otherwise.
 func (c *Config) AppName() string {
 	if c == nil || c.appName == nil {
@@ -593,6 +585,15 @@ func (c *Config) AppDescription() string {
 		return ""
 	}
 	return *c.appDescription
+
+}
+
+// AppVersion returns the appVersion field if it's non-nil, zero value otherwise.
+func (c *Config) AppVersion() string {
+	if c == nil || c.appVersion == nil {
+		return ""
+	}
+	return *c.appVersion
 }
 
 // AppURL returns the appURL field if it's non-nil, zero value otherwise.
@@ -601,4 +602,23 @@ func (c *Config) AppURL() string {
 		return ""
 	}
 	return *c.appURL
+}
+
+// FilePattern returns the filePattern field if it's non-nil, zero value otherwise.
+func (c *Config) FilePattern() string {
+	if c == nil || c.filePattern == nil {
+		return ""
+	}
+	return *c.filePattern
+}
+
+// FileExtensions returns the fileExtensions field if it's non-nil, zero value otherwise.
+// TODO: Double check this one; how should we safely handle returning an
+// empty/zero value?
+func (c *Config) FileExtensions() []string {
+	if c == nil || c.fileExtensions == nil {
+		// FIXME: Isn't the goal to avoid returning nil?
+		return nil
+	}
+	return c.fileExtensions
 }
