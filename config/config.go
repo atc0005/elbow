@@ -141,15 +141,17 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// The base configuration object that will be returned to the caller
 	baseConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
 
-	// Settings provided via config file
-	fileConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+	// Settings provided via config file. Intentionally using uninitialized
+	// struct here so that we can check for nil pointers to indicate whether
+	// a field has been populated with configuration values.
+	fileConfig := Config{}
 
 	// Settings provided via command-line flags and environment variables.
 	// This object will always be set in some manner as either flags or env
 	// vars will be needed to bootstrap the application. While we may support
 	// using a configuration file to provide settings, it is not used by
 	// default.
-	argsConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+	argsConfig := Config{}
 
 	// Initialize logger "handle" for later use
 	baseConfig.logger = logrus.New()
@@ -272,18 +274,9 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 
 }
 
-// FIXME: The description for this function is now broken
-//
 // MergeConfig receives source, destination and default Config objects and
-// merges select, non-default field values from the source Config object to
+// merges select, non-nil field values from the source Config object to
 // the destination config object, overwriting any field value already present.
-//
-// `source` and `destination` config structs already have usable default values
-// upon creation using our `NewConfig()` constructor; only copy if source struct
-// has a different value
-//
-// TODO: While this makes sense NOW, what is the best way to handle this if
-// the default value becomes non-zero?
 //
 // The goal is to respect the current documented configuration precedence for
 // multiple configuration sources (e.g., config file and command-line flags).
