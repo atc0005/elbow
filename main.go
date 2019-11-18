@@ -51,7 +51,7 @@ func main() {
 	// defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
 
 	// Validate configuration
-	if ok, err := appConfig.GetValidate(); !ok {
+	if ok, err := appConfig.Validate(); !ok {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
 
