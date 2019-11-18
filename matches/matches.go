@@ -71,26 +71,26 @@ func (fm FileMatch) SizeHR() string {
 // HasMatchingExtension validates whether a file has the desired extension
 func HasMatchingExtension(filename string, config *config.Config) bool {
 
-	log := config.Logger()
+	log := config.GetLogger()
 
 	// NOTE: We do NOT compare extensions insensitively. We can add that
 	// functionality in the future if needed.
 	ext := filepath.Ext(filename)
 
-	if len(config.FileExtensions()) == 0 {
+	if len(config.GetFileExtensions()) == 0 {
 		log.Debug("No extension limits have been set!")
 		log.Debugf("Considering %s safe for removal\n", filename)
 		return true
 	}
 
-	if InList(ext, config.FileExtensions()) {
+	if InList(ext, config.GetFileExtensions()) {
 		log.Debugf("%s has a valid extension for removal\n", filename)
 		return true
 	}
 
 	log.Debug("HasMatchingExtension: returning false for:", filename)
 	log.Debugf("HasMatchingExtension: returning false (%q not in %q)",
-		ext, config.FileExtensions())
+		ext, config.GetFileExtensions())
 	return false
 }
 
@@ -98,32 +98,32 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 // pattern
 func HasMatchingFilenamePattern(filename string, config *config.Config) bool {
 
-	log := config.Logger()
+	log := config.GetLogger()
 
-	if strings.TrimSpace(config.FilePattern()) == "" {
+	if strings.TrimSpace(config.GetFilePattern()) == "" {
 		log.Debug("No FilePattern has been specified!")
 		log.Debugf("Considering %s safe for removal\n", filename)
 		return true
 	}
 
 	// Search for substring
-	if strings.Contains(filename, config.FilePattern()) {
+	if strings.Contains(filename, config.GetFilePattern()) {
 		log.Debug("HasMatchingFilenamePattern: returning true for:", filename)
 		log.Debugf("HasMatchingFilenamePattern: returning true (%q contains %q)",
-			filename, config.FilePattern())
+			filename, config.GetFilePattern())
 		return true
 	}
 
 	log.Debug("HasMatchingFilenamePattern: returning false for:", filename)
 	log.Debugf("HasMatchingFilenamePattern: returning false (%q does not contain %q)",
-		filename, config.FilePattern())
+		filename, config.GetFilePattern())
 	return false
 }
 
 // HasMatchingAge validates whether a file matches the desired age threshold
 func HasMatchingAge(file os.FileInfo, config *config.Config) bool {
 
-	log := config.Logger()
+	log := config.GetLogger()
 
 	// used by this function's context logger and for return code
 	var ageCheckResults bool
@@ -135,18 +135,18 @@ func HasMatchingAge(file os.FileInfo, config *config.Config) bool {
 	contextLogger := log.WithFields(logrus.Fields{
 		"file_mod_time": fileModTime.Format(time.RFC3339),
 		"current_time":  now.Format(time.RFC3339),
-		"file_age_flag": config.FileAge(),
+		"file_age_flag": config.GetFileAge(),
 		"filename":      file.Name(),
 	})
 
 	// The default for this flag is 0, so only a positive, non-zero number
 	// is considered for use with age matching.
-	if config.FileAge() > 0 {
+	if config.GetFileAge() > 0 {
 
 		// Flip user specified number of days negative so that we can wind
 		// back that many days from the file modification time. This gives
 		// us our threshold to compare file modification times against.
-		daysBack := -(config.FileAge())
+		daysBack := -(config.GetFileAge())
 		fileAgeThreshold := now.AddDate(0, 0, daysBack)
 
 		// Bundle more fields now that we have access to the data
@@ -222,32 +222,32 @@ func (fm FileMatches) SortByModTimeDesc() {
 // object settings.
 func (fm FileMatches) FilesToPrune(c *config.Config) FileMatches {
 
-	log := c.Logger()
+	log := c.GetLogger()
 
 	var pruneStartRange int
 	var pruneEndRange int
 
 	switch {
-	case c.NumFilesToKeep() > len(fm):
+	case c.GetNumFilesToKeep() > len(fm):
 		log.Debug("Specified number to keep is larger than total matches; will process all matches")
 		pruneStartRange = 0
 		pruneEndRange = len(fm)
-	case c.KeepOldest():
+	case c.GetKeepOldest():
 		fm.SortByModTimeAsc()
 		log.Debug("Keeping older files by sorting in ascending order")
 		pruneStartRange = 0
-		pruneEndRange = (len(fm) - c.NumFilesToKeep())
-	case !c.KeepOldest():
+		pruneEndRange = (len(fm) - c.GetNumFilesToKeep())
+	case !c.GetKeepOldest():
 		fm.SortByModTimeDesc()
 		log.Debug("Keeping newer files by sorting in descending order")
 		pruneStartRange = 0
-		pruneEndRange = (len(fm) - c.NumFilesToKeep())
+		pruneEndRange = (len(fm) - c.GetNumFilesToKeep())
 	}
 
 	log.WithFields(logrus.Fields{
 		"start_range": pruneStartRange,
 		"end_range":   pruneEndRange,
-		"num_to_keep": c.NumFilesToKeep(),
+		"num_to_keep": c.GetNumFilesToKeep(),
 	}).Debug("Building list of files to prune by skipping forward specified number of files to keep")
 
 	return fm[pruneStartRange:pruneEndRange]

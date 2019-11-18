@@ -43,8 +43,8 @@ func TestMain(t *testing.T) {
 	t.Log("nilSlice is nil:", nilSlice == nil)
 	t.Log("-------------------------")
 
-	t.Logf("%v\n", defaultConfig.FileExtensions())
-	t.Log(len(defaultConfig.FileExtensions()))
-	t.Log("defaultConfig.FileExtensions is nil:", defaultConfig.FileExtensions() == nil)
+	t.Logf("%v\n", defaultConfig.GetFileExtensions())
+	t.Log(len(defaultConfig.GetFileExtensions()))
+	t.Log("defaultConfig.GetFileExtensions is nil:", defaultConfig.GetFileExtensions() == nil)
 
 }

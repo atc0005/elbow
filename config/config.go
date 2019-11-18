@@ -38,39 +38,39 @@ var logBuffer logging.LogBuffer
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	appName        *string `toml:"app_name" arg:"-"`
-	appDescription *string `toml:"app_description" arg:"-"`
-	appVersion     *string `toml:"app_version" arg:"-"`
-	appURL         *string `toml:"app_url" arg:"-"`
+	AppName        *string `toml:"app_name" arg:"-"`
+	AppDescription *string `toml:"app_description" arg:"-"`
+	AppVersion     *string `toml:"app_version" arg:"-"`
+	AppURL         *string `toml:"app_url" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	filePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	fileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	fileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	numFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	keepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	ignoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	FilePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	FileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	NumFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	KeepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	Remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	IgnoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	recursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	Paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	logLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	logFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	logFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	consoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	useSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	LogFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	ConsoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	UseSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -93,7 +93,7 @@ type Config struct {
 	flagParser    *arg.Parser    `toml:"-" arg:"-"`
 
 	// Path to (optional) configuration file
-	configFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
+	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
 // DefaultConfig returns a configuration object with baseline settings applied
@@ -106,26 +106,26 @@ func DefaultConfig(appName, appDescription, appURL, appVersion string) Config {
 	var defaultConfig Config
 
 	// Common metadata
-	*defaultConfig.appName = appName
-	*defaultConfig.appDescription = appDescription
-	*defaultConfig.appURL = appURL
-	*defaultConfig.appVersion = appVersion
+	*defaultConfig.AppName = appName
+	*defaultConfig.AppDescription = appDescription
+	*defaultConfig.AppURL = appURL
+	*defaultConfig.AppVersion = appVersion
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
-	*defaultConfig.filePattern = ""
-	*defaultConfig.fileAge = 0
-	*defaultConfig.numFilesToKeep = -1
-	*defaultConfig.keepOldest = false
-	*defaultConfig.remove = false
-	*defaultConfig.ignoreErrors = false
-	*defaultConfig.recursiveSearch = false
-	*defaultConfig.logLevel = "info"
-	*defaultConfig.logFormat = "text"
-	*defaultConfig.logFilePath = ""
-	*defaultConfig.consoleOutput = "stdout"
-	*defaultConfig.useSyslog = false
-	*defaultConfig.configFile = ""
+	*defaultConfig.FilePattern = ""
+	*defaultConfig.FileAge = 0
+	*defaultConfig.NumFilesToKeep = -1
+	*defaultConfig.KeepOldest = false
+	*defaultConfig.Remove = false
+	*defaultConfig.IgnoreErrors = false
+	*defaultConfig.RecursiveSearch = false
+	*defaultConfig.LogLevel = "info"
+	*defaultConfig.LogFormat = "text"
+	*defaultConfig.LogFilePath = ""
+	*defaultConfig.ConsoleOutput = "stdout"
+	*defaultConfig.UseSyslog = false
+	*defaultConfig.ConfigFile = ""
 
 	return defaultConfig
 
@@ -173,13 +173,13 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	*************************************************************************/
 
 	// If user specified a config file, let's try to use it
-	if argsConfig.configFile != nil {
+	if argsConfig.ConfigFile != nil {
 		// Check for a configuration file and load it if found.
-		if err := fileConfig.LoadConfigFile(*argsConfig.configFile); err != nil {
+		if err := fileConfig.LoadConfigFile(*argsConfig.ConfigFile); err != nil {
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error loading config file: %s", err),
-				Fields:  logrus.Fields{"config_file": argsConfig.configFile},
+				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
 			})
 		}
 
@@ -302,60 +302,60 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 		Message: fmt.Sprintf("Default struct: %+v", defaultConfig),
 	})
 
-	if source.paths != nil {
-		*destination.paths = *source.paths
+	if source.Paths != nil {
+		*destination.Paths = *source.Paths
 	}
 
-	if source.fileExtensions != nil {
-		*destination.fileExtensions = *source.fileExtensions
+	if source.FileExtensions != nil {
+		*destination.FileExtensions = *source.FileExtensions
 	}
 
-	if source.filePattern != nil {
-		*destination.filePattern = *source.filePattern
+	if source.FilePattern != nil {
+		*destination.FilePattern = *source.FilePattern
 	}
 
-	if source.fileAge != nil {
-		*destination.fileAge = *source.fileAge
+	if source.FileAge != nil {
+		*destination.FileAge = *source.FileAge
 	}
 
-	if source.numFilesToKeep != nil {
-		*destination.numFilesToKeep = *source.numFilesToKeep
+	if source.NumFilesToKeep != nil {
+		*destination.NumFilesToKeep = *source.NumFilesToKeep
 	}
 
-	if source.keepOldest != nil {
-		*destination.keepOldest = *source.keepOldest
+	if source.KeepOldest != nil {
+		*destination.KeepOldest = *source.KeepOldest
 	}
 
-	if source.remove != nil {
-		*destination.remove = *source.remove
+	if source.Remove != nil {
+		*destination.Remove = *source.Remove
 	}
 
-	if source.ignoreErrors != nil {
-		*destination.ignoreErrors = *source.ignoreErrors
+	if source.IgnoreErrors != nil {
+		*destination.IgnoreErrors = *source.IgnoreErrors
 	}
 
-	if source.recursiveSearch != nil {
-		*destination.recursiveSearch = *source.recursiveSearch
+	if source.RecursiveSearch != nil {
+		*destination.RecursiveSearch = *source.RecursiveSearch
 	}
 
-	if source.logLevel != nil {
-		*destination.logLevel = *source.logLevel
+	if source.LogLevel != nil {
+		*destination.LogLevel = *source.LogLevel
 	}
 
-	if source.logFormat != nil {
-		*destination.logFormat = *source.logFormat
+	if source.LogFormat != nil {
+		*destination.LogFormat = *source.LogFormat
 	}
 
-	if source.logFilePath != nil {
-		*destination.logFilePath = *source.logFilePath
+	if source.LogFilePath != nil {
+		*destination.LogFilePath = *source.LogFilePath
 	}
 
-	if source.consoleOutput != nil {
-		*destination.consoleOutput = *source.consoleOutput
+	if source.ConsoleOutput != nil {
+		*destination.ConsoleOutput = *source.ConsoleOutput
 	}
 
-	if source.useSyslog != nil {
-		*destination.useSyslog = *source.useSyslog
+	if source.UseSyslog != nil {
+		*destination.UseSyslog = *source.UseSyslog
 	}
 
 	// FIXME: Placeholder
@@ -382,7 +382,7 @@ func (c *Config) LoadConfigFile(filename string) error {
 // Description provides an overview as part of the application Help output
 func (c Config) Description() string {
 
-	return fmt.Sprintf("%s %s", *c.appName, *c.appDescription)
+	return fmt.Sprintf("%s %s", *c.AppName, *c.AppDescription)
 }
 
 // Version provides a version string that appears at the top of the
@@ -390,7 +390,7 @@ func (c Config) Description() string {
 func (c Config) Version() string {
 
 	versionString := fmt.Sprintf("%s %s\n%s",
-		strings.ToTitle(*c.appName), *c.appVersion, *c.appURL)
+		strings.ToTitle(*c.AppName), *c.AppVersion, *c.AppURL)
 
 	//divider := strings.Repeat("-", len(versionString))
 
@@ -409,7 +409,7 @@ func (c Config) Validate() (bool, error) {
 	// FileExtensions is optional
 	//   Discovered files are checked against FileExtensions later
 
-	if len(*c.paths) == 0 {
+	if len(*c.Paths) == 0 {
 		return false, fmt.Errorf("one or more paths not provided")
 	}
 
@@ -418,7 +418,7 @@ func (c Config) Validate() (bool, error) {
 	// NumFilesToKeep is optional, but if specified we should make sure it is
 	// a non-negative number. AFAIK, this is not currently enforced any other
 	// way.
-	if *c.numFilesToKeep < 0 {
+	if *c.NumFilesToKeep < 0 {
 		return false, fmt.Errorf("invalid value provided for files to keep")
 	}
 
@@ -426,7 +426,7 @@ func (c Config) Validate() (bool, error) {
 	// acceptable as it is the default value and indicates that the user has
 	// not chosen to use the flag (or has chosen improperly and it will be
 	// ignored).
-	if *c.fileAge < 0 {
+	if *c.FileAge < 0 {
 		return false, fmt.Errorf("negative number for file age not supported")
 	}
 
@@ -434,25 +434,25 @@ func (c Config) Validate() (bool, error) {
 	// Remove is optional
 	// ignoreErrors is optional
 
-	switch *c.logFormat {
+	switch *c.LogFormat {
 	case "text":
 	case "json":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for log format", *c.logFormat)
+		return false, fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
 	}
 
 	// logFilePath is optional
 	// TODO: String validation if it is set?
 
 	// Do nothing for valid choices, return false if invalid value specified
-	switch *c.consoleOutput {
+	switch *c.ConsoleOutput {
 	case "stdout":
 	case "stderr":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for console output destination", *c.consoleOutput)
+		return false, fmt.Errorf("invalid option %q provided for console output destination", *c.ConsoleOutput)
 	}
 
-	switch *c.logLevel {
+	switch *c.LogLevel {
 	case "emergency":
 	case "alert":
 	case "critical":
@@ -465,7 +465,7 @@ func (c Config) Validate() (bool, error) {
 	case "debug":
 	case "trace":
 	default:
-		return false, fmt.Errorf("invalid option %q provided for log level", *c.logLevel)
+		return false, fmt.Errorf("invalid option %q provided for log level", *c.LogLevel)
 	}
 
 	// useSyslog is optional
@@ -478,30 +478,30 @@ func (c Config) Validate() (bool, error) {
 // String() satisfies the Stringer{} interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
-	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, recursiveSearch=%t, fileAge=%d, NumFilesToKeep=%d, keepOldest=%t, Remove=%t, ignoreErrors=%t, logFormat=%q, logFilePath=%q, LogFileHandle=%v, consoleOutput=%q, logLevel=%q, useSyslog=%t, Logger=%v, FlagParser=%v), ConfigFile=%q, EndOfStringMethod",
+	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, ConfigFile=%q, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, logger=%v, flagParser=%v,  logFileHandle=%v",
 
-		*c.appName,
-		*c.appDescription,
-		*c.appVersion,
-		*c.appURL,
-		*c.filePattern,
-		*c.fileExtensions,
-		*c.paths,
-		*c.recursiveSearch,
-		*c.fileAge,
-		*c.numFilesToKeep,
-		*c.keepOldest,
-		*c.remove,
-		*c.ignoreErrors,
-		*c.logFormat,
-		*c.logFilePath,
-		*c.logFileHandle,
-		*c.consoleOutput,
-		*c.logLevel,
-		*c.useSyslog,
+		*c.AppName,
+		*c.AppDescription,
+		*c.AppVersion,
+		*c.AppURL,
+		*c.FilePattern,
+		*c.FileExtensions,
+		*c.Paths,
+		*c.RecursiveSearch,
+		*c.FileAge,
+		*c.NumFilesToKeep,
+		*c.KeepOldest,
+		*c.Remove,
+		*c.IgnoreErrors,
+		*c.LogFormat,
+		*c.LogFilePath,
+		*c.ConfigFile,
+		*c.ConsoleOutput,
+		*c.LogLevel,
+		*c.UseSyslog,
 		c.logger,
-		*c.flagParser,
-		*c.configFile,
+		c.flagParser,
+		c.logFileHandle,
 	)
 }
 
@@ -509,103 +509,103 @@ func (c *Config) String() string {
 // output.
 func (c *Config) SetLoggerConfig() {
 
-	logging.SetLoggerFormatter(c.logger, *c.logFormat)
-	logging.SetLoggerConsoleOutput(c.logger, *c.consoleOutput)
+	logging.SetLoggerFormatter(c.logger, *c.LogFormat)
+	logging.SetLoggerConsoleOutput(c.logger, *c.ConsoleOutput)
 
-	if fileHandle, err := logging.SetLoggerLogFile(c.logger, *c.logFilePath); err == nil {
+	if fileHandle, err := logging.SetLoggerLogFile(c.logger, *c.LogFilePath); err == nil {
 		c.logFileHandle = fileHandle
 	} else {
 		// Need to collect the error for display later
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("%s", err),
-			Fields:  logrus.Fields{"log_file": c.logFilePath},
+			Fields:  logrus.Fields{"log_file": c.LogFilePath},
 		})
 	}
 
-	logging.SetLoggerLevel(c.logger, *c.logLevel)
+	logging.SetLoggerLevel(c.logger, *c.LogLevel)
 
 	// https://godoc.org/github.com/sirupsen/logrus#New
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
 
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.
-	if *c.useSyslog {
+	if *c.UseSyslog {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
-			Fields:  logrus.Fields{"use_syslog": c.useSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
 		})
 
-		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, *c.logLevel); err != nil {
+		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, *c.LogLevel); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
-				Fields:  logrus.Fields{"use_syslog": c.useSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
 			})
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.WarnLevel,
 				Message: "Proceeding without syslog logging",
-				Fields:  logrus.Fields{"use_syslog": c.useSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
 			})
 		}
 	} else {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Syslog logging not requested, not enabling",
-			Fields:  logrus.Fields{"use_syslog": c.useSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
 		})
 
 	}
 
 }
 
-// AppName returns the appName field if it's non-nil, zero value otherwise.
-func (c *Config) AppName() string {
-	if c == nil || c.appName == nil {
+// GetAppName returns the appName field if it's non-nil, zero value otherwise.
+func (c *Config) GetAppName() string {
+	if c == nil || c.AppName == nil {
 		return ""
 	}
-	return *c.appName
+	return *c.AppName
 }
 
-// AppDescription returns the appDescription field if it's non-nil, zero value otherwise.
-func (c *Config) AppDescription() string {
-	if c == nil || c.appDescription == nil {
+// GetAppDescription returns the appDescription field if it's non-nil, zero value otherwise.
+func (c *Config) GetAppDescription() string {
+	if c == nil || c.AppDescription == nil {
 		return ""
 	}
-	return *c.appDescription
+	return *c.AppDescription
 
 }
 
-// AppVersion returns the appVersion field if it's non-nil, zero value otherwise.
-func (c *Config) AppVersion() string {
-	if c == nil || c.appVersion == nil {
+// GetAppVersion returns the appVersion field if it's non-nil, zero value otherwise.
+func (c *Config) GetAppVersion() string {
+	if c == nil || c.AppVersion == nil {
 		return ""
 	}
-	return *c.appVersion
+	return *c.AppVersion
 }
 
-// AppURL returns the appURL field if it's non-nil, zero value otherwise.
-func (c *Config) AppURL() string {
-	if c == nil || c.appURL == nil {
+// GetAppURL returns the appURL field if it's non-nil, zero value otherwise.
+func (c *Config) GetAppURL() string {
+	if c == nil || c.AppURL == nil {
 		return ""
 	}
-	return *c.appURL
+	return *c.AppURL
 }
 
-// FilePattern returns the filePattern field if it's non-nil, zero value otherwise.
-func (c *Config) FilePattern() string {
-	if c == nil || c.filePattern == nil {
+// GetFilePattern returns the filePattern field if it's non-nil, zero value otherwise.
+func (c *Config) GetFilePattern() string {
+	if c == nil || c.FilePattern == nil {
 		return ""
 	}
-	return *c.filePattern
+	return *c.FilePattern
 }
 
-// FileExtensions returns the fileExtensions field if it's non-nil, zero value
+// GetFileExtensions returns the fileExtensions field if it's non-nil, zero value
 // otherwise.
 // TODO: Double check this one; how should we safely handle returning an
 // empty/zero value?
@@ -613,144 +613,144 @@ func (c *Config) FilePattern() string {
 // `Issue.GetAssignees()` method that returns nil if the `Issue.Assignees`
 // field is nil. This seems to suggest that this is all we really can do here?
 //
-func (c *Config) FileExtensions() []string {
-	if c == nil || c.fileExtensions == nil {
+func (c *Config) GetFileExtensions() []string {
+	if c == nil || c.FileExtensions == nil {
 		// FIXME: Isn't the goal to avoid returning nil?
 		return nil
 	}
-	return *c.fileExtensions
+	return *c.FileExtensions
 }
 
-// FileAge returns the fileAge field if it's non-nil, zero value otherwise.
-func (c *Config) FileAge() int {
-	if c == nil || c.fileAge == nil {
+// GetFileAge returns the fileAge field if it's non-nil, zero value otherwise.
+func (c *Config) GetFileAge() int {
+	if c == nil || c.FileAge == nil {
 		return 0
 	}
-	return *c.fileAge
+	return *c.FileAge
 }
 
-// NumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero value
+// GetNumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero value
 // otherwise.
-func (c *Config) NumFilesToKeep() int {
-	if c == nil || c.numFilesToKeep == nil {
+func (c *Config) GetNumFilesToKeep() int {
+	if c == nil || c.NumFilesToKeep == nil {
 		return 0
 	}
-	return *c.numFilesToKeep
+	return *c.NumFilesToKeep
 }
 
-// KeepOldest returns the keepOldest field if it's non-nil, zero value
+// GetKeepOldest returns the keepOldest field if it's non-nil, zero value
 // otherwise.
-func (c *Config) KeepOldest() bool {
-	if c == nil || c.keepOldest == nil {
+func (c *Config) GetKeepOldest() bool {
+	if c == nil || c.KeepOldest == nil {
 		return false
 	}
-	return *c.keepOldest
+	return *c.KeepOldest
 }
 
-// Remove returns the remove field if it's non-nil, zero value otherwise.
-func (c *Config) Remove() bool {
-	if c == nil || c.remove == nil {
+// GetRemove returns the remove field if it's non-nil, zero value otherwise.
+func (c *Config) GetRemove() bool {
+	if c == nil || c.Remove == nil {
 		return false
 	}
-	return *c.remove
+	return *c.Remove
 }
 
-// IgnoreErrors returns the ignoreErrors field if it's non-nil, zero value
+// GetIgnoreErrors returns the ignoreErrors field if it's non-nil, zero value
 // otherwise.
-func (c *Config) IgnoreErrors() bool {
-	if c == nil || c.ignoreErrors == nil {
+func (c *Config) GetIgnoreErrors() bool {
+	if c == nil || c.IgnoreErrors == nil {
 		return false
 	}
-	return *c.ignoreErrors
+	return *c.IgnoreErrors
 }
 
-// Paths returns the paths field if it's non-nil, zero value otherwise.
-func (c *Config) Paths() []string {
-	if c == nil || c.paths == nil {
+// GetPaths returns the paths field if it's non-nil, zero value otherwise.
+func (c *Config) GetPaths() []string {
+	if c == nil || c.Paths == nil {
 		return nil
 	}
-	return *c.paths
+	return *c.Paths
 }
 
-// RecursiveSearch returns the recursiveSearch field if it's non-nil, zero
+// GetRecursiveSearch returns the recursiveSearch field if it's non-nil, zero
 // value otherwise.
-func (c *Config) RecursiveSearch() bool {
-	if c == nil || c.recursiveSearch == nil {
+func (c *Config) GetRecursiveSearch() bool {
+	if c == nil || c.RecursiveSearch == nil {
 		return false
 	}
-	return *c.recursiveSearch
+	return *c.RecursiveSearch
 }
 
-// LogLevel returns the logLevel field if it's non-nil, zero value otherwise.
-func (c *Config) LogLevel() string {
-	if c == nil || c.logLevel == nil {
+// GetLogLevel returns the logLevel field if it's non-nil, zero value otherwise.
+func (c *Config) GetLogLevel() string {
+	if c == nil || c.LogLevel == nil {
 		return ""
 	}
-	return *c.logLevel
+	return *c.LogLevel
 }
 
-// LogFormat returns the logFormat field if it's non-nil, zero value otherwise.
-func (c *Config) LogFormat() string {
-	if c == nil || c.logFormat == nil {
+// GetLogFormat returns the logFormat field if it's non-nil, zero value otherwise.
+func (c *Config) GetLogFormat() string {
+	if c == nil || c.LogFormat == nil {
 		return ""
 	}
-	return *c.logFormat
+	return *c.LogFormat
 }
 
-// LogFilePath returns the logFilePath field if it's non-nil, zero value
+// GetLogFilePath returns the logFilePath field if it's non-nil, zero value
 // otherwise.
-func (c *Config) LogFilePath() string {
-	if c == nil || c.logFilePath == nil {
+func (c *Config) GetLogFilePath() string {
+	if c == nil || c.LogFilePath == nil {
 		return ""
 	}
-	return *c.logFilePath
+	return *c.LogFilePath
 }
 
-// ConsoleOutput returns the consoleOutput field if it's non-nil, zero value
+// GetConsoleOutput returns the consoleOutput field if it's non-nil, zero value
 // otherwise.
-func (c *Config) ConsoleOutput() string {
-	if c == nil || c.consoleOutput == nil {
+func (c *Config) GetConsoleOutput() string {
+	if c == nil || c.ConsoleOutput == nil {
 		return ""
 	}
-	return *c.consoleOutput
+	return *c.ConsoleOutput
 }
 
-// UseSyslog returns the useSyslog field if it's non-nil, zero
+// GetUseSyslog returns the useSyslog field if it's non-nil, zero
 // value otherwise.
-func (c *Config) UseSyslog() bool {
-	if c == nil || c.useSyslog == nil {
+func (c *Config) GetUseSyslog() bool {
+	if c == nil || c.UseSyslog == nil {
 		return false
 	}
-	return *c.useSyslog
+	return *c.UseSyslog
 }
 
-// ConfigFile returns the configFile field if it's non-nil, zero value
+// GetConfigFile returns the configFile field if it's non-nil, zero value
 // otherwise.
-func (c *Config) ConfigFile() string {
-	if c == nil || c.configFile == nil {
+func (c *Config) GetConfigFile() string {
+	if c == nil || c.ConfigFile == nil {
 		return ""
 	}
-	return *c.configFile
+	return *c.ConfigFile
 }
 
-// Logger returns the logger field if it's non-nil, zero value otherwise.
-func (c *Config) Logger() *logrus.Logger {
+// GetLogger returns the logger field if it's non-nil, zero value otherwise.
+func (c *Config) GetLogger() *logrus.Logger {
 	if c == nil || c.logger == nil {
 		return nil
 	}
 	return c.logger
 }
 
-// FlagParser returns the flagParser field if it's non-nil, zero value otherwise.
-func (c *Config) FlagParser() *arg.Parser {
+// GetFlagParser returns the flagParser field if it's non-nil, zero value otherwise.
+func (c *Config) GetFlagParser() *arg.Parser {
 	if c == nil || c.flagParser == nil {
 		return nil
 	}
 	return c.flagParser
 }
 
-// LogFileHandle returns the logFileHandle field if it's non-nil, zero value otherwise.
-func (c *Config) LogFileHandle() *os.File {
+// GetLogFileHandle returns the logFileHandle field if it's non-nil, zero value otherwise.
+func (c *Config) GetLogFileHandle() *os.File {
 	if c == nil || c.logFileHandle == nil {
 		return nil
 	}
