@@ -96,50 +96,55 @@ type Config struct {
 	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
-// DefaultConfig returns a configuration object with baseline settings applied
-// for further extension by the caller.
-func DefaultConfig(appName, appDescription, appURL, appVersion string) Config {
-
-	// Our baseline. The majority of the default settings were previously
-	// supplied via struct tags
-
-	var defaultConfig Config
-
-	// Common metadata
-	*defaultConfig.AppName = appName
-	*defaultConfig.AppDescription = appDescription
-	*defaultConfig.AppURL = appURL
-	*defaultConfig.AppVersion = appVersion
-
-	// Apply default settings that other configuration sources will be allowed
-	// to (and for a few settings MUST) override
-	*defaultConfig.FilePattern = ""
-	*defaultConfig.FileAge = 0
-	*defaultConfig.NumFilesToKeep = -1
-	*defaultConfig.KeepOldest = false
-	*defaultConfig.Remove = false
-	*defaultConfig.IgnoreErrors = false
-	*defaultConfig.RecursiveSearch = false
-	*defaultConfig.LogLevel = "info"
-	*defaultConfig.LogFormat = "text"
-	*defaultConfig.LogFilePath = ""
-	*defaultConfig.ConsoleOutput = "stdout"
-	*defaultConfig.UseSyslog = false
-	*defaultConfig.ConfigFile = ""
-
-	return defaultConfig
-
-}
-
 // NewConfig returns a pointer to a newly configured object representing a
 // collection of user-provided and default settings.
 func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
-	// Baseline collection of settings before loading custom config sources
-	defaultConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+	// Apply default settings that other configuration sources will be allowed
+	// to (and for a few settings MUST) override
+	filePattern := ""
+	// fileExtensions :=
+	fileAge := 0
+	numFilesToKeep := -1
+	keepOldest := false
+	remove := false
+	ignoreErrors := false
+	recursiveSearch := false
+	logLevel := "info"
+	logFormat := "text"
+	logFilePath := ""
+	consoleOutput := "stdout"
+	useSyslog := false
+	configFile := ""
 
-	// The base configuration object that will be returned to the caller
-	baseConfig := DefaultConfig(appName, appDescription, appURL, appVersion)
+	baseConfig := Config{
+		AppMetadata: AppMetadata{
+			AppName:        &appName,
+			AppDescription: &appDescription,
+			AppURL:         &appURL,
+		},
+		FileHandling: FileHandling{
+			FilePattern: &filePattern,
+			//FileExtensions: &fileExtensions,
+			FileAge:        &fileAge,
+			NumFilesToKeep: &numFilesToKeep,
+			KeepOldest:     &keepOldest,
+			Remove:         &remove,
+			IgnoreErrors:   &ignoreErrors,
+		},
+		Logging: Logging{
+			LogLevel:      &logLevel,
+			LogFormat:     &logFormat,
+			LogFilePath:   &logFilePath,
+			ConsoleOutput: &consoleOutput,
+			UseSyslog:     &useSyslog,
+		},
+		Search: Search{
+			//Paths: ,
+			RecursiveSearch: &recursiveSearch,
+		},
+		ConfigFile: &configFile,
+	}
 
 	// Settings provided via config file. Intentionally using uninitialized
 	// struct here so that we can check for nil pointers to indicate whether
@@ -188,7 +193,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 			Message: "Processing fileConfig object with MergeConfig func",
 		})
 
-		if err := MergeConfig(&baseConfig, fileConfig, defaultConfig); err != nil {
+		if err := MergeConfig(&baseConfig, fileConfig); err != nil {
 			_, _, line, _ := runtime.Caller(0)
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
@@ -216,7 +221,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 		Message: "Processing argsConfig object with MergeConfig func",
 	})
 
-	if err := MergeConfig(&baseConfig, argsConfig, defaultConfig); err != nil {
+	if err := MergeConfig(&baseConfig, argsConfig); err != nil {
 		_, _, line, _ := runtime.Caller(0)
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
@@ -280,7 +285,7 @@ func GetStructTag(c Config, fieldname string, tagName string) (string, bool) {
 //
 // The goal is to respect the current documented configuration precedence for
 // multiple configuration sources (e.g., config file and command-line flags).
-func MergeConfig(destination *Config, source Config, defaultConfig Config) error {
+func MergeConfig(destination *Config, source Config) error {
 
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
@@ -296,10 +301,6 @@ func MergeConfig(destination *Config, source Config, defaultConfig Config) error
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct: %+v", *destination),
-	})
-	logBuffer.Add(logging.LogRecord{
-		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Default struct: %+v", defaultConfig),
 	})
 
 	if source.Paths != nil {
