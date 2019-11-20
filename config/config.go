@@ -100,6 +100,8 @@ type Config struct {
 // collection of user-provided and default settings.
 func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 
+	// TODO: Move default values to Getter() methods?
+
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
 	filePattern := ""
