@@ -532,7 +532,7 @@ func (c *Config) SetLoggerConfig() {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
-			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
 		})
 
 		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, *c.LogLevel); err != nil {
@@ -542,20 +542,20 @@ func (c *Config) SetLoggerConfig() {
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
-				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
 			})
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.WarnLevel,
 				Message: "Proceeding without syslog logging",
-				Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+				Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
 			})
 		}
 	} else {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Syslog logging not requested, not enabling",
-			Fields:  logrus.Fields{"use_syslog": c.UseSyslog},
+			Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
 		})
 
 	}
