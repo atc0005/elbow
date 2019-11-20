@@ -122,6 +122,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 			AppName:        &appName,
 			AppDescription: &appDescription,
 			AppURL:         &appURL,
+			AppVersion:     &appVersion,
 		},
 		FileHandling: FileHandling{
 			FilePattern: &filePattern,
@@ -403,20 +404,37 @@ func (c Config) Version() string {
 // Validate verifies all struct fields have been provided acceptable
 func (c Config) Validate() (bool, error) {
 
-	// FilePattern is optional
+	// FilePattern is optional, but since has an underlying string type with a
+	// default of empty string we can assert that the pointer isn't
+	if c.FilePattern == nil {
+		return false, fmt.Errorf("field FilePattern not configured")
+	}
+
 	// FileExtensions is optional
-	//   Discovered files are checked against FileExtensions later
+	// Discovered files are checked against FileExtensions later
+	// This isn't a pointer, but rather a string slice. The user may opt to
+	// not configure this setting, so having a `nil` state for this setting is
+	// normal?
+	//
+	// if c.FileExtensions == nil {
+	// 	return false, fmt.Errorf("file extensions option not configured")
+	// }
 
 	if c.Paths == nil {
 		return false, fmt.Errorf("one or more paths not provided")
 	}
 
-	// recursiveSearch is optional
+	// RecursiveSearch is optional
+	if c.RecursiveSearch == nil {
+		return false, fmt.Errorf("field RecursiveSearch not configured")
+	}
 
-	// NumFilesToKeep is optional, but if specified we should make sure it is
-	// a non-negative number. AFAIK, this is not currently enforced any other
-	// way.
-	if *c.NumFilesToKeep < 0 {
+	// NumFilesToKeep is optional, but should be configured via
+	// if specified we should make sure it is a non-negative number.
+	switch {
+	case c.NumFilesToKeep == nil:
+		return false, fmt.Errorf("field NumFilesToKeep not configured")
+	case *c.NumFilesToKeep < 0:
 		return false, fmt.Errorf("invalid value provided for files to keep")
 	}
 
@@ -424,17 +442,30 @@ func (c Config) Validate() (bool, error) {
 	// acceptable as it is the default value and indicates that the user has
 	// not chosen to use the flag (or has chosen improperly and it will be
 	// ignored).
-	if *c.FileAge < 0 {
+	switch {
+	case c.FileAge == nil:
+		return false, fmt.Errorf("field FileAge not configured")
+	case *c.FileAge < 0:
 		return false, fmt.Errorf("negative number for file age not supported")
 	}
 
-	// keepOldest is optional
-	// Remove is optional
-	// ignoreErrors is optional
+	if c.KeepOldest == nil {
+		return false, fmt.Errorf("field KeepOldest not configured")
+	}
 
-	switch *c.LogFormat {
-	case "text":
-	case "json":
+	if c.Remove == nil {
+		return false, fmt.Errorf("field Remove not configured")
+	}
+
+	if c.IgnoreErrors == nil {
+		return false, fmt.Errorf("field IgnoreErrors not configured")
+	}
+
+	switch {
+	case c.LogFormat == nil:
+		return false, fmt.Errorf("field LogFormat not configured")
+	case *c.LogFormat == "text":
+	case *c.LogFormat == "json":
 	default:
 		return false, fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
 	}
@@ -443,30 +474,37 @@ func (c Config) Validate() (bool, error) {
 	// TODO: String validation if it is set?
 
 	// Do nothing for valid choices, return false if invalid value specified
-	switch *c.ConsoleOutput {
-	case "stdout":
-	case "stderr":
+	switch {
+	case c.ConsoleOutput == nil:
+		return false, fmt.Errorf("field ConsoleOutput not configured")
+	case *c.ConsoleOutput == "stdout":
+	case *c.ConsoleOutput == "stderr":
 	default:
 		return false, fmt.Errorf("invalid option %q provided for console output destination", *c.ConsoleOutput)
 	}
 
-	switch *c.LogLevel {
-	case "emergency":
-	case "alert":
-	case "critical":
-	case "panic":
-	case "fatal":
-	case "error":
-	case "warn":
-	case "info":
-	case "notice":
-	case "debug":
-	case "trace":
+	switch {
+	case c.LogLevel == nil:
+		return false, fmt.Errorf("field LogLevel not configured")
+	case *c.LogLevel == "emergency":
+	case *c.LogLevel == "alert":
+	case *c.LogLevel == "critical":
+	case *c.LogLevel == "panic":
+	case *c.LogLevel == "fatal":
+	case *c.LogLevel == "error":
+	case *c.LogLevel == "warn":
+	case *c.LogLevel == "info":
+	case *c.LogLevel == "notice":
+	case *c.LogLevel == "debug":
+	case *c.LogLevel == "trace":
 	default:
 		return false, fmt.Errorf("invalid option %q provided for log level", *c.LogLevel)
 	}
 
-	// useSyslog is optional
+	// UseSyslog is optional
+	if c.UseSyslog == nil {
+		return false, fmt.Errorf("field UseSyslog not configured")
+	}
 
 	// Optimist
 	return true, nil
