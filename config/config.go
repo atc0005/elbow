@@ -383,7 +383,7 @@ func (c *Config) LoadConfigFile(filename string) error {
 // Description provides an overview as part of the application Help output
 func (c Config) Description() string {
 
-	return fmt.Sprintf("%s %s", *c.AppName, *c.AppDescription)
+	return fmt.Sprintf("%s %s", c.GetAppName(), c.GetAppDescription())
 }
 
 // Version provides a version string that appears at the top of the
@@ -391,7 +391,7 @@ func (c Config) Description() string {
 func (c Config) Version() string {
 
 	versionString := fmt.Sprintf("%s %s\n%s",
-		strings.ToTitle(*c.AppName), *c.AppVersion, *c.AppURL)
+		strings.ToTitle(c.GetAppName()), c.GetAppVersion(), c.GetAppURL())
 
 	//divider := strings.Repeat("-", len(versionString))
 
@@ -410,7 +410,7 @@ func (c Config) Validate() (bool, error) {
 	// FileExtensions is optional
 	//   Discovered files are checked against FileExtensions later
 
-	if len(*c.Paths) == 0 {
+	if c.GetPaths() == nil {
 		return false, fmt.Errorf("one or more paths not provided")
 	}
 
