@@ -47,20 +47,20 @@ type AppMetadata struct {
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern    *string   `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	FileExtensions *[]string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        *int      `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep *int      `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     *bool     `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	Remove         *bool     `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	IgnoreErrors   *bool     `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	FilePattern    *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	FileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	NumFilesToKeep *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	KeepOldest     *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	Remove         *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	IgnoreErrors   *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	Paths           *[]string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch *bool     `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
 // Logging represents options specific to how this application handles
@@ -301,11 +301,11 @@ func MergeConfig(destination *Config, source Config) error {
 	})
 
 	if source.Paths != nil {
-		*destination.Paths = *source.Paths
+		destination.Paths = source.Paths
 	}
 
 	if source.FileExtensions != nil {
-		*destination.FileExtensions = *source.FileExtensions
+		destination.FileExtensions = source.FileExtensions
 	}
 
 	if source.FilePattern != nil {
@@ -483,8 +483,8 @@ func (c *Config) String() string {
 		*c.AppVersion,
 		*c.AppURL,
 		*c.FilePattern,
-		*c.FileExtensions,
-		*c.Paths,
+		c.FileExtensions,
+		c.Paths,
 		*c.RecursiveSearch,
 		*c.FileAge,
 		*c.NumFilesToKeep,
@@ -616,7 +616,7 @@ func (c *Config) GetFileExtensions() []string {
 		// FIXME: Isn't the goal to avoid returning nil?
 		return nil
 	}
-	return *c.FileExtensions
+	return c.FileExtensions
 }
 
 // GetFileAge returns the fileAge field if it's non-nil, zero value otherwise.
@@ -667,7 +667,7 @@ func (c *Config) GetPaths() []string {
 	if c == nil || c.Paths == nil {
 		return nil
 	}
-	return *c.Paths
+	return c.Paths
 }
 
 // GetRecursiveSearch returns the recursiveSearch field if it's non-nil, zero
