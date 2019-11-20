@@ -166,9 +166,6 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	// user-provided settings fail validation.
 	baseConfig.flagParser = arg.MustParse(&argsConfig)
 
-	fmt.Println("Dumping FlagParser for review")
-	fmt.Printf("%+v", baseConfig.flagParser)
-
 	/*************************************************************************
 		At this point `baseConfig` is our baseline config object containing
 		default settings and various handles to other resources. We do not
@@ -410,7 +407,7 @@ func (c Config) Validate() (bool, error) {
 	// FileExtensions is optional
 	//   Discovered files are checked against FileExtensions later
 
-	if c.GetPaths() == nil {
+	if c.Paths == nil {
 		return false, fmt.Errorf("one or more paths not provided")
 	}
 
