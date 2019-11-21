@@ -98,12 +98,15 @@ type Config struct {
 
 // NewConfig returns a pointer to a newly configured object representing a
 // collection of user-provided and default settings.
-func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
+func NewConfig(appVersion string) *Config {
 
 	// TODO: Move default values to Getter() methods?
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
+	appName := "Elbow"
+	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
+	appURL := "https://github.com/atc0005/elbow"
 	filePattern := ""
 	// fileExtensions :=
 	fileAge := 0

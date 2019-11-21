@@ -40,15 +40,8 @@ func main() {
 	// app run. There is likely a much better way to handle this
 	problemsEncountered := false
 
-	appName := "Elbow"
-	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
-	appURL := "https://github.com/atc0005/elbow"
-
-	//log.Debug("Constructing config object")
-
 	// If this fails, the application will immediately exit.
-	appConfig := config.NewConfig(appName, appDescription, appURL, version)
-	// defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
+	appConfig := config.NewConfig(version)
 
 	// Validate configuration
 	if ok, err := appConfig.Validate(); !ok {
