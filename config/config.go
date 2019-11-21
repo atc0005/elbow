@@ -38,39 +38,55 @@ var logBuffer logging.LogBuffer
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	AppName        *string `toml:"app_name" arg:"-"`
-	AppDescription *string `toml:"app_description" arg:"-"`
-	AppVersion     *string `toml:"app_version" arg:"-"`
-	AppURL         *string `toml:"app_url" arg:"-"`
+	AppName               *string `toml:"app_name" arg:"-"`
+	defaultAppName        string  `toml:"-" arg:"-"`
+	AppDescription        *string `toml:"app_description" arg:"-"`
+	defaultAppDescription string  `toml:"-" arg:"-"`
+	AppVersion            *string `toml:"app_version" arg:"-"`
+	defaultAppVersion     string  `toml:"-" arg:"-"`
+	AppURL                *string `toml:"app_url" arg:"-"`
+	defaultAppURL         string  `toml:"-" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern    *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	NumFilesToKeep *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	KeepOldest     *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	Remove         *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	IgnoreErrors   *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	FilePattern           *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	defaultFilePattern    string   `toml:"-" arg:"-"`
+	FileExtensions        []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	FileAge               *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	defaultFileAge        int      `toml:"-" arg:"-"`
+	NumFilesToKeep        *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	defaultNumFilesToKeep int      `toml:"-" arg:"-"`
+	KeepOldest            *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	defaultKeepOldest     bool     `toml:"-" arg:"-"`
+	Remove                *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	defaultRemove         bool     `toml:"-" arg:"-"`
+	IgnoreErrors          *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	defaultIgnoreErrors   bool     `toml:"-" arg:"-"`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	Paths                  []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch        *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	defaultRecursiveSearch bool     `toml:"-" arg:"-"`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	LogLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	LogFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	LogFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	ConsoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	UseSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	LogLevel             *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	defaultLogLevel      string  `toml:"-" arg:"-"`
+	LogFormat            *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	defaultLogFormat     string  `toml:"-" arg:"-"`
+	LogFilePath          *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	defaultLogFilePath   string  `toml:"-" arg:"-"`
+	ConsoleOutput        *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	defaultConsoleOutput string  `toml:"-" arg:"-"`
+	UseSyslog            *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	defaultUseSyslog     bool    `toml:"-" arg:"-"`
 }
 
 // Config represents a collection of configuration settings for this
@@ -93,7 +109,8 @@ type Config struct {
 	flagParser    *arg.Parser    `toml:"-" arg:"-"`
 
 	// Path to (optional) configuration file
-	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
+	ConfigFile        *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
+	defaultConfigFile string  `toml:"-" arg:"-"`
 }
 
 // NewConfig returns a pointer to a newly configured object representing a
