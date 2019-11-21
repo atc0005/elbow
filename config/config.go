@@ -113,11 +113,11 @@ type Config struct {
 	// 	defaultConfigFile string  `toml:"-" arg:"-"`
 }
 
-// NewConfig returns a pointer to a newly configured object representing a
-// collection of user-provided and default settings.
-func NewConfig(appVersion string) *Config {
+// NewDefaultConfig returns a newly constructed config object. This function
+// is intended for use by the NewConfig function.
+func NewDefaultConfig(appVersion string) Config {
 
-	baseConfig := Config{
+	defaultConfig := Config{
 		AppMetadata: AppMetadata{
 			AppName:        new(string),
 			AppDescription: new(string),
@@ -146,6 +146,40 @@ func NewConfig(appVersion string) *Config {
 		},
 		ConfigFile: new(string),
 	}
+
+	// Apply default settings that other configuration sources will be allowed
+	// to (and for a few settings MUST) override
+	*defaultConfig.AppName = defaultConfig.GetAppName()
+	*defaultConfig.AppDescription = defaultConfig.GetAppDescription()
+	*defaultConfig.AppURL = defaultConfig.GetAppURL()
+
+	// passed into this function
+	*defaultConfig.AppVersion = appVersion
+	*defaultConfig.FilePattern = defaultConfig.GetFilePattern()
+	// fileExtensions =
+	*defaultConfig.FileAge = defaultConfig.GetFileAge()
+	*defaultConfig.NumFilesToKeep = defaultConfig.GetNumFilesToKeep()
+	*defaultConfig.KeepOldest = defaultConfig.GetKeepOldest()
+	*defaultConfig.Remove = defaultConfig.GetRemove()
+	*defaultConfig.IgnoreErrors = defaultConfig.GetIgnoreErrors()
+	*defaultConfig.RecursiveSearch = defaultConfig.GetRecursiveSearch()
+	*defaultConfig.LogLevel = defaultConfig.GetLogLevel()
+	*defaultConfig.LogFormat = defaultConfig.GetLogFormat()
+	*defaultConfig.LogFilePath = defaultConfig.GetLogFilePath()
+	*defaultConfig.ConsoleOutput = defaultConfig.GetConsoleOutput()
+	*defaultConfig.UseSyslog = defaultConfig.GetUseSyslog()
+	*defaultConfig.ConfigFile = defaultConfig.GetConfigFile()
+
+	return defaultConfig
+}
+
+// NewConfig returns a pointer to a newly configured object representing a
+// collection of user-provided and default settings.
+func NewConfig(appVersion string) *Config {
+
+	// Apply default settings that other configuration sources will be allowed
+	// to (and for a few settings MUST) override
+	baseConfig := NewDefaultConfig(appVersion)
 
 	// Settings provided via config file. Intentionally using uninitialized
 	// struct here so that we can check for nil pointers to indicate whether
