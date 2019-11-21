@@ -148,6 +148,8 @@ func NewConfig(appVersion string) *Config {
 	// to (and for a few settings MUST) override
 	baseConfig := NewDefaultConfig(appVersion)
 
+	fmt.Printf("Current baseConfig after NewDefaultConfig() call: %+v\n", baseConfig)
+
 	// Settings provided via config file. Intentionally using uninitialized
 	// struct here so that we can check for nil pointers to indicate whether
 	// a field has been populated with configuration values.
@@ -168,6 +170,8 @@ func NewConfig(appVersion string) *Config {
 	// user-provided settings fail validation.
 	baseConfig.flagParser = arg.MustParse(&argsConfig)
 
+	fmt.Printf("Current argsConfig after MustParse() call: %+v\n", argsConfig)
+
 	/*************************************************************************
 		At this point `baseConfig` is our baseline config object containing
 		default settings and various handles to other resources. We do not
@@ -186,6 +190,8 @@ func NewConfig(appVersion string) *Config {
 				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
 			})
 		}
+
+		fmt.Printf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig)
 
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
@@ -291,7 +297,7 @@ func MergeConfig(destination *Config, source Config) error {
 
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: "MergeConfig called",
+		Message: "MergeConfig starting",
 	})
 
 	logBuffer.Add(logging.LogRecord{
@@ -369,6 +375,31 @@ func MergeConfig(destination *Config, source Config) error {
 	if source.UseSyslog != nil {
 		*destination.UseSyslog = *source.UseSyslog
 	}
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "MergeConfig ending",
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Source struct (raw): %+v", source),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Source struct (string): %s", source.String()),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Destination struct (raw): %+v", destination),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Destination struct (string): %s", destination.String()),
+	})
 
 	// FIXME: Placeholder
 	// FIXME: What useful error code would we return from this function?
