@@ -38,55 +38,55 @@ var logBuffer logging.LogBuffer
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	AppName               *string `toml:"app_name" arg:"-"`
-	defaultAppName        string  `toml:"-" arg:"-"`
-	AppDescription        *string `toml:"app_description" arg:"-"`
-	defaultAppDescription string  `toml:"-" arg:"-"`
-	AppVersion            *string `toml:"app_version" arg:"-"`
-	defaultAppVersion     string  `toml:"-" arg:"-"`
-	AppURL                *string `toml:"app_url" arg:"-"`
-	defaultAppURL         string  `toml:"-" arg:"-"`
+	AppName *string `toml:"app_name" arg:"-"`
+	//defaultAppName        string  `toml:"-" arg:"-"`
+	AppDescription *string `toml:"app_description" arg:"-"`
+	//defaultAppDescription string  `toml:"-" arg:"-"`
+	AppVersion *string `toml:"app_version" arg:"-"`
+	//defaultAppVersion     string  `toml:"-" arg:"-"`
+	AppURL *string `toml:"app_url" arg:"-"`
+	//defaultAppURL         string  `toml:"-" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern           *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	defaultFilePattern    string   `toml:"-" arg:"-"`
-	FileExtensions        []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
-	FileAge               *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	defaultFileAge        int      `toml:"-" arg:"-"`
-	NumFilesToKeep        *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	defaultNumFilesToKeep int      `toml:"-" arg:"-"`
-	KeepOldest            *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	defaultKeepOldest     bool     `toml:"-" arg:"-"`
-	Remove                *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	defaultRemove         bool     `toml:"-" arg:"-"`
-	IgnoreErrors          *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
-	defaultIgnoreErrors   bool     `toml:"-" arg:"-"`
+	FilePattern *string `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
+	//defaultFilePattern    string   `toml:"-" arg:"-"`
+	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
+	FileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
+	// 	defaultFileAge        int      `toml:"-" arg:"-"`
+	NumFilesToKeep *int `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	// 	defaultNumFilesToKeep int      `toml:"-" arg:"-"`
+	KeepOldest *bool `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	// 	defaultKeepOldest     bool     `toml:"-" arg:"-"`
+	Remove *bool `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	// 	defaultRemove         bool     `toml:"-" arg:"-"`
+	IgnoreErrors *bool `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
+	// 	defaultIgnoreErrors   bool     `toml:"-" arg:"-"`
 }
 
 // Search represents options specific to controlling how this application
 // performs searches in the filesystem
 type Search struct {
-	Paths                  []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
-	RecursiveSearch        *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
-	defaultRecursiveSearch bool     `toml:"-" arg:"-"`
+	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	RecursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
+	// 	defaultRecursiveSearch bool     `toml:"-" arg:"-"`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	LogLevel             *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	defaultLogLevel      string  `toml:"-" arg:"-"`
-	LogFormat            *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	defaultLogFormat     string  `toml:"-" arg:"-"`
-	LogFilePath          *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	defaultLogFilePath   string  `toml:"-" arg:"-"`
-	ConsoleOutput        *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	defaultConsoleOutput string  `toml:"-" arg:"-"`
-	UseSyslog            *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
-	defaultUseSyslog     bool    `toml:"-" arg:"-"`
+	LogLevel *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	// 	defaultLogLevel      string  `toml:"-" arg:"-"`
+	LogFormat *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	// 	defaultLogFormat     string  `toml:"-" arg:"-"`
+	LogFilePath *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
+	// 	defaultLogFilePath   string  `toml:"-" arg:"-"`
+	ConsoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
+	// 	defaultConsoleOutput string  `toml:"-" arg:"-"`
+	UseSyslog *bool `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
+	// 	defaultUseSyslog     bool    `toml:"-" arg:"-"`
 }
 
 // Config represents a collection of configuration settings for this
@@ -109,64 +109,42 @@ type Config struct {
 	flagParser    *arg.Parser    `toml:"-" arg:"-"`
 
 	// Path to (optional) configuration file
-	ConfigFile        *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
-	defaultConfigFile string  `toml:"-" arg:"-"`
+	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
+	// 	defaultConfigFile string  `toml:"-" arg:"-"`
 }
 
 // NewConfig returns a pointer to a newly configured object representing a
 // collection of user-provided and default settings.
 func NewConfig(appVersion string) *Config {
 
-	// TODO: Move default values to Getter() methods?
-
-	// Apply default settings that other configuration sources will be allowed
-	// to (and for a few settings MUST) override
-	appName := "Elbow"
-	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
-	appURL := "https://github.com/atc0005/elbow"
-	filePattern := ""
-	// fileExtensions :=
-	fileAge := 0
-	numFilesToKeep := 0
-	keepOldest := false
-	remove := false
-	ignoreErrors := false
-	recursiveSearch := false
-	logLevel := "info"
-	logFormat := "text"
-	logFilePath := ""
-	consoleOutput := "stdout"
-	useSyslog := false
-	configFile := ""
-
 	baseConfig := Config{
 		AppMetadata: AppMetadata{
-			AppName:        &appName,
-			AppDescription: &appDescription,
-			AppURL:         &appURL,
-			AppVersion:     &appVersion,
+			AppName:        new(string),
+			AppDescription: new(string),
+			AppURL:         new(string),
+			AppVersion:     new(string),
 		},
 		FileHandling: FileHandling{
-			FilePattern: &filePattern,
+			FilePattern: new(string),
 			//FileExtensions: &fileExtensions,
-			FileAge:        &fileAge,
-			NumFilesToKeep: &numFilesToKeep,
-			KeepOldest:     &keepOldest,
-			Remove:         &remove,
-			IgnoreErrors:   &ignoreErrors,
+			FileAge:        new(int),
+			NumFilesToKeep: new(int),
+			KeepOldest:     new(bool),
+			Remove:         new(bool),
+			IgnoreErrors:   new(bool),
 		},
 		Logging: Logging{
-			LogLevel:      &logLevel,
-			LogFormat:     &logFormat,
-			LogFilePath:   &logFilePath,
-			ConsoleOutput: &consoleOutput,
-			UseSyslog:     &useSyslog,
+			LogLevel:      new(string),
+			LogFormat:     new(string),
+			LogFilePath:   new(string),
+			ConsoleOutput: new(string),
+			UseSyslog:     new(bool),
 		},
 		Search: Search{
 			//Paths: ,
-			RecursiveSearch: &recursiveSearch,
+			RecursiveSearch: new(bool),
 		},
-		ConfigFile: &configFile,
+		ConfigFile: new(string),
 	}
 
 	// Settings provided via config file. Intentionally using uninitialized
@@ -622,40 +600,45 @@ func (c *Config) SetLoggerConfig() {
 
 }
 
-// GetAppName returns the appName field if it's non-nil, zero value otherwise.
+// GetAppName returns the appName field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetAppName() string {
 	if c == nil || c.AppName == nil {
-		return ""
+		return "Elbow"
 	}
 	return *c.AppName
 }
 
-// GetAppDescription returns the appDescription field if it's non-nil, zero value otherwise.
+// GetAppDescription returns the appDescription field if it's non-nil, app
+// default value otherwise
 func (c *Config) GetAppDescription() string {
 	if c == nil || c.AppDescription == nil {
-		return ""
+		return "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
 	}
 	return *c.AppDescription
 
 }
 
-// GetAppVersion returns the appVersion field if it's non-nil, zero value otherwise.
+// GetAppVersion returns the appVersion field if it's non-nil, app default
+// value otherwise
 func (c *Config) GetAppVersion() string {
 	if c == nil || c.AppVersion == nil {
-		return ""
+		return "dev"
 	}
 	return *c.AppVersion
 }
 
-// GetAppURL returns the appURL field if it's non-nil, zero value otherwise.
+// GetAppURL returns the appURL field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetAppURL() string {
 	if c == nil || c.AppURL == nil {
-		return ""
+		return "https://github.com/atc0005/elbow"
 	}
 	return *c.AppURL
 }
 
-// GetFilePattern returns the filePattern field if it's non-nil, zero value otherwise.
+// GetFilePattern returns the filePattern field if it's non-nil, app default
+// value otherwise
 func (c *Config) GetFilePattern() string {
 	if c == nil || c.FilePattern == nil {
 		return ""
@@ -679,7 +662,8 @@ func (c *Config) GetFileExtensions() []string {
 	return c.FileExtensions
 }
 
-// GetFileAge returns the fileAge field if it's non-nil, zero value otherwise.
+// GetFileAge returns the fileAge field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetFileAge() int {
 	if c == nil || c.FileAge == nil {
 		return 0
@@ -687,8 +671,8 @@ func (c *Config) GetFileAge() int {
 	return *c.FileAge
 }
 
-// GetNumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero value
-// otherwise.
+// GetNumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero
+// value otherwise.
 func (c *Config) GetNumFilesToKeep() int {
 	if c == nil || c.NumFilesToKeep == nil {
 		return 0
@@ -705,7 +689,8 @@ func (c *Config) GetKeepOldest() bool {
 	return *c.KeepOldest
 }
 
-// GetRemove returns the remove field if it's non-nil, zero value otherwise.
+// GetRemove returns the remove field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetRemove() bool {
 	if c == nil || c.Remove == nil {
 		return false
@@ -722,7 +707,8 @@ func (c *Config) GetIgnoreErrors() bool {
 	return *c.IgnoreErrors
 }
 
-// GetPaths returns the paths field if it's non-nil, zero value otherwise.
+// GetPaths returns the paths field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetPaths() []string {
 	if c == nil || c.Paths == nil {
 		return nil
@@ -739,18 +725,20 @@ func (c *Config) GetRecursiveSearch() bool {
 	return *c.RecursiveSearch
 }
 
-// GetLogLevel returns the logLevel field if it's non-nil, zero value otherwise.
+// GetLogLevel returns the logLevel field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetLogLevel() string {
 	if c == nil || c.LogLevel == nil {
-		return ""
+		return "info"
 	}
 	return *c.LogLevel
 }
 
-// GetLogFormat returns the logFormat field if it's non-nil, zero value otherwise.
+// GetLogFormat returns the logFormat field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetLogFormat() string {
 	if c == nil || c.LogFormat == nil {
-		return ""
+		return "text"
 	}
 	return *c.LogFormat
 }
@@ -764,11 +752,11 @@ func (c *Config) GetLogFilePath() string {
 	return *c.LogFilePath
 }
 
-// GetConsoleOutput returns the consoleOutput field if it's non-nil, zero value
-// otherwise.
+// GetConsoleOutput returns the consoleOutput field if it's non-nil, zero
+// value otherwise.
 func (c *Config) GetConsoleOutput() string {
 	if c == nil || c.ConsoleOutput == nil {
-		return ""
+		return "stdout"
 	}
 	return *c.ConsoleOutput
 }
@@ -791,7 +779,8 @@ func (c *Config) GetConfigFile() string {
 	return *c.ConfigFile
 }
 
-// GetLogger returns the logger field if it's non-nil, zero value otherwise.
+// GetLogger returns the logger field if it's non-nil, app default value
+// otherwise
 func (c *Config) GetLogger() *logrus.Logger {
 	if c == nil || c.logger == nil {
 		return nil
@@ -799,7 +788,8 @@ func (c *Config) GetLogger() *logrus.Logger {
 	return c.logger
 }
 
-// GetFlagParser returns the flagParser field if it's non-nil, zero value otherwise.
+// GetFlagParser returns the flagParser field if it's non-nil, app default
+// value otherwise
 func (c *Config) GetFlagParser() *arg.Parser {
 	if c == nil || c.flagParser == nil {
 		return nil
@@ -807,7 +797,8 @@ func (c *Config) GetFlagParser() *arg.Parser {
 	return c.flagParser
 }
 
-// GetLogFileHandle returns the logFileHandle field if it's non-nil, zero value otherwise.
+// GetLogFileHandle returns the logFileHandle field if it's non-nil, app
+// default value otherwise
 func (c *Config) GetLogFileHandle() *os.File {
 	if c == nil || c.logFileHandle == nil {
 		return nil
