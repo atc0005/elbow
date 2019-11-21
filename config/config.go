@@ -249,12 +249,24 @@ func NewConfig(appVersion string) *Config {
 	}
 
 	if ok, err := baseConfig.Validate(); !ok {
+
+		// ###################################################################
+		// This code should only be reached if we were unable to properly
+		// apply the configuration. At this point we cannot trust that our
+		// settings are valid. We should apply default settings to our logger
+		// instance, flush all held messages and then exit immediately.
+		// ###################################################################
+
 		_, _, line, _ := runtime.Caller(0)
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("Error validating config after merging %s: %s", "argsConfig", err),
 			Fields:  logrus.Fields{"line": line},
 		})
+
+		baseConfig.logger.Out = os.Stderr
+		logBuffer.Flush(baseConfig.logger)
+
 	}
 
 	// Apply logging configuration
