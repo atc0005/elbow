@@ -264,6 +264,8 @@ func NewConfig(appVersion string) *Config {
 			Fields:  logrus.Fields{"line": line},
 		})
 
+		// TODO: Need to figure out exactly where this should go or how we
+		// should fall-back to these settings
 		baseConfig.logger.Out = os.Stderr
 		logBuffer.Flush(baseConfig.logger)
 
@@ -292,7 +294,7 @@ func NewConfig(appVersion string) *Config {
 
 	fmt.Printf("logger handle before Flush(): %+v\n", baseConfig.logger)
 	fmt.Println("Is the next line where the log writing error occurs?")
-	logBuffer.Flush(baseConfig.logger)
+	logBuffer.Flush(baseConfig.GetLogger())
 
 	return &baseConfig
 
@@ -884,7 +886,12 @@ func (c *Config) GetConfigFile() string {
 // otherwise
 func (c *Config) GetLogger() *logrus.Logger {
 	if c == nil || c.logger == nil {
-		return nil
+		//return nil
+
+		// FIXME: Is this the best logic?
+		c.logger = logrus.New()
+		c.logger.Out = os.Stderr
+
 	}
 	return c.logger
 }
