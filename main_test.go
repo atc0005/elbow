@@ -24,11 +24,7 @@ import (
 
 func TestMain(t *testing.T) {
 
-	appName := "Elbow"
-	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
-	appURL := "https://github.com/atc0005/elbow"
-
-	defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
+	defaultConfig := config.NewConfig(version)
 
 	var emptySlice = []string{}
 	var nilSlice []string
