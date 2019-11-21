@@ -107,7 +107,7 @@ func NewConfig(appName, appDescription, appURL, appVersion string) *Config {
 	filePattern := ""
 	// fileExtensions :=
 	fileAge := 0
-	numFilesToKeep := -1
+	numFilesToKeep := 0
 	keepOldest := false
 	remove := false
 	ignoreErrors := false
