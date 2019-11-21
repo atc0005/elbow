@@ -38,32 +38,22 @@ var logBuffer logging.LogBuffer
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
-	AppName *string `toml:"app_name" arg:"-"`
-	//defaultAppName        string  `toml:"-" arg:"-"`
+	AppName        *string `toml:"app_name" arg:"-"`
 	AppDescription *string `toml:"app_description" arg:"-"`
-	//defaultAppDescription string  `toml:"-" arg:"-"`
-	AppVersion *string `toml:"app_version" arg:"-"`
-	//defaultAppVersion     string  `toml:"-" arg:"-"`
-	AppURL *string `toml:"app_url" arg:"-"`
-	//defaultAppURL         string  `toml:"-" arg:"-"`
+	AppVersion     *string `toml:"app_version" arg:"-"`
+	AppURL         *string `toml:"app_url" arg:"-"`
 }
 
 // FileHandling represents options specific to how this application
 // handles files.
 type FileHandling struct {
-	FilePattern *string `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
-	//defaultFilePattern    string   `toml:"-" arg:"-"`
+	FilePattern    *string  `toml:"pattern" arg:"--pattern,env:ELBOW_FILE_PATTERN" help:"Substring pattern to compare filenames against. Wildcards are not supported."`
 	FileExtensions []string `toml:"file_extensions" arg:"--extensions,env:ELBOW_EXTENSIONS" help:"Limit search to specified file extensions. Specify as space separated list to match multiple required extensions."`
 	FileAge        *int     `toml:"file_age" arg:"--age,env:ELBOW_FILE_AGE" help:"Limit search to files that are the specified number of days old or older."`
-	// 	defaultFileAge        int      `toml:"-" arg:"-"`
-	NumFilesToKeep *int `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
-	// 	defaultNumFilesToKeep int      `toml:"-" arg:"-"`
-	KeepOldest *bool `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
-	// 	defaultKeepOldest     bool     `toml:"-" arg:"-"`
-	Remove *bool `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
-	// 	defaultRemove         bool     `toml:"-" arg:"-"`
-	IgnoreErrors *bool `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
-	// 	defaultIgnoreErrors   bool     `toml:"-" arg:"-"`
+	NumFilesToKeep *int     `toml:"files_to_keep" arg:"--keep,env:ELBOW_KEEP" help:"Keep specified number of matching files per provided path."`
+	KeepOldest     *bool    `toml:"keep_oldest" arg:"--keep-old,env:ELBOW_KEEP_OLD" help:"Keep oldest files instead of newer per provided path."`
+	Remove         *bool    `toml:"remove" arg:"--remove,env:ELBOW_REMOVE" help:"Remove matched files per provided path."`
+	IgnoreErrors   *bool    `toml:"ignore_errors" arg:"--ignore-errors,env:ELBOW_IGNORE_ERRORS" help:"Ignore errors encountered during file removal."`
 }
 
 // Search represents options specific to controlling how this application
@@ -71,22 +61,16 @@ type FileHandling struct {
 type Search struct {
 	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
 	RecursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
-	// 	defaultRecursiveSearch bool     `toml:"-" arg:"-"`
 }
 
 // Logging represents options specific to how this application handles
 // logging.
 type Logging struct {
-	LogLevel *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
-	// 	defaultLogLevel      string  `toml:"-" arg:"-"`
-	LogFormat *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
-	// 	defaultLogFormat     string  `toml:"-" arg:"-"`
-	LogFilePath *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
-	// 	defaultLogFilePath   string  `toml:"-" arg:"-"`
+	LogLevel      *string `toml:"log_level" arg:"--log-level,env:ELBOW_LOG_LEVEL" help:"Maximum log level at which messages will be logged. Log messages below this threshold will be discarded."`
+	LogFormat     *string `toml:"log_format" arg:"--log-format,env:ELBOW_LOG_FORMAT" help:"Log formatter used by logging package."`
+	LogFilePath   *string `toml:"log_file_path" arg:"--log-file,env:ELBOW_LOG_FILE" help:"Optional log file used to hold logged messages. If set, log messages are not displayed on the console."`
 	ConsoleOutput *string `toml:"console_output" arg:"--console-output,env:ELBOW_CONSOLE_OUTPUT" help:"Specify how log messages are logged to the console."`
-	// 	defaultConsoleOutput string  `toml:"-" arg:"-"`
-	UseSyslog *bool `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
-	// 	defaultUseSyslog     bool    `toml:"-" arg:"-"`
+	UseSyslog     *bool   `toml:"use_syslog" arg:"--use-syslog,env:ELBOW_USE_SYSLOG" help:"Log messages to syslog in addition to other outputs. Not supported on Windows."`
 }
 
 // Config represents a collection of configuration settings for this
@@ -110,7 +94,6 @@ type Config struct {
 
 	// Path to (optional) configuration file
 	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
-	// 	defaultConfigFile string  `toml:"-" arg:"-"`
 }
 
 // NewDefaultConfig returns a newly constructed config object. This function
@@ -149,26 +132,10 @@ func NewDefaultConfig(appVersion string) Config {
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
-	*defaultConfig.AppName = defaultConfig.GetAppName()
-	*defaultConfig.AppDescription = defaultConfig.GetAppDescription()
-	*defaultConfig.AppURL = defaultConfig.GetAppURL()
+	defaultConfig.SetDefaultConfig()
 
 	// passed into this function
 	*defaultConfig.AppVersion = appVersion
-	*defaultConfig.FilePattern = defaultConfig.GetFilePattern()
-	// fileExtensions =
-	*defaultConfig.FileAge = defaultConfig.GetFileAge()
-	*defaultConfig.NumFilesToKeep = defaultConfig.GetNumFilesToKeep()
-	*defaultConfig.KeepOldest = defaultConfig.GetKeepOldest()
-	*defaultConfig.Remove = defaultConfig.GetRemove()
-	*defaultConfig.IgnoreErrors = defaultConfig.GetIgnoreErrors()
-	*defaultConfig.RecursiveSearch = defaultConfig.GetRecursiveSearch()
-	*defaultConfig.LogLevel = defaultConfig.GetLogLevel()
-	*defaultConfig.LogFormat = defaultConfig.GetLogFormat()
-	*defaultConfig.LogFilePath = defaultConfig.GetLogFilePath()
-	*defaultConfig.ConsoleOutput = defaultConfig.GetConsoleOutput()
-	*defaultConfig.UseSyslog = defaultConfig.GetUseSyslog()
-	*defaultConfig.ConfigFile = defaultConfig.GetConfigFile()
 
 	return defaultConfig
 }
@@ -276,7 +243,7 @@ func NewConfig(appVersion string) *Config {
 
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("The config object that we are returning: %+v", baseConfig),
+		Message: fmt.Sprintf("The config object that we are returning (raw format): %+v", baseConfig),
 	})
 
 	logBuffer.Add(logging.LogRecord{
@@ -326,13 +293,25 @@ func MergeConfig(destination *Config, source Config) error {
 		Level:   logrus.DebugLevel,
 		Message: "MergeConfig called",
 	})
+
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Source struct: %+v", source),
+		Message: fmt.Sprintf("Source struct (raw): %+v", source),
 	})
+
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Destination struct: %+v", *destination),
+		Message: fmt.Sprintf("Source struct (string): %s", source.String()),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Destination struct (raw): %+v", destination),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Destination struct (string): %s", destination.String()),
 	})
 
 	if source.Paths != nil {
@@ -550,28 +529,28 @@ func (c Config) Validate() (bool, error) {
 func (c *Config) String() string {
 	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, ConfigFile=%q, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, logger=%v, flagParser=%v,  logFileHandle=%v",
 
-		*c.AppName,
-		*c.AppDescription,
-		*c.AppVersion,
-		*c.AppURL,
-		*c.FilePattern,
-		c.FileExtensions,
-		c.Paths,
-		*c.RecursiveSearch,
-		*c.FileAge,
-		*c.NumFilesToKeep,
-		*c.KeepOldest,
-		*c.Remove,
-		*c.IgnoreErrors,
-		*c.LogFormat,
-		*c.LogFilePath,
-		*c.ConfigFile,
-		*c.ConsoleOutput,
-		*c.LogLevel,
-		*c.UseSyslog,
-		c.logger,
-		c.flagParser,
-		c.logFileHandle,
+		c.GetAppName(),
+		c.GetAppDescription(),
+		c.GetAppVersion(),
+		c.GetAppURL(),
+		c.GetFilePattern(),
+		c.GetFileExtensions(),
+		c.GetPaths(),
+		c.GetRecursiveSearch(),
+		c.GetFileAge(),
+		c.GetNumFilesToKeep(),
+		c.GetKeepOldest(),
+		c.GetRemove(),
+		c.GetIgnoreErrors(),
+		c.GetLogFormat(),
+		c.GetLogFilePath(),
+		c.GetConfigFile(),
+		c.GetConsoleOutput(),
+		c.GetLogLevel(),
+		c.GetUseSyslog(),
+		c.GetLogger(),
+		c.GetFlagParser(),
+		c.GetLogFileHandle(),
 	)
 }
 
@@ -838,4 +817,31 @@ func (c *Config) GetLogFileHandle() *os.File {
 		return nil
 	}
 	return c.logFileHandle
+}
+
+// SetDefaultConfig applies application default values to all Config struct
+// fields
+func (c *Config) SetDefaultConfig() {
+
+	// These fields are intentionally ignored
+	// FileExtensions
+	// Paths
+
+	*c.AppName = c.GetAppName()
+	*c.AppDescription = c.GetAppDescription()
+	*c.AppURL = c.GetAppURL()
+	*c.AppVersion = c.GetAppVersion()
+	*c.FilePattern = c.GetFilePattern()
+	*c.FileAge = c.GetFileAge()
+	*c.NumFilesToKeep = c.GetNumFilesToKeep()
+	*c.KeepOldest = c.GetKeepOldest()
+	*c.Remove = c.GetRemove()
+	*c.IgnoreErrors = c.GetIgnoreErrors()
+	*c.RecursiveSearch = c.GetRecursiveSearch()
+	*c.LogLevel = c.GetLogLevel()
+	*c.LogFormat = c.GetLogFormat()
+	*c.LogFilePath = c.GetLogFilePath()
+	*c.ConsoleOutput = c.GetConsoleOutput()
+	*c.UseSyslog = c.GetUseSyslog()
+	*c.ConfigFile = c.GetConfigFile()
 }
