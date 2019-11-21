@@ -96,46 +96,59 @@ type Config struct {
 	ConfigFile *string `toml:"config_file" arg:"--config-file,env:ELBOW_CONFIG_FILE" help:"Full path to optional TOML-formatted configuration file. See config.example.toml for a starter template."`
 }
 
-// NewDefaultConfig returns a newly constructed config object. This function
-// is intended for use by the NewConfig function.
+// NewDefaultConfig returns a newly constructed config object composed of
+// default configuration settings.
 func NewDefaultConfig(appVersion string) Config {
+
+	// TODO: Is there a better way than creating a "throwaway" config object
+	// just to make use of its methods for retrieving default values?
+	c := Config{}
+	defaultAppName := c.GetAppName()
+	defaultAppDescription := c.GetAppDescription()
+	defaultAppURL := c.GetAppURL()
+	defaultFilePattern := c.GetFilePattern()
+	defaultFileAge := c.GetFileAge()
+	defaultNumFilesToKeep := c.GetNumFilesToKeep()
+	defaultKeepOldest := c.GetKeepOldest()
+	defaultRemove := c.GetRemove()
+	defaultIgnoreErrors := c.GetIgnoreErrors()
+	defaultRecursiveSearch := c.GetRecursiveSearch()
+	defaultLogLevel := c.GetLogLevel()
+	defaultLogFormat := c.GetLogFormat()
+	defaultLogFilePath := c.GetLogFilePath()
+	defaultConsoleOutput := c.GetConsoleOutput()
+	defaultUseSyslog := c.GetUseSyslog()
+	defaultConfigFile := c.GetConfigFile()
 
 	defaultConfig := Config{
 		AppMetadata: AppMetadata{
-			AppName:        new(string),
-			AppDescription: new(string),
-			AppURL:         new(string),
-			AppVersion:     new(string),
+			AppName:        &defaultAppName,
+			AppDescription: &defaultAppDescription,
+			AppURL:         &defaultAppURL,
+			AppVersion:     &appVersion,
 		},
 		FileHandling: FileHandling{
-			FilePattern: new(string),
+			FilePattern: &defaultFilePattern,
 			//FileExtensions: &fileExtensions,
-			FileAge:        new(int),
-			NumFilesToKeep: new(int),
-			KeepOldest:     new(bool),
-			Remove:         new(bool),
-			IgnoreErrors:   new(bool),
+			FileAge:        &defaultFileAge,
+			NumFilesToKeep: &defaultNumFilesToKeep,
+			KeepOldest:     &defaultKeepOldest,
+			Remove:         &defaultRemove,
+			IgnoreErrors:   &defaultIgnoreErrors,
 		},
 		Logging: Logging{
-			LogLevel:      new(string),
-			LogFormat:     new(string),
-			LogFilePath:   new(string),
-			ConsoleOutput: new(string),
-			UseSyslog:     new(bool),
+			LogLevel:      &defaultLogLevel,
+			LogFormat:     &defaultLogFormat,
+			LogFilePath:   &defaultLogFilePath,
+			ConsoleOutput: &defaultConsoleOutput,
+			UseSyslog:     &defaultUseSyslog,
 		},
 		Search: Search{
 			//Paths: ,
-			RecursiveSearch: new(bool),
+			RecursiveSearch: &defaultRecursiveSearch,
 		},
-		ConfigFile: new(string),
+		ConfigFile: &defaultConfigFile,
 	}
-
-	// Apply default settings that other configuration sources will be allowed
-	// to (and for a few settings MUST) override
-	defaultConfig.SetDefaultConfig()
-
-	// passed into this function
-	*defaultConfig.AppVersion = appVersion
 
 	return defaultConfig
 }
@@ -254,8 +267,19 @@ func NewConfig(appVersion string) *Config {
 
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
+		Message: fmt.Sprint("The config object that we are returning (string format): ", baseConfig.String()),
+	})
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
 	})
+
+	fmt.Printf("The config object that we are returning (raw format): %+v", baseConfig)
+	fmt.Println("The config object that we are returning (string format): ", baseConfig.String())
+
+	fmt.Printf("logger handle before Flush(): %+v\n", baseConfig.logger)
+	fmt.Println("Is the next line where the log writing error occurs?")
 	logBuffer.Flush(baseConfig.logger)
 
 	return &baseConfig
@@ -319,6 +343,22 @@ func MergeConfig(destination *Config, source Config) error {
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct (string): %s", destination.String()),
 	})
+
+	if source.AppName != nil {
+		destination.AppName = source.AppName
+	}
+
+	if source.AppDescription != nil {
+		destination.AppDescription = source.AppDescription
+	}
+
+	if source.AppURL != nil {
+		destination.AppURL = source.AppURL
+	}
+
+	if source.AppVersion != nil {
+		destination.AppVersion = source.AppVersion
+	}
 
 	if source.Paths != nil {
 		destination.Paths = source.Paths
@@ -548,6 +588,11 @@ func (c Config) Validate() (bool, error) {
 	// UseSyslog is optional
 	if c.UseSyslog == nil {
 		return false, fmt.Errorf("field UseSyslog not configured")
+	}
+
+	// Make sure that a valid logger has been created
+	if c.logger == nil {
+		return false, fmt.Errorf("field logger not configured")
 	}
 
 	// Optimist
@@ -850,8 +895,7 @@ func (c *Config) GetLogFileHandle() *os.File {
 	return c.logFileHandle
 }
 
-// SetDefaultConfig applies application default values to all Config struct
-// fields
+// SetDefaultConfig applies application default values to Config object fields
 func (c *Config) SetDefaultConfig() {
 
 	// These fields are intentionally ignored

@@ -46,6 +46,8 @@ func (lb *LogBuffer) Add(r LogRecord) {
 // Flush LogRecord entries after applying user-provided logging settings
 func (lb LogBuffer) Flush(logger *logrus.Logger) {
 
+	fmt.Printf("logger handle inside Flush(): %+v\n", logger)
+
 	for _, entry := range lb {
 
 		switch {
