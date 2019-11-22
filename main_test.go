@@ -24,7 +24,10 @@ import (
 
 func TestMain(t *testing.T) {
 
-	defaultConfig := config.NewConfig(version)
+	defaultConfig, err := config.NewConfig(version)
+	if err != nil {
+		t.FailNow()
+	}
 
 	var emptySlice = []string{}
 	var nilSlice []string
