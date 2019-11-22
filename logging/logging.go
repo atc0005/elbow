@@ -22,6 +22,7 @@ package logging
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -49,9 +50,9 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 	// TODO: Prune these or replace with a block that can be dynamically
 	// activated via build tag (e.g., debug build)
 	//
-	fmt.Println("Calling LogBuffer.Flush()")
-	fmt.Printf("logger handle inside Flush(): %+v\n", logger)
-	fmt.Printf("logger.Out field inside Flush(): %p\n", logger.Out)
+	// fmt.Println("Calling LogBuffer.Flush()")
+	// fmt.Printf("logger handle inside Flush(): %+v\n", logger)
+	// fmt.Printf("logger.Out field inside Flush(): %p\n", logger.Out)
 
 	for _, entry := range lb {
 
@@ -108,31 +109,31 @@ func SetLoggerFormatter(logger *logrus.Logger, format string) {
 func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
 
 	// TODO: Cleanup all of these Print statements
-	fmt.Printf("logger.Out field at start of SetLoggerConsoleOutput(): %p\n", logger.Out)
+	// fmt.Printf("logger.Out field at start of SetLoggerConsoleOutput(): %p\n", logger.Out)
 
 	var loggerOutput *os.File
 	switch {
 	case consoleOutput == "stdout":
 		loggerOutput = os.Stdout
-		fmt.Printf("address of loggerOutput inside stdout case statement: %p\n", loggerOutput)
+		// fmt.Printf("address of loggerOutput inside stdout case statement: %p\n", loggerOutput)
 	case consoleOutput == "stderr":
 		loggerOutput = os.Stderr
-		fmt.Printf("address of loggerOutput inside stderr case statement: %p\n", loggerOutput)
+		// fmt.Printf("address of loggerOutput inside stderr case statement: %p\n", loggerOutput)
 	default:
 		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", consoleOutput))
 	}
 
-	fmt.Printf("address of loggerOutput outside switch statement: %p\n", loggerOutput)
-	fmt.Printf("value of loggerOutput: %v\n", loggerOutput)
+	// fmt.Printf("address of loggerOutput outside switch statement: %p\n", loggerOutput)
+	// fmt.Printf("value of loggerOutput: %v\n", loggerOutput)
 
-	fmt.Printf("logger.Out field before calling SetOutput(): %p\n", logger.Out)
+	// fmt.Printf("logger.Out field before calling SetOutput(): %p\n", logger.Out)
 
 	// Apply chosen output based on earlier checks
 	// Note: Can be any io.Writer
-	fmt.Printf("Passing value %v with pointer %p to SetOutput()", loggerOutput, &loggerOutput)
+	// fmt.Printf("Passing value %v with pointer %p to SetOutput()", loggerOutput, &loggerOutput)
 	logger.SetOutput(loggerOutput)
 
-	fmt.Printf("logger.Out field after calling SetOutput(): %p\n", logger.Out)
+	// fmt.Printf("logger.Out field after calling SetOutput(): %p\n", logger.Out)
 
 }
 
@@ -186,4 +187,12 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", logLevel))
 	}
 
+}
+
+// GetLineNumber is a wrapper around runtime.Caller to return only the current
+// line number from the point this function was called.
+// TODO: Find a better location for this utility function
+func GetLineNumber() int {
+	_, _, line, _ := runtime.Caller(1)
+	return line
 }

@@ -43,6 +43,9 @@ func main() {
 	// If this fails, the application will immediately exit.
 	appConfig := config.NewConfig(version)
 
+	// FIXME: Should this be handled by NewConfig() ? I suspect
+	// that the answer is Yes.
+	//
 	// Validate configuration
 	if ok, err := appConfig.Validate(); !ok {
 		// NOTE: We're not using `log` here as the user-specified

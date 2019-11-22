@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"os"
 	"reflect"
-	"runtime"
 	"strings"
 
 	"github.com/atc0005/elbow/logging"
@@ -161,7 +160,11 @@ func NewConfig(appVersion string) *Config {
 	// to (and for a few settings MUST) override
 	baseConfig := NewDefaultConfig(appVersion)
 
-	fmt.Printf("Current baseConfig after NewDefaultConfig() call: %+v\n", baseConfig)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Current baseConfig after NewDefaultConfig() call: %+v\n", baseConfig),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+	})
 
 	// Settings provided via config file. Intentionally using uninitialized
 	// struct here so that we can check for nil pointers to indicate whether
@@ -183,7 +186,11 @@ func NewConfig(appVersion string) *Config {
 	// user-provided settings fail validation.
 	baseConfig.flagParser = arg.MustParse(&argsConfig)
 
-	fmt.Printf("Current argsConfig after MustParse() call: %+v\n", argsConfig)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Current argsConfig after MustParse() call: %+v\n", argsConfig),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+	})
 
 	/*************************************************************************
 		At this point `baseConfig` is our baseline config object containing
@@ -204,32 +211,50 @@ func NewConfig(appVersion string) *Config {
 			})
 		}
 
-		fmt.Printf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig)
+		logBuffer.Add(logging.LogRecord{
+			Level:   logrus.DebugLevel,
+			Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig),
+			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+		})
 
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Processing fileConfig object with MergeConfig func",
+			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 		})
 
 		if err := MergeConfig(&baseConfig, fileConfig); err != nil {
-			_, _, line, _ := runtime.Caller(0)
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error merging config file settings with base config: %s", err),
-				Fields:  logrus.Fields{"line": line},
+				Fields: logrus.Fields{
+					"line":        logging.GetLineNumber(),
+					"base_config": fmt.Sprintf("%+v", baseConfig),
+					"file_config": fmt.Sprintf("%+v", fileConfig),
+				},
 			})
 		}
 
 		if ok, err := baseConfig.Validate(); !ok {
-			_, _, line, _ := runtime.Caller(0)
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
 				Fields: logrus.Fields{
-					"line":          line,
-					"config_object": fmt.Sprintf("%+v", baseConfig),
+					"line":        logging.GetLineNumber(),
+					"base_config": fmt.Sprintf("%+v", baseConfig),
+					"file_config": fmt.Sprintf("%+v", fileConfig),
 				},
 			})
+
+			// Unrecoverable codepath. Dump collected log messages and panic.
+			// TODO: Should we explicitly set logger.Out or trust that is already
+			// set properly via earlier logrus.New() call?
+			//baseConfig.logger.Out = os.Stderr
+			fmt.Println("configuration validation failed. please check provided settings and try again.")
+			logBuffer.Flush(baseConfig.logger)
+			baseConfig.GetFlagParser().WriteUsage(os.Stdout)
+			panic("configuration validation failed after merging fileConfig")
+
 		}
 
 	}
@@ -240,11 +265,14 @@ func NewConfig(appVersion string) *Config {
 	})
 
 	if err := MergeConfig(&baseConfig, argsConfig); err != nil {
-		_, _, line, _ := runtime.Caller(0)
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("Error merging args config settings with base config: %s", err),
-			Fields:  logrus.Fields{"line": line},
+			Fields: logrus.Fields{
+				"line":        logging.GetLineNumber(),
+				"base_config": fmt.Sprintf("%+v", baseConfig),
+				"args_config": fmt.Sprintf("%+v", argsConfig),
+			},
 		})
 	}
 
@@ -257,17 +285,24 @@ func NewConfig(appVersion string) *Config {
 		// instance, flush all held messages and then exit immediately.
 		// ###################################################################
 
-		_, _, line, _ := runtime.Caller(0)
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("Error validating config after merging %s: %s", "argsConfig", err),
-			Fields:  logrus.Fields{"line": line},
+			Fields: logrus.Fields{
+				"line":        logging.GetLineNumber(),
+				"base_config": fmt.Sprintf("%+v", baseConfig),
+				"args_config": fmt.Sprintf("%+v", argsConfig),
+			},
 		})
 
-		// TODO: Need to figure out exactly where this should go or how we
-		// should fall-back to these settings
-		baseConfig.logger.Out = os.Stderr
+		// Unrecoverable codepath. Dump collected log messages and panic.
+		// TODO: Should we explicitly set logger.Out or trust that is already
+		// set properly via earlier logrus.New() call?
+		//baseConfig.logger.Out = os.Stderr
+		fmt.Println("configuration validation failed. please check provided settings and try again.")
 		logBuffer.Flush(baseConfig.logger)
+		baseConfig.GetFlagParser().WriteUsage(os.Stdout)
+		panic("configuration validation failed after merging argsConfig")
 
 	}
 
@@ -289,13 +324,6 @@ func NewConfig(appVersion string) *Config {
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
 	})
 
-	fmt.Printf("The config object that we are returning (raw format): %+v\n", baseConfig)
-	fmt.Println("The config object that we are returning (string format): ", baseConfig.String())
-
-	fmt.Printf("The address of the logger we are returning from NewConfig(): %p\n", baseConfig.logger)
-
-	fmt.Printf("logger handle before Flush(): %+v\n", baseConfig.logger)
-	fmt.Println("Is the next line where the log writing error occurs?")
 	logBuffer.Flush(baseConfig.GetLogger())
 
 	return &baseConfig
@@ -425,6 +453,9 @@ func MergeConfig(destination *Config, source Config) error {
 	}
 
 	if source.ConsoleOutput != nil {
+		// TODO: Add debug output for each of these decisions, but enable it
+		// only for debug/troubleshooting builds.
+		// fmt.Printf("Using %q for ConsoleOutput\n", *source.ConsoleOutput)
 		*destination.ConsoleOutput = *source.ConsoleOutput
 	}
 
