@@ -79,7 +79,7 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 			logger.WithFields(entry.Fields).Trace(entry.Message)
 
 		default:
-			panic("invalid log entry level; this should not have been reachable")
+			panic(fmt.Sprintf("Unhandled codepath; invalid option provided for entry.Level: %v", entry.Level))
 
 		}
 
