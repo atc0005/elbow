@@ -46,7 +46,12 @@ func (lb *LogBuffer) Add(r LogRecord) {
 // Flush LogRecord entries after applying user-provided logging settings
 func (lb LogBuffer) Flush(logger *logrus.Logger) {
 
+	// TODO: Prune these or replace with a block that can be dynamically
+	// activated via build tag (e.g., debug build)
+	//
+	fmt.Println("Calling LogBuffer.Flush()")
 	fmt.Printf("logger handle inside Flush(): %+v\n", logger)
+	fmt.Printf("logger.Out field inside Flush(): %p\n", logger.Out)
 
 	for _, entry := range lb {
 
@@ -74,7 +79,7 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 			logger.WithFields(entry.Fields).Trace(entry.Message)
 
 		default:
-			panic("This should not have been reachable")
+			panic("invalid log entry level; this should not have been reachable")
 
 		}
 
@@ -93,23 +98,42 @@ func SetLoggerFormatter(logger *logrus.Logger, format string) {
 	case "json":
 		// Log as JSON instead of the default ASCII formatter.
 		logger.SetFormatter(&logrus.JSONFormatter{})
+	default:
+		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", format))
 	}
 }
 
 // SetLoggerConsoleOutput configures the chosen console output to one of
 // stdout or stderr.
 func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
+
+	// TODO: Cleanup all of these Print statements
+	fmt.Printf("logger.Out field at start of SetLoggerConsoleOutput(): %p\n", logger.Out)
+
 	var loggerOutput *os.File
 	switch {
 	case consoleOutput == "stdout":
 		loggerOutput = os.Stdout
+		fmt.Printf("address of loggerOutput inside stdout case statement: %p\n", loggerOutput)
 	case consoleOutput == "stderr":
 		loggerOutput = os.Stderr
+		fmt.Printf("address of loggerOutput inside stderr case statement: %p\n", loggerOutput)
+	default:
+		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", consoleOutput))
 	}
+
+	fmt.Printf("address of loggerOutput outside switch statement: %p\n", loggerOutput)
+	fmt.Printf("value of loggerOutput: %v\n", loggerOutput)
+
+	fmt.Printf("logger.Out field before calling SetOutput(): %p\n", logger.Out)
 
 	// Apply chosen output based on earlier checks
 	// Note: Can be any io.Writer
+	fmt.Printf("Passing value %v with pointer %p to SetOutput()", loggerOutput, &loggerOutput)
 	logger.SetOutput(loggerOutput)
+
+	fmt.Printf("logger.Out field after calling SetOutput(): %p\n", logger.Out)
+
 }
 
 // SetLoggerLogFile configures a log file as the destination for all log
@@ -158,6 +182,8 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 		logger.SetLevel(logrus.DebugLevel)
 	case "trace":
 		logger.SetLevel(logrus.TraceLevel)
+	default:
+		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", logLevel))
 	}
 
 }

@@ -289,8 +289,10 @@ func NewConfig(appVersion string) *Config {
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
 	})
 
-	fmt.Printf("The config object that we are returning (raw format): %+v", baseConfig)
+	fmt.Printf("The config object that we are returning (raw format): %+v\n", baseConfig)
 	fmt.Println("The config object that we are returning (string format): ", baseConfig.String())
+
+	fmt.Printf("The address of the logger we are returning from NewConfig(): %p\n", baseConfig.logger)
 
 	fmt.Printf("logger handle before Flush(): %+v\n", baseConfig.logger)
 	fmt.Println("Is the next line where the log writing error occurs?")
@@ -648,8 +650,25 @@ func (c *Config) String() string {
 // output.
 func (c *Config) SetLoggerConfig() {
 
+	fmt.Println("Calling SetLoggerConfig()")
+	fmt.Printf("Current state of config object: %+v\n", c)
+
+	fmt.Printf("The address of the logger SetLoggerConfig received: %p\n", c.logger)
+
+	fmt.Println("Current state of individual logging related fields below.")
+	fmt.Println("LogFormat:", *c.LogFormat)
+	fmt.Println("ConsoleOutput:", *c.ConsoleOutput)
+	fmt.Println("LogLevel:", *c.LogLevel)
+	fmt.Println("UseSyslog:", *c.UseSyslog)
+	fmt.Printf("logger.Out field at start of SetLoggerConfig: %p\n", c.logger.Out)
+
 	logging.SetLoggerFormatter(c.logger, *c.LogFormat)
+
+	fmt.Printf("logger.Out field after SetLoggerFormatter(): %p\n", c.logger.Out)
+
 	logging.SetLoggerConsoleOutput(c.logger, *c.ConsoleOutput)
+
+	fmt.Printf("logger.Out field after SetLoggerConsoleOutput(): %p\n", c.logger.Out)
 
 	if fileHandle, err := logging.SetLoggerLogFile(c.logger, *c.LogFilePath); err == nil {
 		c.logFileHandle = fileHandle
@@ -700,6 +719,9 @@ func (c *Config) SetLoggerConfig() {
 		})
 
 	}
+
+	fmt.Printf("logger object at end of SetLoggerConfig: %+v\n", c.logger)
+	fmt.Printf("logger.Out field at end of SetLoggerConfig: %p\n", c.logger.Out)
 
 }
 
