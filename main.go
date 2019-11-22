@@ -41,13 +41,9 @@ func main() {
 	problemsEncountered := false
 
 	// If this fails, the application will immediately exit.
-	appConfig := config.NewConfig(version)
 
-	// FIXME: Should this be handled by NewConfig() ? I suspect
-	// that the answer is Yes.
-	//
-	// Validate configuration
-	if ok, err := appConfig.Validate(); !ok {
+	appConfig, err := config.NewConfig(version)
+	if err != nil {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
 
@@ -58,7 +54,7 @@ func main() {
 		os.Exit(1)
 
 		// failMessage := fmt.Sprint("configuration validation failed: ", err)
-		// appConfig.GetFlagParser.Fail(failMessage)
+		// appConfig.GetFlagParser().Fail(failMessage)
 
 	}
 

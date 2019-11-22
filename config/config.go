@@ -154,7 +154,7 @@ func NewDefaultConfig(appVersion string) Config {
 
 // NewConfig returns a pointer to a newly configured object representing a
 // collection of user-provided and default settings.
-func NewConfig(appVersion string) *Config {
+func NewConfig(appVersion string) (*Config, error) {
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
@@ -250,11 +250,12 @@ func NewConfig(appVersion string) *Config {
 			// TODO: Should we explicitly set logger.Out or trust that is already
 			// set properly via earlier logrus.New() call?
 			//baseConfig.logger.Out = os.Stderr
-			fmt.Println("configuration validation failed. please check provided settings and try again.")
+			//fmt.Println("configuration validation failed. please check provided settings and try again.")
 			logBuffer.Flush(baseConfig.logger)
-			baseConfig.GetFlagParser().WriteUsage(os.Stdout)
-			panic("configuration validation failed after merging fileConfig")
-
+			//baseConfig.GetFlagParser().WriteUsage(os.Stdout)
+			//panic("configuration validation failed after merging fileConfig")
+			// TODO: Wrap errors and return so they can be unpacked in main()
+			return nil, fmt.Errorf("configuration validation failed after merging fileConfig: %s", err)
 		}
 
 	}
@@ -299,10 +300,12 @@ func NewConfig(appVersion string) *Config {
 		// TODO: Should we explicitly set logger.Out or trust that is already
 		// set properly via earlier logrus.New() call?
 		//baseConfig.logger.Out = os.Stderr
-		fmt.Println("configuration validation failed. please check provided settings and try again.")
+		//fmt.Println("configuration validation failed. please check provided settings and try again.")
 		logBuffer.Flush(baseConfig.logger)
-		baseConfig.GetFlagParser().WriteUsage(os.Stdout)
-		panic("configuration validation failed after merging argsConfig")
+		//baseConfig.GetFlagParser().WriteUsage(os.Stdout)
+		//panic("configuration validation failed after merging argsConfig")
+		// TODO: Wrap errors and return so they can be unpacked in main()
+		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
 
 	}
 
@@ -326,7 +329,7 @@ func NewConfig(appVersion string) *Config {
 
 	logBuffer.Flush(baseConfig.GetLogger())
 
-	return &baseConfig
+	return &baseConfig, nil
 
 }
 
