@@ -34,6 +34,10 @@ import (
 // build by our Makefile
 var version = "x.y.z"
 
+// TODO: Move this elsewhere to a dedicated location.
+// TODO: Create a metadata subpackage?
+var defaultAppName = "Elbow"
+
 func main() {
 
 	// Checked at the end to determine if any issues were encountered during
@@ -42,19 +46,20 @@ func main() {
 
 	// If this fails, the application will immediately exit.
 
+	// FIXME: I don't need to make ANY field references if an error was returned
 	appConfig, err := config.NewConfig(version)
 	if err != nil {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
 
-		// Provide user with error and valid usage details
-		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
-		appConfig.GetFlagParser().WriteUsage(os.Stdout)
+		// TODO: Any point in setting this? Perhaps wire it into a function
+		// that handles setting the flag and other useful spindown tasks?
 		problemsEncountered = true
-		os.Exit(1)
 
-		// failMessage := fmt.Sprint("configuration validation failed: ", err)
-		// appConfig.GetFlagParser().Fail(failMessage)
+		// Provide user with error and valid usage details
+		fmt.Printf("Failed to process configuration:\n%s\n\n", err)
+		config.WriteDefaultHelpText(defaultAppName)
+		os.Exit(1)
 
 	}
 

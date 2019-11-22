@@ -237,7 +237,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 		if ok, err := baseConfig.Validate(); !ok {
 			logBuffer.Add(logging.LogRecord{
-				Level:   logrus.ErrorLevel,
+				Level:   logrus.DebugLevel,
 				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
 				Fields: logrus.Fields{
 					"line":        logging.GetLineNumber(),
@@ -287,7 +287,7 @@ func NewConfig(appVersion string) (*Config, error) {
 		// ###################################################################
 
 		logBuffer.Add(logging.LogRecord{
-			Level:   logrus.ErrorLevel,
+			Level:   logrus.DebugLevel,
 			Message: fmt.Sprintf("Error validating config after merging %s: %s", "argsConfig", err),
 			Fields: logrus.Fields{
 				"line":        logging.GetLineNumber(),
@@ -971,6 +971,7 @@ func (c *Config) GetLogFileHandle() *os.File {
 }
 
 // SetDefaultConfig applies application default values to Config object fields
+// TODO: Is this still needed? NewDefaultConfig() is handling this now?
 func (c *Config) SetDefaultConfig() {
 
 	// These fields are intentionally ignored
@@ -994,4 +995,18 @@ func (c *Config) SetDefaultConfig() {
 	*c.ConsoleOutput = c.GetConsoleOutput()
 	*c.UseSyslog = c.GetUseSyslog()
 	*c.ConfigFile = c.GetConfigFile()
+}
+
+// WriteDefaultHelpText is a helper function used to output Help text for
+// situations where the Config object cannot be trusted to be in a usable
+// state.
+// TODO: Reconsider this; this feels fragile.
+func WriteDefaultHelpText(appName string) {
+	config := arg.Config{Program: appName}
+	defaultConfig := Config{}
+	parser, err := arg.NewParser(config, &defaultConfig)
+	if err != nil {
+		panic("failed to build go-arg parser for Help text generation")
+	}
+	parser.WriteUsage(os.Stdout)
 }
