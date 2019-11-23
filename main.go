@@ -244,6 +244,7 @@ func main() {
 					"ignore_errors": appConfig.GetIgnoreErrors(),
 					"iteration":     pass,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+				os.Exit(1)
 			}
 			log.Warn("Error encountered, but continuing as requested.")
 			continue
