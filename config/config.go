@@ -201,6 +201,7 @@ func NewConfig(appVersion string) (*Config, error) {
 	*************************************************************************/
 
 	// If user specified a config file, let's try to use it
+	// TODO: Fail if not found, or continue using defaults in its place?
 	if argsConfig.ConfigFile != nil {
 		// Check for a configuration file and load it if found.
 		if err := fileConfig.LoadConfigFile(*argsConfig.ConfigFile); err != nil {
@@ -209,6 +210,12 @@ func NewConfig(appVersion string) (*Config, error) {
 				Message: fmt.Sprintf("Error loading config file: %s", err),
 				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
 			})
+
+			// Application failure codepath. Dump collected log messages and
+			// return control to the caller.
+			logBuffer.Flush(baseConfig.GetLogger())
+			// TODO: Wrap errors and return so they can be unpacked in main()
+			return nil, fmt.Errorf("error loading configuration file: %s", err)
 		}
 
 		logBuffer.Add(logging.LogRecord{
@@ -246,7 +253,8 @@ func NewConfig(appVersion string) (*Config, error) {
 				},
 			})
 
-			// Unrecoverable codepath. Dump collected log messages and panic.
+			// Application failure codepath. Dump collected log messages and
+			// return control to the caller.
 			logBuffer.Flush(baseConfig.GetLogger())
 			// TODO: Wrap errors and return so they can be unpacked in main()
 			return nil, fmt.Errorf("configuration validation failed after merging fileConfig: %s", err)
@@ -291,7 +299,8 @@ func NewConfig(appVersion string) (*Config, error) {
 			},
 		})
 
-		// Unrecoverable codepath. Dump collected log messages and panic.
+		// Application failure codepath. Dump collected log messages and
+		// return control to the caller.
 		logBuffer.Flush(baseConfig.GetLogger())
 		// TODO: Wrap errors and return so they can be unpacked in main()
 		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
