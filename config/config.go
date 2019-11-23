@@ -247,13 +247,7 @@ func NewConfig(appVersion string) (*Config, error) {
 			})
 
 			// Unrecoverable codepath. Dump collected log messages and panic.
-			// TODO: Should we explicitly set logger.Out or trust that is already
-			// set properly via earlier logrus.New() call?
-			//baseConfig.logger.Out = os.Stderr
-			//fmt.Println("configuration validation failed. please check provided settings and try again.")
-			logBuffer.Flush(baseConfig.logger)
-			//baseConfig.GetFlagParser().WriteUsage(os.Stdout)
-			//panic("configuration validation failed after merging fileConfig")
+			logBuffer.Flush(baseConfig.GetLogger())
 			// TODO: Wrap errors and return so they can be unpacked in main()
 			return nil, fmt.Errorf("configuration validation failed after merging fileConfig: %s", err)
 		}
@@ -282,8 +276,9 @@ func NewConfig(appVersion string) (*Config, error) {
 		// ###################################################################
 		// This code should only be reached if we were unable to properly
 		// apply the configuration. At this point we cannot trust that our
-		// settings are valid. We should apply default settings to our logger
-		// instance, flush all held messages and then exit immediately.
+		// settings are valid. We should ensure default settings are applied
+		// to our logger instance, flush all held messages and then exit
+		// immediately.
 		// ###################################################################
 
 		logBuffer.Add(logging.LogRecord{
@@ -297,13 +292,7 @@ func NewConfig(appVersion string) (*Config, error) {
 		})
 
 		// Unrecoverable codepath. Dump collected log messages and panic.
-		// TODO: Should we explicitly set logger.Out or trust that is already
-		// set properly via earlier logrus.New() call?
-		//baseConfig.logger.Out = os.Stderr
-		//fmt.Println("configuration validation failed. please check provided settings and try again.")
-		logBuffer.Flush(baseConfig.logger)
-		//baseConfig.GetFlagParser().WriteUsage(os.Stdout)
-		//panic("configuration validation failed after merging argsConfig")
+		logBuffer.Flush(baseConfig.GetLogger())
 		// TODO: Wrap errors and return so they can be unpacked in main()
 		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
 
@@ -315,16 +304,19 @@ func NewConfig(appVersion string) (*Config, error) {
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("The config object that we are returning (raw format): %+v", baseConfig),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprint("The config object that we are returning (string format): ", baseConfig.String()),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
 	logBuffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
 	logBuffer.Flush(baseConfig.GetLogger())
@@ -684,78 +676,138 @@ func (c *Config) String() string {
 // output.
 func (c *Config) SetLoggerConfig() {
 
-	fmt.Println("Calling SetLoggerConfig()")
-	fmt.Printf("Current state of config object: %+v\n", c)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "Calling SetLoggerConfig()",
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+	})
 
-	fmt.Printf("The address of the logger SetLoggerConfig received: %p\n", c.logger)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Current state of config object: %+v\n", c),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+	})
 
-	fmt.Println("Current state of individual logging related fields below.")
-	fmt.Println("LogFormat:", *c.LogFormat)
-	fmt.Println("ConsoleOutput:", *c.ConsoleOutput)
-	fmt.Println("LogLevel:", *c.LogLevel)
-	fmt.Println("UseSyslog:", *c.UseSyslog)
-	fmt.Printf("logger.Out field at start of SetLoggerConfig: %p\n", c.logger.Out)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("The address of the logger SetLoggerConfig received: %p\n", c.GetLogger()),
+		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
+	})
 
-	logging.SetLoggerFormatter(c.logger, *c.LogFormat)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("Current state of individual logging related fields"),
+		Fields: logrus.Fields{
+			"line":           logging.GetLineNumber(),
+			"log_format":     c.GetLogFormat(),
+			"console_output": c.GetConsoleOutput(),
+			"use_syslog":     c.GetUseSyslog(),
+		},
+	})
 
-	fmt.Printf("logger.Out field after SetLoggerFormatter(): %p\n", c.logger.Out)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("logger.Out field at start of SetLoggerFormatter(): %p\n", c.GetLogger().Out),
+		Fields: logrus.Fields{
+			"line": logging.GetLineNumber(),
+		},
+	})
 
-	logging.SetLoggerConsoleOutput(c.logger, *c.ConsoleOutput)
+	logging.SetLoggerFormatter(c.logger, c.GetLogFormat())
 
-	fmt.Printf("logger.Out field after SetLoggerConsoleOutput(): %p\n", c.logger.Out)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("logger.Out field after SetLoggerFormatter: %p\n", c.GetLogger().Out),
+		Fields: logrus.Fields{
+			"line": logging.GetLineNumber(),
+		},
+	})
 
-	if fileHandle, err := logging.SetLoggerLogFile(c.logger, *c.LogFilePath); err == nil {
+	logging.SetLoggerConsoleOutput(c.logger, c.GetConsoleOutput())
+
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: fmt.Sprintf("logger.Out field after SetLoggerConsoleOutput(): %p\n", c.GetLogger().Out),
+		Fields: logrus.Fields{
+			"line": logging.GetLineNumber(),
+		},
+	})
+
+	if fileHandle, err := logging.SetLoggerLogFile(c.logger, c.GetLogFilePath()); err == nil {
 		c.logFileHandle = fileHandle
 	} else {
 		// Need to collect the error for display later
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("%s", err),
-			Fields:  logrus.Fields{"log_file": c.LogFilePath},
+			Fields: logrus.Fields{
+				"log_file":        c.GetLogFilePath(),
+				"line":            logging.GetLineNumber(),
+				"log_file_handle": c.GetLogFileHandle(),
+			},
 		})
 	}
 
-	logging.SetLoggerLevel(c.logger, *c.LogLevel)
+	logging.SetLoggerLevel(c.logger, c.GetLogLevel())
 
 	// https://godoc.org/github.com/sirupsen/logrus#New
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
 
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.
-	if *c.UseSyslog {
+	if c.GetUseSyslog() {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
-			Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
+			Fields: logrus.Fields{
+				"use_syslog": c.GetUseSyslog(),
+				"line":       logging.GetLineNumber(),
+			},
 		})
 
-		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, *c.LogLevel); err != nil {
+		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, c.GetLogLevel()); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
-				Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
+				Fields: logrus.Fields{
+					"use_syslog": c.GetUseSyslog(),
+					"line":       logging.GetLineNumber(),
+				},
 			})
 
 			logBuffer.Add(logging.LogRecord{
 				Level:   logrus.WarnLevel,
 				Message: "Proceeding without syslog logging",
-				Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
+				Fields: logrus.Fields{
+					"use_syslog": c.GetUseSyslog(),
+					"line":       logging.GetLineNumber(),
+				},
 			})
 		}
 	} else {
 		logBuffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Syslog logging not requested, not enabling",
-			Fields:  logrus.Fields{"use_syslog": c.GetUseSyslog()},
+			Fields: logrus.Fields{
+				"use_syslog": c.GetUseSyslog(),
+				"line":       logging.GetLineNumber(),
+			},
 		})
-
 	}
 
-	fmt.Printf("logger object at end of SetLoggerConfig: %+v\n", c.logger)
-	fmt.Printf("logger.Out field at end of SetLoggerConfig: %p\n", c.logger.Out)
+	logBuffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "logging object details at end of SetLoggerConfig()",
+		Fields: logrus.Fields{
+			"logger": fmt.Sprintf("%+v\n", c.GetLogger()),
+			// TODO: Re-evaluate potential for field ref on nil pointer
+			"logger_out": fmt.Sprintf("%+v\n", c.GetLogger().Out),
+			"line":       logging.GetLineNumber(),
+		},
+	})
 
 }
 
@@ -946,7 +998,7 @@ func (c *Config) GetLogger() *logrus.Logger {
 
 		// FIXME: Is this the best logic?
 		c.logger = logrus.New()
-		c.logger.Out = os.Stderr
+		//c.logger.Out = os.Stderr
 
 	}
 	return c.logger

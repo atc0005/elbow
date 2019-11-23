@@ -40,13 +40,11 @@ var defaultAppName = "Elbow"
 
 func main() {
 
-	// Checked at the end to determine if any issues were encountered during
-	// app run. There is likely a much better way to handle this
+	// Checked at the end to determine if any non-fatal issues were
+	// encountered during app run
 	problemsEncountered := false
 
-	// If this fails, the application will immediately exit.
-
-	// FIXME: I don't need to make ANY field references if an error was returned
+	// If this fails, the application should immediately exit.
 	appConfig, err := config.NewConfig(version)
 	if err != nil {
 		// NOTE: We're not using `log` here as the user-specified
