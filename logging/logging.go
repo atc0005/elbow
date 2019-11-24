@@ -28,6 +28,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Buffer is a package global instance of LogBuffer intended to ease log
+// message collection for later emission when all required logger settings
+// have been applied.
+//
+// FIXME: Moved here from Config package What is the best approach to handling
+// this instead of using a package global?
+var Buffer LogBuffer
+
 // LogRecord holds logrus.Field values along with additional metadata that can be
 // used later to complete the log message submission process.
 type LogRecord struct {

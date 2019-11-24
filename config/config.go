@@ -32,8 +32,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logBuffer logging.LogBuffer
-
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
 type AppMetadata struct {
@@ -160,7 +158,7 @@ func NewConfig(appVersion string) (*Config, error) {
 	// to (and for a few settings MUST) override
 	baseConfig := NewDefaultConfig(appVersion)
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Current baseConfig after NewDefaultConfig() call: %+v\n", baseConfig),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
@@ -186,7 +184,7 @@ func NewConfig(appVersion string) (*Config, error) {
 	// user-provided settings fail validation.
 	baseConfig.flagParser = arg.MustParse(&argsConfig)
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Current argsConfig after MustParse() call: %+v\n", argsConfig),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
@@ -205,7 +203,7 @@ func NewConfig(appVersion string) (*Config, error) {
 	if argsConfig.ConfigFile != nil {
 		// Check for a configuration file and load it if found.
 		if err := fileConfig.LoadConfigFile(*argsConfig.ConfigFile); err != nil {
-			logBuffer.Add(logging.LogRecord{
+			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error loading config file: %s", err),
 				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
@@ -213,25 +211,25 @@ func NewConfig(appVersion string) (*Config, error) {
 
 			// Application failure codepath. Dump collected log messages and
 			// return control to the caller.
-			logBuffer.Flush(baseConfig.GetLogger())
+			logging.Buffer.Flush(baseConfig.GetLogger())
 			// TODO: Wrap errors and return so they can be unpacked in main()
 			return nil, fmt.Errorf("error loading configuration file: %s", err)
 		}
 
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig),
 			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 		})
 
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Processing fileConfig object with MergeConfig func",
 			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 		})
 
 		if err := MergeConfig(&baseConfig, fileConfig); err != nil {
-			logBuffer.Add(logging.LogRecord{
+			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Error merging config file settings with base config: %s", err),
 				Fields: logrus.Fields{
@@ -243,7 +241,7 @@ func NewConfig(appVersion string) (*Config, error) {
 		}
 
 		if ok, err := baseConfig.Validate(); !ok {
-			logBuffer.Add(logging.LogRecord{
+			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
 				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
 				Fields: logrus.Fields{
@@ -255,20 +253,20 @@ func NewConfig(appVersion string) (*Config, error) {
 
 			// Application failure codepath. Dump collected log messages and
 			// return control to the caller.
-			logBuffer.Flush(baseConfig.GetLogger())
+			logging.Buffer.Flush(baseConfig.GetLogger())
 			// TODO: Wrap errors and return so they can be unpacked in main()
 			return nil, fmt.Errorf("configuration validation failed after merging fileConfig: %s", err)
 		}
 
 	}
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "Processing argsConfig object with MergeConfig func",
 	})
 
 	if err := MergeConfig(&baseConfig, argsConfig); err != nil {
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("Error merging args config settings with base config: %s", err),
 			Fields: logrus.Fields{
@@ -289,7 +287,7 @@ func NewConfig(appVersion string) (*Config, error) {
 		// immediately.
 		// ###################################################################
 
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: fmt.Sprintf("Error validating config after merging %s: %s", "argsConfig", err),
 			Fields: logrus.Fields{
@@ -301,7 +299,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 		// Application failure codepath. Dump collected log messages and
 		// return control to the caller.
-		logBuffer.Flush(baseConfig.GetLogger())
+		logging.Buffer.Flush(baseConfig.GetLogger())
 		// TODO: Wrap errors and return so they can be unpacked in main()
 		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
 
@@ -310,25 +308,25 @@ func NewConfig(appVersion string) (*Config, error) {
 	// Apply logging configuration
 	baseConfig.SetLoggerConfig()
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("The config object that we are returning (raw format): %+v", baseConfig),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprint("The config object that we are returning (string format): ", baseConfig.String()),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "Empty queued up log messages from log buffer using user-specified logging settings",
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Flush(baseConfig.GetLogger())
+	logging.Buffer.Flush(baseConfig.GetLogger())
 
 	return &baseConfig, nil
 
@@ -367,27 +365,27 @@ func MergeConfig(destination *Config, source Config) error {
 	// FIXME: How can we get all field names programatically so we don't have to
 	// manually reference each field?
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "MergeConfig starting",
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Source struct (raw): %+v", source),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Source struct (string): %s", source.String()),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct (raw): %+v", destination),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct (string): %s", destination.String()),
 	})
@@ -467,27 +465,27 @@ func MergeConfig(destination *Config, source Config) error {
 		*destination.UseSyslog = *source.UseSyslog
 	}
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "MergeConfig ending",
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Source struct (raw): %+v", source),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Source struct (string): %s", source.String()),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct (raw): %+v", destination),
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Destination struct (string): %s", destination.String()),
 	})
@@ -685,25 +683,25 @@ func (c *Config) String() string {
 // output.
 func (c *Config) SetLoggerConfig() {
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "Calling SetLoggerConfig()",
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Current state of config object: %+v\n", c),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("The address of the logger SetLoggerConfig received: %p\n", c.GetLogger()),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("Current state of individual logging related fields"),
 		Fields: logrus.Fields{
@@ -714,7 +712,7 @@ func (c *Config) SetLoggerConfig() {
 		},
 	})
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("logger.Out field at start of SetLoggerFormatter(): %p\n", c.GetLogger().Out),
 		Fields: logrus.Fields{
@@ -724,7 +722,7 @@ func (c *Config) SetLoggerConfig() {
 
 	logging.SetLoggerFormatter(c.logger, c.GetLogFormat())
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("logger.Out field after SetLoggerFormatter: %p\n", c.GetLogger().Out),
 		Fields: logrus.Fields{
@@ -734,7 +732,7 @@ func (c *Config) SetLoggerConfig() {
 
 	logging.SetLoggerConsoleOutput(c.logger, c.GetConsoleOutput())
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: fmt.Sprintf("logger.Out field after SetLoggerConsoleOutput(): %p\n", c.GetLogger().Out),
 		Fields: logrus.Fields{
@@ -746,7 +744,7 @@ func (c *Config) SetLoggerConfig() {
 		c.logFileHandle = fileHandle
 	} else {
 		// Need to collect the error for display later
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
 			Message: fmt.Sprintf("%s", err),
 			Fields: logrus.Fields{
@@ -765,7 +763,7 @@ func (c *Config) SetLoggerConfig() {
 	// make sure that the user actually requested syslog logging as it is
 	// currently supported on UNIX only.
 	if c.GetUseSyslog() {
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Syslog logging requested, attempting to enable it",
 			Fields: logrus.Fields{
@@ -774,11 +772,11 @@ func (c *Config) SetLoggerConfig() {
 			},
 		})
 
-		if err := logging.EnableSyslogLogging(c.logger, &logBuffer, c.GetLogLevel()); err != nil {
+		if err := logging.EnableSyslogLogging(c.logger, &logging.Buffer, c.GetLogLevel()); err != nil {
 			// TODO: Is this sufficient cause for failing? Perhaps if a local
 			// log file is not also set consider it a failure?
 
-			logBuffer.Add(logging.LogRecord{
+			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.ErrorLevel,
 				Message: fmt.Sprintf("Failed to enable syslog logging: %s", err),
 				Fields: logrus.Fields{
@@ -787,7 +785,7 @@ func (c *Config) SetLoggerConfig() {
 				},
 			})
 
-			logBuffer.Add(logging.LogRecord{
+			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.WarnLevel,
 				Message: "Proceeding without syslog logging",
 				Fields: logrus.Fields{
@@ -797,7 +795,7 @@ func (c *Config) SetLoggerConfig() {
 			})
 		}
 	} else {
-		logBuffer.Add(logging.LogRecord{
+		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
 			Message: "Syslog logging not requested, not enabling",
 			Fields: logrus.Fields{
@@ -807,7 +805,7 @@ func (c *Config) SetLoggerConfig() {
 		})
 	}
 
-	logBuffer.Add(logging.LogRecord{
+	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "logging object details at end of SetLoggerConfig()",
 		Fields: logrus.Fields{
