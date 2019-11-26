@@ -52,10 +52,9 @@ func TestSetLoggerLevelShouldPanic(t *testing.T) {
 	SetLoggerLevel(logger, badLogLevel)
 }
 
+// Pass in a valid logLevel string, call logger.GetLevel()
+// and compare against the expected value
 func TestSetLoggerLevelShouldSucceed(t *testing.T) {
-
-	// TODO: Pass in a valid logLevel string, call logger.GetLevel()
-	// and compare against the expected value
 
 	type test struct {
 		logLevel    string
@@ -90,6 +89,42 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 		} else {
 			t.Log("Got", got, "as expected for requested level of", give)
 		}
+	}
+
+}
+
+func TestSetLoggerConsoleOutputShouldPanic(t *testing.T) {
+
+	// https://stackoverflow.com/questions/31595791/how-to-test-panics
+	defer func() {
+
+		r := recover()
+		t.Logf("Panic message: %q", r)
+
+		if r == nil {
+			t.Errorf("SetLoggerConsoleOutput accepted an invalid console output value without panicing.")
+		}
+	}()
+
+	logger := logrus.New()
+	badConsoleOutputOption := "pickles"
+
+	SetLoggerConsoleOutput(logger, badConsoleOutputOption)
+}
+
+func TestSetLoggerConsoleOutputShouldSucceed(t *testing.T) {
+
+	logger := logrus.New()
+
+	tests := []string{"stdout", "stderr"}
+
+	// TODO: Flesh this out once the called function is reviewed and
+	// potentially modified to return pass/fail results to make testing easier
+	// and also move away from using panic, perhaps in this case
+	// unnecessarily?
+
+	for _, give := range tests {
+		SetLoggerConsoleOutput(logger, give)
 	}
 
 }

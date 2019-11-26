@@ -128,6 +128,8 @@ func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
 		loggerOutput = os.Stderr
 		// fmt.Printf("address of loggerOutput inside stderr case statement: %p\n", loggerOutput)
 	default:
+		// TODO: panic here or return error to make this easier to test
+		// against?
 		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", consoleOutput))
 	}
 
