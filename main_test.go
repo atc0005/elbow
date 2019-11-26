@@ -24,26 +24,10 @@ import (
 
 func TestMain(t *testing.T) {
 
-	defaultConfig, err := config.NewConfig(version)
+	// TODO: Flesh this out
+	_, err := config.NewConfig(version)
 	if err != nil {
 		t.FailNow()
 	}
-
-	var emptySlice = []string{}
-	var nilSlice []string
-
-	t.Logf("%v\n", emptySlice)
-	t.Log(len(emptySlice))
-	t.Log("emptySlice is nil:", emptySlice == nil)
-	t.Log("-------------------------")
-
-	t.Logf("%v\n", nilSlice)
-	t.Log(len(nilSlice))
-	t.Log("nilSlice is nil:", nilSlice == nil)
-	t.Log("-------------------------")
-
-	t.Logf("%v\n", defaultConfig.GetFileExtensions())
-	t.Log(len(defaultConfig.GetFileExtensions()))
-	t.Log("defaultConfig.GetFileExtensions is nil:", defaultConfig.GetFileExtensions() == nil)
 
 }
