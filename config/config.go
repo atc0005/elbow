@@ -154,6 +154,8 @@ func NewDefaultConfig(appVersion string) Config {
 // collection of user-provided and default settings.
 func NewConfig(appVersion string) (*Config, error) {
 
+	// fmt.Printf("os.Args quoted: %q\n", os.Args)
+	// fmt.Printf("os.Args bare: %v\n", os.Args)
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
 		Message: "os.Args array contents",
