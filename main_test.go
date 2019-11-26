@@ -17,6 +17,8 @@
 package main
 
 import (
+	"os"
+	"runtime"
 	"testing"
 
 	"github.com/atc0005/elbow/config"
@@ -24,10 +26,38 @@ import (
 
 func TestMain(t *testing.T) {
 
+	// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
+
+	// Save old command-line arguments so that we can restore them later
+	oldArgs := os.Args
+
+	// Defer restoring original command-line arguments
+	defer func() { os.Args = oldArgs }()
+
+	// TODO: A useful way to automate retrieving the app name?
+	appName := "elbow"
+	if runtime.GOOS == "windows" {
+		appName += ".exe"
+	}
+
+	// Note to self: Don't add/escape double-quotes here. The shell strips
+	// them away and the application never sees them.
+	os.Args = []string{
+		appName,
+		"--paths", "/tmp/elbow/path1",
+		"--keep", "1",
+		"--recurse",
+		"--keep-old",
+		"--log-level", "info",
+		"--use-syslog",
+		"--log-format", "text",
+		"--console-output", "stdout",
+	}
+
 	// TODO: Flesh this out
 	_, err := config.NewConfig(version)
 	if err != nil {
-		t.FailNow()
+		t.Errorf("Error encountered when instantiating configuration: %s", err)
 	}
 
 }
