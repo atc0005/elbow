@@ -154,6 +154,15 @@ func NewDefaultConfig(appVersion string) Config {
 // collection of user-provided and default settings.
 func NewConfig(appVersion string) (*Config, error) {
 
+	logging.Buffer.Add(logging.LogRecord{
+		Level:   logrus.DebugLevel,
+		Message: "os.Args array contents",
+		Fields: logrus.Fields{
+			"line":    logging.GetLineNumber(),
+			"os_args": os.Args,
+		},
+	})
+
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
 	baseConfig := NewDefaultConfig(appVersion)
