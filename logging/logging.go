@@ -192,6 +192,13 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 	case "trace":
 		logger.SetLevel(logrus.TraceLevel)
 	default:
+		// TODO: panic here or return error to make this easier to test
+		// against?
+		//
+		// In one sense the panic message is intended to immediately provide
+		// feedback that can be used to better troubleshoot the cause of the
+		// error, but in reality that is really on the go tests to help
+		// ensure.
 		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", logLevel))
 	}
 

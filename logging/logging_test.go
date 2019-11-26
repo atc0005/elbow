@@ -19,12 +19,77 @@
 // logging.
 package logging
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/sirupsen/logrus"
+)
 
 func TestGetLineNumber(t *testing.T) {
 	got := GetLineNumber()
 	if got < 1 {
 		t.Errorf("Line number is incorrect, got: %d, want: greater than 0.", got)
+	}
+
+}
+
+func TestSetLoggerLevelShouldPanic(t *testing.T) {
+
+	// https://stackoverflow.com/questions/31595791/how-to-test-panics
+	defer func() {
+
+		r := recover()
+		t.Logf("Panic message: %q", r)
+
+		if r == nil {
+			t.Errorf("SetLoggerLevel accepted an invalid level without panicing.")
+		}
+	}()
+
+	logger := logrus.New()
+	badLogLevel := "tacos"
+
+	SetLoggerLevel(logger, badLogLevel)
+}
+
+func TestSetLoggerLevelShouldSucceed(t *testing.T) {
+
+	// TODO: Pass in a valid logLevel string, call logger.GetLevel()
+	// and compare against the expected value
+
+	type test struct {
+		logLevel    string
+		loggerLevel logrus.Level
+	}
+
+	tests := []test{
+		test{logLevel: "emerg", loggerLevel: logrus.PanicLevel},
+		test{logLevel: "panic", loggerLevel: logrus.PanicLevel},
+		test{logLevel: "alert", loggerLevel: logrus.FatalLevel},
+		test{logLevel: "critical", loggerLevel: logrus.FatalLevel},
+		test{logLevel: "fatal", loggerLevel: logrus.FatalLevel},
+		test{logLevel: "error", loggerLevel: logrus.ErrorLevel},
+		test{logLevel: "warn", loggerLevel: logrus.WarnLevel},
+		test{logLevel: "notice", loggerLevel: logrus.WarnLevel},
+		test{logLevel: "info", loggerLevel: logrus.InfoLevel},
+		test{logLevel: "debug", loggerLevel: logrus.DebugLevel},
+		test{logLevel: "trace", loggerLevel: logrus.TraceLevel},
+	}
+
+	logger := logrus.New()
+
+	for _, v := range tests {
+		give := v.logLevel
+		SetLoggerLevel(logger, give)
+		want := v.loggerLevel
+		got := logger.GetLevel()
+
+		if got != v.loggerLevel {
+			t.Error("Expected", want, "Got", got)
+			t.FailNow()
+		} else {
+			t.Log("Got", got, "as expected for requested level of", give)
+		}
 	}
 
 }
