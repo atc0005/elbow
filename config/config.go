@@ -316,8 +316,11 @@ func NewConfig(appVersion string) (*Config, error) {
 
 	}
 
-	// Apply logging configuration
-	baseConfig.SetLoggerConfig()
+	// Apply logging configuration. If error is encountered, pass it back to
+	// caller to deal with.
+	if err := baseConfig.SetLoggerConfig(); err != nil {
+		return nil, err
+	}
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,

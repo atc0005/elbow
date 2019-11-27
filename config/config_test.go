@@ -14,17 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package main
+package config
 
 import (
 	"os"
 	"runtime"
 	"testing"
-
-	"github.com/atc0005/elbow/config"
 )
 
-func TestMain(t *testing.T) {
+// TODO: Lots of variations here
+func TestNewConfigFlagsOnly(t *testing.T) {
 
 	// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
 
@@ -55,7 +54,7 @@ func TestMain(t *testing.T) {
 	}
 
 	// TODO: Flesh this out
-	_, err := config.NewConfig(version)
+	_, err := NewConfig("x.y.z")
 	if err != nil {
 		t.Errorf("Error encountered when instantiating configuration: %s", err)
 	} else {

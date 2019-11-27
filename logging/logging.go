@@ -100,7 +100,7 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 
 // SetLoggerFormatter sets a user-specified logging format for the provided
 // logger object.
-func SetLoggerFormatter(logger *logrus.Logger, format string) {
+func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 	switch format {
 	case "text":
 		logger.SetFormatter(&logrus.TextFormatter{})
@@ -108,42 +108,26 @@ func SetLoggerFormatter(logger *logrus.Logger, format string) {
 		// Log as JSON instead of the default ASCII formatter.
 		logger.SetFormatter(&logrus.JSONFormatter{})
 	default:
-		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", format))
+		return fmt.Errorf("invalid option provided: %v", format)
 	}
+
+	return nil
 }
 
 // SetLoggerConsoleOutput configures the chosen console output to one of
 // stdout or stderr.
-func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
+func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) error {
 
-	// TODO: Cleanup all of these Print statements
-	// fmt.Printf("logger.Out field at start of SetLoggerConsoleOutput(): %p\n", logger.Out)
-
-	var loggerOutput *os.File
 	switch {
 	case consoleOutput == "stdout":
-		loggerOutput = os.Stdout
-		// fmt.Printf("address of loggerOutput inside stdout case statement: %p\n", loggerOutput)
+		logger.SetOutput(os.Stdout)
 	case consoleOutput == "stderr":
-		loggerOutput = os.Stderr
-		// fmt.Printf("address of loggerOutput inside stderr case statement: %p\n", loggerOutput)
+		logger.SetOutput(os.Stderr)
 	default:
-		// TODO: panic here or return error to make this easier to test
-		// against?
-		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", consoleOutput))
+		return fmt.Errorf("invalid option provided: %v", consoleOutput)
 	}
 
-	// fmt.Printf("address of loggerOutput outside switch statement: %p\n", loggerOutput)
-	// fmt.Printf("value of loggerOutput: %v\n", loggerOutput)
-
-	// fmt.Printf("logger.Out field before calling SetOutput(): %p\n", logger.Out)
-
-	// Apply chosen output based on earlier checks
-	// Note: Can be any io.Writer
-	// fmt.Printf("Passing value %v with pointer %p to SetOutput()", loggerOutput, &loggerOutput)
-	logger.SetOutput(loggerOutput)
-
-	// fmt.Printf("logger.Out field after calling SetOutput(): %p\n", logger.Out)
+	return nil
 
 }
 
@@ -173,7 +157,7 @@ func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, erro
 
 // SetLoggerLevel applies the requested logger level to filter out messages
 // with a lower level than the one configured.
-func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
+func SetLoggerLevel(logger *logrus.Logger, logLevel string) error {
 
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://golang.org/pkg/log/syslog/#Priority
@@ -194,15 +178,11 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 	case "trace":
 		logger.SetLevel(logrus.TraceLevel)
 	default:
-		// TODO: panic here or return error to make this easier to test
-		// against?
-		//
-		// In one sense the panic message is intended to immediately provide
-		// feedback that can be used to better troubleshoot the cause of the
-		// error, but in reality that is really on the go tests to help
-		// ensure.
-		panic(fmt.Sprintf("Unhandled codepath; invalid option provided: %v", logLevel))
+		return fmt.Errorf("invalid option provided: %v", logLevel)
 	}
+
+	// signal that a case was triggered as expected
+	return nil
 
 }
 

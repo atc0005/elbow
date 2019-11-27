@@ -27,7 +27,9 @@ import (
 
 // SetLoggerConfig applies chosen configuration settings that control logging
 // output.
-func (c *Config) SetLoggerConfig() {
+func (c *Config) SetLoggerConfig() error {
+
+	var err error
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
@@ -66,7 +68,9 @@ func (c *Config) SetLoggerConfig() {
 		},
 	})
 
-	logging.SetLoggerFormatter(c.logger, c.GetLogFormat())
+	if err = logging.SetLoggerFormatter(c.logger, c.GetLogFormat()); err != nil {
+		return err
+	}
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
@@ -76,7 +80,9 @@ func (c *Config) SetLoggerConfig() {
 		},
 	})
 
-	logging.SetLoggerConsoleOutput(c.logger, c.GetConsoleOutput())
+	if err = logging.SetLoggerConsoleOutput(c.logger, c.GetConsoleOutput()); err != nil {
+		return err
+	}
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
@@ -86,9 +92,13 @@ func (c *Config) SetLoggerConfig() {
 		},
 	})
 
-	if fileHandle, err := logging.SetLoggerLogFile(c.logger, c.GetLogFilePath()); err == nil {
-		c.logFileHandle = fileHandle
-	} else {
+	// FIXME: This seems like a pretty ugly tradeoff just to avoid golint
+	// complaining about the use of an else block; we now have `err` declared
+	// at function scope instead of per block scope in order to directly
+	// assign to struct field.
+	c.logFileHandle, err = logging.SetLoggerLogFile(c.logger, c.GetLogFilePath())
+	if err != nil {
+
 		// Need to collect the error for display later
 		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.ErrorLevel,
@@ -99,9 +109,13 @@ func (c *Config) SetLoggerConfig() {
 				"log_file_handle": c.GetLogFileHandle(),
 			},
 		})
+
+		return err
 	}
 
-	logging.SetLoggerLevel(c.logger, c.GetLogLevel())
+	if err = logging.SetLoggerLevel(c.logger, c.GetLogLevel()); err != nil {
+		return err
+	}
 
 	// https://godoc.org/github.com/sirupsen/logrus#New
 	// https://godoc.org/github.com/sirupsen/logrus#Logger
@@ -161,5 +175,9 @@ func (c *Config) SetLoggerConfig() {
 			"line":       logging.GetLineNumber(),
 		},
 	})
+
+	// FIXME: Placeholder for now
+
+	return nil
 
 }

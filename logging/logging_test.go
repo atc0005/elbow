@@ -25,6 +25,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Fix linting error
+// string `fakeValue` has 3 occurrences, make it a constant (goconst)
+const fakeValue = "fakeValue"
+
 func TestGetLineNumber(t *testing.T) {
 	got := GetLineNumber()
 	if got < 1 {
@@ -33,23 +37,18 @@ func TestGetLineNumber(t *testing.T) {
 
 }
 
-func TestSetLoggerLevelShouldPanic(t *testing.T) {
-
-	// https://stackoverflow.com/questions/31595791/how-to-test-panics
-	defer func() {
-
-		r := recover()
-		t.Logf("Panic message: %q", r)
-
-		if r == nil {
-			t.Errorf("SetLoggerLevel accepted an invalid level without panicing.")
-		}
-	}()
+func TestSetLoggerLevelShouldFail(t *testing.T) {
 
 	logger := logrus.New()
-	badLogLevel := "tacos"
 
-	SetLoggerLevel(logger, badLogLevel)
+	give := fakeValue
+	got := SetLoggerLevel(logger, give)
+	if got == nil {
+		t.Error("Expected error for", give, "Got", got)
+	} else {
+		t.Logf("Got error as expected for %v: %v", give, got)
+	}
+
 }
 
 // Pass in a valid logLevel string, call logger.GetLevel()
@@ -79,7 +78,11 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 
 	for _, v := range tests {
 		give := v.logLevel
-		SetLoggerLevel(logger, give)
+		if err := SetLoggerLevel(logger, give); err != nil {
+			t.Error("Error when calling SetLoggerLevel(): ", err)
+		} else {
+			t.Log("No error when calling SetLoggerLevel()")
+		}
 		want := v.loggerLevel
 		got := logger.GetLevel()
 
@@ -93,38 +96,74 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 
 }
 
-func TestSetLoggerConsoleOutputShouldPanic(t *testing.T) {
-
-	// https://stackoverflow.com/questions/31595791/how-to-test-panics
-	defer func() {
-
-		r := recover()
-		t.Logf("Panic message: %q", r)
-
-		if r == nil {
-			t.Errorf("SetLoggerConsoleOutput accepted an invalid console output value without panicing.")
-		}
-	}()
+func TestSetLoggerFormatterShouldFail(t *testing.T) {
 
 	logger := logrus.New()
-	badConsoleOutputOption := "pickles"
 
-	SetLoggerConsoleOutput(logger, badConsoleOutputOption)
+	give := fakeValue
+	got := SetLoggerFormatter(logger, give)
+	if got == nil {
+		t.Error("Expected error for", give, "Got", got)
+	} else {
+		t.Logf("Got error as expected for %v: %v", give, got)
+	}
+}
+
+func TestSetLoggerFormatterShouldSucceed(t *testing.T) {
+
+	type test struct {
+		format string
+		result error
+	}
+
+	logger := logrus.New()
+
+	tests := []test{
+		test{format: "text", result: nil},
+		test{format: "json", result: nil},
+	}
+
+	for _, give := range tests {
+		got := SetLoggerFormatter(logger, give.format)
+		if got != give.result {
+			t.Error("Expected", give.result, "Got", got)
+		}
+	}
+
+}
+
+func TestSetLoggerConsoleOutputShouldFail(t *testing.T) {
+
+	logger := logrus.New()
+
+	give := fakeValue
+	got := SetLoggerConsoleOutput(logger, give)
+	if got == nil {
+		t.Error("Expected error for", give, "Got", got)
+	} else {
+		t.Logf("Got error as expected for %v: %v", give, got)
+	}
 }
 
 func TestSetLoggerConsoleOutputShouldSucceed(t *testing.T) {
 
+	type test struct {
+		consoleOutput string
+		result        error
+	}
+
 	logger := logrus.New()
 
-	tests := []string{"stdout", "stderr"}
-
-	// TODO: Flesh this out once the called function is reviewed and
-	// potentially modified to return pass/fail results to make testing easier
-	// and also move away from using panic, perhaps in this case
-	// unnecessarily?
+	tests := []test{
+		test{consoleOutput: "stdout", result: nil},
+		test{consoleOutput: "stderr", result: nil},
+	}
 
 	for _, give := range tests {
-		SetLoggerConsoleOutput(logger, give)
+		got := SetLoggerConsoleOutput(logger, give.consoleOutput)
+		if got != give.result {
+			t.Error("Expected", give.result, "Got", got)
+		}
 	}
 
 }
