@@ -62,19 +62,19 @@ func MergeConfig(destination *Config, source Config) error {
 	})
 
 	if source.AppName != nil {
-		destination.AppName = source.AppName
+		*destination.AppName = *source.AppName
 	}
 
 	if source.AppDescription != nil {
-		destination.AppDescription = source.AppDescription
+		*destination.AppDescription = *source.AppDescription
 	}
 
 	if source.AppURL != nil {
-		destination.AppURL = source.AppURL
+		*destination.AppURL = *source.AppURL
 	}
 
 	if source.AppVersion != nil {
-		destination.AppVersion = source.AppVersion
+		*destination.AppVersion = *source.AppVersion
 	}
 
 	if source.Paths != nil {
