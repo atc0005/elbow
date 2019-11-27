@@ -445,6 +445,8 @@ func (c *Config) SetDefaultConfig() {
 	// FileExtensions
 	// Paths
 
+	// TODO: Create default logger object?
+
 	*c.AppName = c.GetAppName()
 	*c.AppDescription = c.GetAppDescription()
 	*c.AppURL = c.GetAppURL()
