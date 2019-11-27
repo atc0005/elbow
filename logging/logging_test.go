@@ -20,6 +20,8 @@
 package logging
 
 import (
+	//"io/ioutil"
+	"fmt"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -28,6 +30,70 @@ import (
 // Fix linting error
 // string `fakeValue` has 3 occurrences, make it a constant (goconst)
 const fakeValue = "fakeValue"
+
+func TestLogBufferFlushNilLoggerShouldFail(t *testing.T) {
+
+	var nilLogger *logrus.Logger
+
+	var logBuffer LogBuffer
+
+	if err := logBuffer.Flush(nilLogger); err == nil {
+		t.Error("passed nil *logrus.Logger without error")
+	} else {
+		t.Log("received error as expected:", err)
+	}
+}
+
+func TestLogBufferFlushShouldSucceed(t *testing.T) {
+
+	var testLogBuffer LogBuffer
+
+	logger := logrus.New()
+	// Configure logger to throw everything away
+	//logger.SetOutput(ioutil.Discard)
+	logger.SetLevel(logrus.TraceLevel)
+
+	type test struct {
+		entryLevel logrus.Level
+		result     error
+	}
+
+	tests := []test{
+		// TODO: Need to add coverage for messages at these log levels:
+		//test{entryLevel: logrus.PanicLevel, result: nil},
+		//test{entryLevel: logrus.FatalLevel, result: nil},
+
+		test{entryLevel: logrus.ErrorLevel, result: nil},
+		test{entryLevel: logrus.WarnLevel, result: nil},
+		test{entryLevel: logrus.InfoLevel, result: nil},
+		test{entryLevel: logrus.DebugLevel, result: nil},
+		test{entryLevel: logrus.TraceLevel, result: nil},
+	}
+
+	// Create test log buffer entries
+	for _, v := range tests {
+
+		testLogBuffer.Add(LogRecord{
+			Level:   v.entryLevel,
+			Message: fmt.Sprintf("This is a message at level %v.", v.entryLevel),
+		})
+	}
+
+	// Verify that the number of entries matches up with the same number of
+	// active test entries
+	if len(testLogBuffer) != len(tests) {
+		t.Errorf("Expected %d log buffer entries, Got %d",
+			len(testLogBuffer), len(tests))
+	} else {
+		t.Log("Number of log buffer entries matches test entries")
+	}
+
+	if err := testLogBuffer.Flush(logger); err != nil {
+		t.Error("Failed to flush log entries:", err)
+	} else {
+		t.Log("Flushed log buffer entry as expected")
+	}
+}
 
 func TestGetLineNumber(t *testing.T) {
 	got := GetLineNumber()

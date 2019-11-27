@@ -53,14 +53,12 @@ func (lb *LogBuffer) Add(r LogRecord) {
 }
 
 // Flush LogRecord entries after applying user-provided logging settings
-func (lb LogBuffer) Flush(logger *logrus.Logger) {
+func (lb LogBuffer) Flush(logger *logrus.Logger) error {
 
-	// TODO: Prune these or replace with a block that can be dynamically
-	// activated via build tag (e.g., debug build)
-	//
-	// fmt.Println("Calling LogBuffer.Flush()")
-	// fmt.Printf("logger handle inside Flush(): %+v\n", logger)
-	// fmt.Printf("logger.Out field inside Flush(): %p\n", logger.Out)
+	// Check for nil *logrus.Logger before attempting to use it.
+	if logger == nil {
+		return fmt.Errorf("nil logger received by LogBuffer.Flush()")
+	}
 
 	for _, entry := range lb {
 
@@ -88,14 +86,20 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 			logger.WithFields(entry.Fields).Trace(entry.Message)
 
 		default:
-			panic(fmt.Sprintf("Unhandled codepath; invalid option provided for entry.Level: %v", entry.Level))
+			return fmt.Errorf("unhandled codepath; invalid option provided for entry.Level: %v", entry.Level)
 
 		}
 
 	}
 
-	// TODO: Empty slice now that we're done processing all items
+	// Empty slice now that we're done processing all items
+	// https://yourbasic.org/golang/clear-slice/
+	// lb = nil
+	// FIXME
+	// ineffectual assignment to `lb` (ineffassign)
 
+	// indicate no errors were encountered
+	return nil
 }
 
 // SetLoggerFormatter sets a user-specified logging format for the provided
