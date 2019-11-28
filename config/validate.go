@@ -25,6 +25,22 @@ import (
 // Validate verifies all struct fields have been provided acceptable
 func (c Config) Validate() error {
 
+	if c.AppName == nil {
+		return fmt.Errorf("field AppName not configured")
+	}
+
+	if c.AppDescription == nil {
+		return fmt.Errorf("field AppDescription not configured")
+	}
+
+	if c.AppVersion == nil {
+		return fmt.Errorf("field AppVersion not configured")
+	}
+
+	if c.AppURL == nil {
+		return fmt.Errorf("field AppURL not configured")
+	}
+
 	// FilePattern is optional, but since has an underlying string type with a
 	// default of empty string we can assert that the pointer isn't
 	if c.FilePattern == nil {
