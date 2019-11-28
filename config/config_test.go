@@ -109,6 +109,60 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
+	t.Run("AppDescription set to nil", func(t *testing.T) {
+		tmpAppDescription := c.AppDescription
+		c.AppDescription = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil AppDescription: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting AppDescription to nil: %s", err)
+		}
+		// Set back to prior value
+		c.AppDescription = tmpAppDescription
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring AppDescription: %s", err)
+		} else {
+			t.Log("Validation successful after restoring AppDescription field")
+		}
+	})
+
+	t.Run("AppVersion set to nil", func(t *testing.T) {
+		tmpAppVersion := c.AppVersion
+		c.AppVersion = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil AppVersion: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting AppVersion to nil: %s", err)
+		}
+		// Set back to prior value
+		c.AppVersion = tmpAppVersion
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring AppVersion: %s", err)
+		} else {
+			t.Log("Validation successful after restoring AppVersion field")
+		}
+	})
+
+	t.Run("AppURL set to nil", func(t *testing.T) {
+		tmpAppURL := c.AppURL
+		c.AppURL = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil AppURL: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting AppURL to nil: %s", err)
+		}
+		// Set back to prior value
+		c.AppURL = tmpAppURL
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring AppURL: %s", err)
+		} else {
+			t.Log("Validation successful after restoring AppURL field")
+		}
+	})
+
 	t.Run("FilePattern set to nil", func(t *testing.T) {
 		tmpFilePattern := c.FilePattern
 		//t.Logf("c.FilePattern before setting to nil: %p", c.FilePattern)
@@ -126,6 +180,78 @@ func TestValidate(t *testing.T) {
 			t.Errorf("Validation failed for config after restoring FilePattern: %s", err)
 		} else {
 			t.Log("Validation successful after restoring FilePattern field")
+		}
+	})
+
+	t.Run("Paths set to nil", func(t *testing.T) {
+		tmpPaths := c.Paths
+		c.Paths = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil Paths: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting Paths to nil: %s", err)
+		}
+		// Set back to prior value
+		c.Paths = tmpPaths
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring Paths: %s", err)
+		} else {
+			t.Log("Validation successful after restoring Paths field")
+		}
+	})
+
+	t.Run("RecursiveSearch set to nil", func(t *testing.T) {
+		tmpRecursiveSearch := c.RecursiveSearch
+		c.RecursiveSearch = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil RecursiveSearch: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting RecursiveSearch to nil: %s", err)
+		}
+		// Set back to prior value
+		c.RecursiveSearch = tmpRecursiveSearch
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring RecursiveSearch: %s", err)
+		} else {
+			t.Log("Validation successful after restoring RecursiveSearch field")
+		}
+	})
+
+	t.Run("NumFilesToKeep set to nil", func(t *testing.T) {
+		tmpNumFilesToKeep := c.NumFilesToKeep
+		c.NumFilesToKeep = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil NumFilesToKeep: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting NumFilesToKeep to nil: %s", err)
+		}
+		// Set back to prior value
+		c.NumFilesToKeep = tmpNumFilesToKeep
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
+		} else {
+			t.Log("Validation successful after restoring NumFilesToKeep field")
+		}
+	})
+
+	t.Run("NumFilesToKeep set to invalid value", func(t *testing.T) {
+		tmpNumFilesToKeep := *c.NumFilesToKeep
+		*c.NumFilesToKeep = -1
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on invalid value %d for NumFilesToKeep: %s", *c.NumFilesToKeep, err)
+		} else {
+			t.Logf("Config failed as expected after setting NumFilesToKeep to %d: %s", *c.NumFilesToKeep, err)
+		}
+		// Set back to prior value
+		*c.NumFilesToKeep = tmpNumFilesToKeep
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
+		} else {
+			t.Log("Validation successful after restoring NumFilesToKeep field")
 		}
 	})
 
