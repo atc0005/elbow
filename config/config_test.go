@@ -291,6 +291,60 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
+	t.Run("KeepOldest set to nil", func(t *testing.T) {
+		tmpKeepOldest := c.KeepOldest
+		c.KeepOldest = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil KeepOldest: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting KeepOldest to nil: %s", err)
+		}
+		// Set back to prior value
+		c.KeepOldest = tmpKeepOldest
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring KeepOldest: %s", err)
+		} else {
+			t.Log("Validation successful after restoring KeepOldest field")
+		}
+	})
+
+	t.Run("Remove set to nil", func(t *testing.T) {
+		tmpRemove := c.Remove
+		c.Remove = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil Remove: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting Remove to nil: %s", err)
+		}
+		// Set back to prior value
+		c.Remove = tmpRemove
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring Remove: %s", err)
+		} else {
+			t.Log("Validation successful after restoring Remove field")
+		}
+	})
+
+	t.Run("IgnoreErrors set to nil", func(t *testing.T) {
+		tmpIgnoreErrors := c.IgnoreErrors
+		c.IgnoreErrors = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil IgnoreErrors: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting IgnoreErrors to nil: %s", err)
+		}
+		// Set back to prior value
+		c.IgnoreErrors = tmpIgnoreErrors
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring IgnoreErrors: %s", err)
+		} else {
+			t.Log("Validation successful after restoring IgnoreErrors field")
+		}
+	})
+
 }
 
 // func TestValidateDefaultConfig(t *testing.T) {
