@@ -519,7 +519,77 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
-	// TODO: LogLevel
+	t.Run("LogLevel set to nil", func(t *testing.T) {
+		tmpLogLevel := c.LogLevel
+		c.LogLevel = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil LogLevel: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting LogLevel to nil: %s", err)
+		}
+		// Set back to prior value
+		c.LogLevel = tmpLogLevel
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogLevel field")
+		}
+	})
+
+	t.Run("LogLevel set to invalid value", func(t *testing.T) {
+		tmpLogLevel := *c.LogLevel
+		*c.LogLevel = "fakeValue"
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on invalid value %q for LogLevel: %v", *c.LogLevel, err)
+		} else {
+			t.Logf("Config failed as expected after setting LogLevel to %q: %v", *c.LogLevel, err)
+		}
+		// Set back to prior value
+		*c.LogLevel = tmpLogLevel
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogLevel field")
+		}
+	})
+
+	t.Run("LogLevel set to valid values", func(t *testing.T) {
+
+		tmpLogLevel := *c.LogLevel
+		tests := []string{
+			"emergency",
+			"alert",
+			"critical",
+			"panic",
+			"fatal",
+			"error",
+			"warn",
+			"info",
+			"notice",
+			"debug",
+			"trace",
+		}
+		for _, v := range tests {
+			*c.LogLevel = v
+			if err := c.Validate(); err == nil {
+				t.Logf("Config passed as expected after setting LogLevel to %q: %v", *c.LogLevel, err)
+
+			} else {
+				t.Errorf("Config failed, but should have passed on valid value %q for LogLevel: %s", *c.LogLevel, err)
+			}
+		}
+
+		// Set back to prior value
+		*c.LogLevel = tmpLogLevel
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogLevel field")
+		}
+	})
 
 	t.Run("UseSyslog set to nil", func(t *testing.T) {
 		tmpUseSyslog := c.UseSyslog
