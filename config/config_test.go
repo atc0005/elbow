@@ -62,3 +62,82 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 	}
 
 }
+
+// FIXME: Needs a better name. This is *mostly* a default config struct with
+// the addition of config.Paths and config.FileExtensions fields set to fill
+// out the set.
+func TestValidateFields(t *testing.T) {
+
+	// Create struct
+	c := Config{}
+
+	// Ensure all test-target fields are set to valid values
+	testAppName := c.GetAppName()
+	testAppDescription := c.GetAppDescription()
+	testAppURL := c.GetAppURL()
+	testAppVersion := c.GetAppVersion()
+	testFilePattern := c.GetFilePattern()
+	testFileAge := c.GetFileAge()
+	testNumFilesToKeep := c.GetNumFilesToKeep()
+	testKeepOldest := c.GetKeepOldest()
+	testRemove := c.GetRemove()
+	testIgnoreErrors := c.GetIgnoreErrors()
+	testRecursiveSearch := c.GetRecursiveSearch()
+	testLogLevel := c.GetLogLevel()
+	testLogFormat := c.GetLogFormat()
+	testLogFilePath := c.GetLogFilePath()
+	testConsoleOutput := c.GetConsoleOutput()
+	testUseSyslog := c.GetUseSyslog()
+	testConfigFile := c.GetConfigFile()
+
+	testPaths := []string{"/tmp/elbow/path1"}
+	testFileExtensions := []string{".tmp", ".war"}
+
+	*c.AppName = testAppName
+	*c.AppDescription = testAppDescription
+	*c.AppURL = testAppURL
+	*c.AppVersion = testAppVersion
+	*c.FilePattern = testFilePattern
+	*c.FileAge = testFileAge
+	*c.NumFilesToKeep = testNumFilesToKeep
+	*c.KeepOldest = testKeepOldest
+	*c.Remove = testRemove
+	*c.IgnoreErrors = testIgnoreErrors
+	*c.RecursiveSearch = testRecursiveSearch
+	*c.LogLevel = testLogLevel
+	*c.LogFormat = testLogFormat
+	*c.LogFilePath = testLogFilePath
+	*c.ConsoleOutput = testConsoleOutput
+	*c.UseSyslog = testUseSyslog
+	*c.ConfigFile = testConfigFile
+	c.Paths = testPaths
+	c.FileExtensions = testFileExtensions
+
+	// This should pass
+	if err := c.Validate(); err != nil {
+		t.Errorf("Validation failed for baseinstantiating configuration: %s", err)
+	} else {
+		t.Log("No errors encountered when instantiating configuration")
+	}
+
+	// One at a time, set test-target fields to nil
+	// Validate config struct
+	// Set field back to good value
+
+}
+
+// func TestValidateDefaultConfig(t *testing.T) {
+
+// 	// Create struct
+// 	// Ensure all test-target fields are nil
+// 	// Fail if any are missed by Validate() method
+
+// 	c := NewDefaultConfig("x.y.z")
+
+// 	if err := c.Validate(); err != nil {
+// 		t.Errorf("Error encountered when instantiating configuration: %s", err)
+// 	} else {
+// 		t.Log("No errors encountered when instantiating configuration")
+// 	}
+
+// }
