@@ -255,6 +255,24 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
+	t.Run("NumFilesToKeep set to valid value", func(t *testing.T) {
+		tmpNumFilesToKeep := *c.NumFilesToKeep
+		*c.NumFilesToKeep = 1
+		if err := c.Validate(); err == nil {
+			t.Logf("Config passed as expected after setting NumFilesToKeep to %d: %q", *c.NumFilesToKeep, err)
+		} else {
+			t.Errorf("Config failed, but should have passed on valid value %d for NumFilesToKeep: %v", *c.NumFilesToKeep, err)
+		}
+		// Set back to prior value
+		*c.NumFilesToKeep = tmpNumFilesToKeep
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
+		} else {
+			t.Log("Validation successful after restoring NumFilesToKeep field")
+		}
+	})
+
 	t.Run("FileAge set to nil", func(t *testing.T) {
 		tmpFileAge := c.FileAge
 		c.FileAge = nil
@@ -280,6 +298,24 @@ func TestValidate(t *testing.T) {
 			t.Errorf("Config passed, but should have failed on invalid value %d for FileAge: %s", *c.FileAge, err)
 		} else {
 			t.Logf("Config failed as expected after setting FileAge to %d: %s", *c.FileAge, err)
+		}
+		// Set back to prior value
+		*c.FileAge = tmpFileAge
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
+		} else {
+			t.Log("Validation successful after restoring FileAge field")
+		}
+	})
+
+	t.Run("FileAge set to valid value", func(t *testing.T) {
+		tmpFileAge := *c.FileAge
+		*c.FileAge = 1
+		if err := c.Validate(); err == nil {
+			t.Logf("Config passed as expected after setting FileAge to %d: %q", *c.FileAge, err)
+		} else {
+			t.Errorf("Config failed, but should have passed on valid value %d for FileAge: %v", *c.FileAge, err)
 		}
 		// Set back to prior value
 		*c.FileAge = tmpFileAge
@@ -345,7 +381,65 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
-	// TODO: LogFormat
+	t.Run("LogFormat set to nil", func(t *testing.T) {
+		tmpLogFormat := c.LogFormat
+		c.LogFormat = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil LogFormat: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting LogFormat to nil: %s", err)
+		}
+		// Set back to prior value
+		c.LogFormat = tmpLogFormat
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogFormat field")
+		}
+	})
+
+	t.Run("LogFormat set to invalid value", func(t *testing.T) {
+		tmpLogFormat := *c.LogFormat
+		*c.LogFormat = "fakeValue"
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on invalid value %q for LogFormat: %v", *c.LogFormat, err)
+		} else {
+			t.Logf("Config failed as expected after setting LogFormat to %q: %v", *c.LogFormat, err)
+		}
+		// Set back to prior value
+		*c.LogFormat = tmpLogFormat
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogFormat field")
+		}
+	})
+
+	t.Run("LogFormat set to valid values", func(t *testing.T) {
+
+		tmpLogFormat := *c.LogFormat
+		tests := []string{"text", "json"}
+		for _, v := range tests {
+			*c.LogFormat = v
+			if err := c.Validate(); err == nil {
+				t.Logf("Config passed as expected after setting LogFormat to %q: %v", *c.LogFormat, err)
+
+			} else {
+				t.Errorf("Config failed, but should have passed on valid value %q for LogFormat: %s", *c.LogFormat, err)
+			}
+		}
+
+		// Set back to prior value
+		*c.LogFormat = tmpLogFormat
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogFormat field")
+		}
+	})
 
 	t.Run("LogFilePath set to nil", func(t *testing.T) {
 		tmpLogFilePath := c.LogFilePath
@@ -365,7 +459,66 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
-	// TODO: ConsoleOutput
+	t.Run("ConsoleOutput set to nil", func(t *testing.T) {
+		tmpConsoleOutput := c.ConsoleOutput
+		c.ConsoleOutput = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil ConsoleOutput: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting ConsoleOutput to nil: %s", err)
+		}
+		// Set back to prior value
+		c.ConsoleOutput = tmpConsoleOutput
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
+		} else {
+			t.Log("Validation successful after restoring ConsoleOutput field")
+		}
+	})
+
+	t.Run("ConsoleOutput set to invalid value", func(t *testing.T) {
+		tmpConsoleOutput := *c.ConsoleOutput
+		*c.ConsoleOutput = "fakeValue"
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on invalid value %q for ConsoleOutput: %v", *c.ConsoleOutput, err)
+		} else {
+			t.Logf("Config failed as expected after setting ConsoleOutput to %q: %v", *c.ConsoleOutput, err)
+		}
+		// Set back to prior value
+		*c.ConsoleOutput = tmpConsoleOutput
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
+		} else {
+			t.Log("Validation successful after restoring ConsoleOutput field")
+		}
+	})
+
+	t.Run("ConsoleOutput set to valid values", func(t *testing.T) {
+
+		tmpConsoleOutput := *c.ConsoleOutput
+		tests := []string{"stdout", "stderr"}
+		for _, v := range tests {
+			*c.ConsoleOutput = v
+			if err := c.Validate(); err == nil {
+				t.Logf("Config passed as expected after setting ConsoleOutput to %q: %v", *c.ConsoleOutput, err)
+
+			} else {
+				t.Errorf("Config failed, but should have passed on valid value %q for ConsoleOutput: %s", *c.ConsoleOutput, err)
+			}
+		}
+
+		// Set back to prior value
+		*c.ConsoleOutput = tmpConsoleOutput
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
+		} else {
+			t.Log("Validation successful after restoring ConsoleOutput field")
+		}
+	})
+
 	// TODO: LogLevel
 
 	t.Run("UseSyslog set to nil", func(t *testing.T) {
