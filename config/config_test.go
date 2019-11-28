@@ -69,53 +69,18 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 func TestValidateFields(t *testing.T) {
 
 	// Create struct
-	c := Config{}
-
-	// Ensure all test-target fields are set to valid values
-	testAppName := c.GetAppName()
-	testAppDescription := c.GetAppDescription()
-	testAppURL := c.GetAppURL()
-	testAppVersion := c.GetAppVersion()
-	testFilePattern := c.GetFilePattern()
-	testFileAge := c.GetFileAge()
-	testNumFilesToKeep := c.GetNumFilesToKeep()
-	testKeepOldest := c.GetKeepOldest()
-	testRemove := c.GetRemove()
-	testIgnoreErrors := c.GetIgnoreErrors()
-	testRecursiveSearch := c.GetRecursiveSearch()
-	testLogLevel := c.GetLogLevel()
-	testLogFormat := c.GetLogFormat()
-	testLogFilePath := c.GetLogFilePath()
-	testConsoleOutput := c.GetConsoleOutput()
-	testUseSyslog := c.GetUseSyslog()
-	testConfigFile := c.GetConfigFile()
+	c := NewDefaultConfig("x.y.z")
 
 	testPaths := []string{"/tmp/elbow/path1"}
 	testFileExtensions := []string{".tmp", ".war"}
 
-	*c.AppName = testAppName
-	*c.AppDescription = testAppDescription
-	*c.AppURL = testAppURL
-	*c.AppVersion = testAppVersion
-	*c.FilePattern = testFilePattern
-	*c.FileAge = testFileAge
-	*c.NumFilesToKeep = testNumFilesToKeep
-	*c.KeepOldest = testKeepOldest
-	*c.Remove = testRemove
-	*c.IgnoreErrors = testIgnoreErrors
-	*c.RecursiveSearch = testRecursiveSearch
-	*c.LogLevel = testLogLevel
-	*c.LogFormat = testLogFormat
-	*c.LogFilePath = testLogFilePath
-	*c.ConsoleOutput = testConsoleOutput
-	*c.UseSyslog = testUseSyslog
-	*c.ConfigFile = testConfigFile
 	c.Paths = testPaths
 	c.FileExtensions = testFileExtensions
+	c.logger = c.GetLogger()
 
 	// This should pass
 	if err := c.Validate(); err != nil {
-		t.Errorf("Validation failed for baseinstantiating configuration: %s", err)
+		t.Errorf("Validation failed for config created from NewDefaultConfig(): %s", err)
 	} else {
 		t.Log("No errors encountered when instantiating configuration")
 	}
