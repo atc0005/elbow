@@ -251,7 +251,7 @@ func NewConfig(appVersion string) (*Config, error) {
 			})
 		}
 
-		if ok, err := baseConfig.Validate(); !ok {
+		if err := baseConfig.Validate(); err != nil {
 			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
 				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
@@ -288,7 +288,7 @@ func NewConfig(appVersion string) (*Config, error) {
 		})
 	}
 
-	if ok, err := baseConfig.Validate(); !ok {
+	if err := baseConfig.Validate(); err != nil {
 
 		// ###################################################################
 		// This code should only be reached if we were unable to properly
