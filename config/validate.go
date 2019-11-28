@@ -72,7 +72,7 @@ func (c Config) Validate() error {
 	case c.NumFilesToKeep == nil:
 		return fmt.Errorf("field NumFilesToKeep not configured")
 	case *c.NumFilesToKeep < 0:
-		return fmt.Errorf("invalid value provided for files to keep")
+		return fmt.Errorf("negative number for files to keep not supported")
 	}
 
 	// We only want to work with positive file modification times 0 is

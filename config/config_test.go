@@ -255,6 +255,42 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
+	t.Run("FileAge set to nil", func(t *testing.T) {
+		tmpFileAge := c.FileAge
+		c.FileAge = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil FileAge: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting FileAge to nil: %s", err)
+		}
+		// Set back to prior value
+		c.FileAge = tmpFileAge
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
+		} else {
+			t.Log("Validation successful after restoring FileAge field")
+		}
+	})
+
+	t.Run("FileAge set to invalid value", func(t *testing.T) {
+		tmpFileAge := *c.FileAge
+		*c.FileAge = -1
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on invalid value %d for FileAge: %s", *c.FileAge, err)
+		} else {
+			t.Logf("Config failed as expected after setting FileAge to %d: %s", *c.FileAge, err)
+		}
+		// Set back to prior value
+		*c.FileAge = tmpFileAge
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
+		} else {
+			t.Log("Validation successful after restoring FileAge field")
+		}
+	})
+
 }
 
 // func TestValidateDefaultConfig(t *testing.T) {
