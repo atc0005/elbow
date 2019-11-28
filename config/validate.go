@@ -107,8 +107,10 @@ func (c Config) Validate() error {
 		return fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
 	}
 
-	// logFilePath is optional
-	// TODO: String validation if it is set?
+	// LogFilePath is optional, but should still have a non-nil value
+	if c.LogFilePath == nil {
+		return fmt.Errorf("field LogFilePath not configured")
+	}
 
 	// Do nothing for valid choices, return false if invalid value specified
 	switch {
@@ -138,7 +140,7 @@ func (c Config) Validate() error {
 		return fmt.Errorf("invalid option %q provided for log level", *c.LogLevel)
 	}
 
-	// UseSyslog is optional
+	// UseSyslog is optional, but should still be initialized
 	if c.UseSyslog == nil {
 		return fmt.Errorf("field UseSyslog not configured")
 	}
@@ -146,6 +148,11 @@ func (c Config) Validate() error {
 	// Make sure that a valid logger has been created
 	if c.logger == nil {
 		return fmt.Errorf("field logger not configured")
+	}
+
+	// Make sure that a valid logger has been created
+	if c.ConfigFile == nil {
+		return fmt.Errorf("field ConfigFile not configured")
 	}
 
 	// Optimist

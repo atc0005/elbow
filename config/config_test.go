@@ -345,6 +345,83 @@ func TestValidate(t *testing.T) {
 		}
 	})
 
+	// TODO: LogFormat
+
+	t.Run("LogFilePath set to nil", func(t *testing.T) {
+		tmpLogFilePath := c.LogFilePath
+		c.LogFilePath = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil LogFilePath: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting LogFilePath to nil: %s", err)
+		}
+		// Set back to prior value
+		c.LogFilePath = tmpLogFilePath
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring LogFilePath: %s", err)
+		} else {
+			t.Log("Validation successful after restoring LogFilePath field")
+		}
+	})
+
+	// TODO: ConsoleOutput
+	// TODO: LogLevel
+
+	t.Run("UseSyslog set to nil", func(t *testing.T) {
+		tmpUseSyslog := c.UseSyslog
+		c.UseSyslog = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil UseSyslog: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting UseSyslog to nil: %s", err)
+		}
+		// Set back to prior value
+		c.UseSyslog = tmpUseSyslog
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring UseSyslog: %s", err)
+		} else {
+			t.Log("Validation successful after restoring UseSyslog field")
+		}
+	})
+
+	t.Run("logger set to nil", func(t *testing.T) {
+		tmplogger := c.logger
+		c.logger = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil logger: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting logger to nil: %s", err)
+		}
+		// Set back to prior value
+		c.logger = tmplogger
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring logger: %s", err)
+		} else {
+			t.Log("Validation successful after restoring logger field")
+		}
+	})
+
+	t.Run("ConfigFile set to nil", func(t *testing.T) {
+		tmpConfigFile := c.ConfigFile
+		c.ConfigFile = nil
+		if err := c.Validate(); err == nil {
+			t.Errorf("Config passed, but should have failed on nil ConfigFile: %s", err)
+		} else {
+			t.Logf("Config failed as expected after setting ConfigFile to nil: %s", err)
+		}
+		// Set back to prior value
+		c.ConfigFile = tmpConfigFile
+
+		if err := c.Validate(); err != nil {
+			t.Errorf("Validation failed for config after restoring ConfigFile: %s", err)
+		} else {
+			t.Log("Validation successful after restoring ConfigFile field")
+		}
+	})
+
 }
 
 // func TestValidateDefaultConfig(t *testing.T) {
