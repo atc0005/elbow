@@ -35,6 +35,9 @@ func TestValidate(t *testing.T) {
 
 	c := NewDefaultConfig("x.y.z")
 
+	// Force validation of the Paths struct field
+	checkPaths := true
+
 	testPaths := []string{"/tmp/elbow/path1"}
 	testFileExtensions := []string{".tmp", ".war"}
 
@@ -44,7 +47,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("Validating mostly default config", func(t *testing.T) {
 		// This should pass
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config created from NewDefaultConfig(): %s", err)
 		} else {
 			t.Log("No errors encountered when instantiating configuration")
@@ -54,7 +57,7 @@ func TestValidate(t *testing.T) {
 	t.Run("AppName set to nil", func(t *testing.T) {
 		tmpAppName := c.AppName
 		c.AppName = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil AppName: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting AppName to nil: %s", err)
@@ -62,7 +65,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.AppName = tmpAppName
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring AppName: %s", err)
 		} else {
 			t.Log("Validation successful after restoring AppName field")
@@ -72,7 +75,7 @@ func TestValidate(t *testing.T) {
 	t.Run("AppDescription set to nil", func(t *testing.T) {
 		tmpAppDescription := c.AppDescription
 		c.AppDescription = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil AppDescription: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting AppDescription to nil: %s", err)
@@ -80,7 +83,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.AppDescription = tmpAppDescription
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring AppDescription: %s", err)
 		} else {
 			t.Log("Validation successful after restoring AppDescription field")
@@ -90,7 +93,7 @@ func TestValidate(t *testing.T) {
 	t.Run("AppVersion set to nil", func(t *testing.T) {
 		tmpAppVersion := c.AppVersion
 		c.AppVersion = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil AppVersion: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting AppVersion to nil: %s", err)
@@ -98,7 +101,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.AppVersion = tmpAppVersion
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring AppVersion: %s", err)
 		} else {
 			t.Log("Validation successful after restoring AppVersion field")
@@ -108,7 +111,7 @@ func TestValidate(t *testing.T) {
 	t.Run("AppURL set to nil", func(t *testing.T) {
 		tmpAppURL := c.AppURL
 		c.AppURL = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil AppURL: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting AppURL to nil: %s", err)
@@ -116,7 +119,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.AppURL = tmpAppURL
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring AppURL: %s", err)
 		} else {
 			t.Log("Validation successful after restoring AppURL field")
@@ -127,7 +130,7 @@ func TestValidate(t *testing.T) {
 		tmpFilePattern := c.FilePattern
 		//t.Logf("c.FilePattern before setting to nil: %p", c.FilePattern)
 		c.FilePattern = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil FilePattern: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting FilePattern to nil: %s", err)
@@ -136,7 +139,7 @@ func TestValidate(t *testing.T) {
 		c.FilePattern = tmpFilePattern
 		//t.Logf("c.FilePattern address after resetting back to original value: %p", c.FilePattern)
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring FilePattern: %s", err)
 		} else {
 			t.Log("Validation successful after restoring FilePattern field")
@@ -146,7 +149,7 @@ func TestValidate(t *testing.T) {
 	t.Run("Paths set to nil", func(t *testing.T) {
 		tmpPaths := c.Paths
 		c.Paths = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil Paths: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting Paths to nil: %s", err)
@@ -154,7 +157,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.Paths = tmpPaths
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring Paths: %s", err)
 		} else {
 			t.Log("Validation successful after restoring Paths field")
@@ -164,7 +167,7 @@ func TestValidate(t *testing.T) {
 	t.Run("RecursiveSearch set to nil", func(t *testing.T) {
 		tmpRecursiveSearch := c.RecursiveSearch
 		c.RecursiveSearch = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil RecursiveSearch: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting RecursiveSearch to nil: %s", err)
@@ -172,7 +175,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.RecursiveSearch = tmpRecursiveSearch
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring RecursiveSearch: %s", err)
 		} else {
 			t.Log("Validation successful after restoring RecursiveSearch field")
@@ -182,7 +185,7 @@ func TestValidate(t *testing.T) {
 	t.Run("NumFilesToKeep set to nil", func(t *testing.T) {
 		tmpNumFilesToKeep := c.NumFilesToKeep
 		c.NumFilesToKeep = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil NumFilesToKeep: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting NumFilesToKeep to nil: %s", err)
@@ -190,7 +193,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.NumFilesToKeep = tmpNumFilesToKeep
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
 		} else {
 			t.Log("Validation successful after restoring NumFilesToKeep field")
@@ -200,7 +203,7 @@ func TestValidate(t *testing.T) {
 	t.Run("NumFilesToKeep set to invalid value", func(t *testing.T) {
 		tmpNumFilesToKeep := *c.NumFilesToKeep
 		*c.NumFilesToKeep = -1
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %d for NumFilesToKeep: %s", *c.NumFilesToKeep, err)
 		} else {
 			t.Logf("Config failed as expected after setting NumFilesToKeep to %d: %s", *c.NumFilesToKeep, err)
@@ -208,7 +211,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.NumFilesToKeep = tmpNumFilesToKeep
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
 		} else {
 			t.Log("Validation successful after restoring NumFilesToKeep field")
@@ -218,7 +221,7 @@ func TestValidate(t *testing.T) {
 	t.Run("NumFilesToKeep set to valid value", func(t *testing.T) {
 		tmpNumFilesToKeep := *c.NumFilesToKeep
 		*c.NumFilesToKeep = 1
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Logf("Config passed as expected after setting NumFilesToKeep to %d: %q", *c.NumFilesToKeep, err)
 		} else {
 			t.Errorf("Config failed, but should have passed on valid value %d for NumFilesToKeep: %v", *c.NumFilesToKeep, err)
@@ -226,7 +229,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.NumFilesToKeep = tmpNumFilesToKeep
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring NumFilesToKeep: %s", err)
 		} else {
 			t.Log("Validation successful after restoring NumFilesToKeep field")
@@ -236,7 +239,7 @@ func TestValidate(t *testing.T) {
 	t.Run("FileAge set to nil", func(t *testing.T) {
 		tmpFileAge := c.FileAge
 		c.FileAge = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil FileAge: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting FileAge to nil: %s", err)
@@ -244,7 +247,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.FileAge = tmpFileAge
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
 		} else {
 			t.Log("Validation successful after restoring FileAge field")
@@ -254,7 +257,7 @@ func TestValidate(t *testing.T) {
 	t.Run("FileAge set to invalid value", func(t *testing.T) {
 		tmpFileAge := *c.FileAge
 		*c.FileAge = -1
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %d for FileAge: %s", *c.FileAge, err)
 		} else {
 			t.Logf("Config failed as expected after setting FileAge to %d: %s", *c.FileAge, err)
@@ -262,7 +265,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.FileAge = tmpFileAge
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
 		} else {
 			t.Log("Validation successful after restoring FileAge field")
@@ -272,7 +275,7 @@ func TestValidate(t *testing.T) {
 	t.Run("FileAge set to valid value", func(t *testing.T) {
 		tmpFileAge := *c.FileAge
 		*c.FileAge = 1
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Logf("Config passed as expected after setting FileAge to %d: %q", *c.FileAge, err)
 		} else {
 			t.Errorf("Config failed, but should have passed on valid value %d for FileAge: %v", *c.FileAge, err)
@@ -280,7 +283,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.FileAge = tmpFileAge
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring FileAge: %s", err)
 		} else {
 			t.Log("Validation successful after restoring FileAge field")
@@ -290,7 +293,7 @@ func TestValidate(t *testing.T) {
 	t.Run("KeepOldest set to nil", func(t *testing.T) {
 		tmpKeepOldest := c.KeepOldest
 		c.KeepOldest = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil KeepOldest: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting KeepOldest to nil: %s", err)
@@ -298,7 +301,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.KeepOldest = tmpKeepOldest
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring KeepOldest: %s", err)
 		} else {
 			t.Log("Validation successful after restoring KeepOldest field")
@@ -308,7 +311,7 @@ func TestValidate(t *testing.T) {
 	t.Run("Remove set to nil", func(t *testing.T) {
 		tmpRemove := c.Remove
 		c.Remove = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil Remove: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting Remove to nil: %s", err)
@@ -316,7 +319,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.Remove = tmpRemove
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring Remove: %s", err)
 		} else {
 			t.Log("Validation successful after restoring Remove field")
@@ -326,7 +329,7 @@ func TestValidate(t *testing.T) {
 	t.Run("IgnoreErrors set to nil", func(t *testing.T) {
 		tmpIgnoreErrors := c.IgnoreErrors
 		c.IgnoreErrors = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil IgnoreErrors: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting IgnoreErrors to nil: %s", err)
@@ -334,7 +337,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.IgnoreErrors = tmpIgnoreErrors
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring IgnoreErrors: %s", err)
 		} else {
 			t.Log("Validation successful after restoring IgnoreErrors field")
@@ -344,7 +347,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogFormat set to nil", func(t *testing.T) {
 		tmpLogFormat := c.LogFormat
 		c.LogFormat = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil LogFormat: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting LogFormat to nil: %s", err)
@@ -352,7 +355,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.LogFormat = tmpLogFormat
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogFormat field")
@@ -362,7 +365,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogFormat set to invalid value", func(t *testing.T) {
 		tmpLogFormat := *c.LogFormat
 		*c.LogFormat = fakeValue
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogFormat: %v", *c.LogFormat, err)
 		} else {
 			t.Logf("Config failed as expected after setting LogFormat to %q: %v", *c.LogFormat, err)
@@ -370,7 +373,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.LogFormat = tmpLogFormat
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogFormat field")
@@ -383,7 +386,7 @@ func TestValidate(t *testing.T) {
 		tests := []string{"text", "json"}
 		for _, v := range tests {
 			*c.LogFormat = v
-			if err := c.Validate(); err == nil {
+			if err := c.Validate(checkPaths); err == nil {
 				t.Logf("Config passed as expected after setting LogFormat to %q: %v", *c.LogFormat, err)
 
 			} else {
@@ -394,7 +397,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.LogFormat = tmpLogFormat
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogFormat: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogFormat field")
@@ -404,7 +407,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogFilePath set to nil", func(t *testing.T) {
 		tmpLogFilePath := c.LogFilePath
 		c.LogFilePath = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil LogFilePath: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting LogFilePath to nil: %s", err)
@@ -412,7 +415,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.LogFilePath = tmpLogFilePath
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogFilePath: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogFilePath field")
@@ -422,7 +425,7 @@ func TestValidate(t *testing.T) {
 	t.Run("ConsoleOutput set to nil", func(t *testing.T) {
 		tmpConsoleOutput := c.ConsoleOutput
 		c.ConsoleOutput = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil ConsoleOutput: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting ConsoleOutput to nil: %s", err)
@@ -430,7 +433,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.ConsoleOutput = tmpConsoleOutput
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
 		} else {
 			t.Log("Validation successful after restoring ConsoleOutput field")
@@ -440,7 +443,7 @@ func TestValidate(t *testing.T) {
 	t.Run("ConsoleOutput set to invalid value", func(t *testing.T) {
 		tmpConsoleOutput := *c.ConsoleOutput
 		*c.ConsoleOutput = fakeValue
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for ConsoleOutput: %v", *c.ConsoleOutput, err)
 		} else {
 			t.Logf("Config failed as expected after setting ConsoleOutput to %q: %v", *c.ConsoleOutput, err)
@@ -448,7 +451,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.ConsoleOutput = tmpConsoleOutput
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
 		} else {
 			t.Log("Validation successful after restoring ConsoleOutput field")
@@ -461,7 +464,7 @@ func TestValidate(t *testing.T) {
 		tests := []string{"stdout", "stderr"}
 		for _, v := range tests {
 			*c.ConsoleOutput = v
-			if err := c.Validate(); err == nil {
+			if err := c.Validate(checkPaths); err == nil {
 				t.Logf("Config passed as expected after setting ConsoleOutput to %q: %v", *c.ConsoleOutput, err)
 
 			} else {
@@ -472,7 +475,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.ConsoleOutput = tmpConsoleOutput
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring ConsoleOutput: %s", err)
 		} else {
 			t.Log("Validation successful after restoring ConsoleOutput field")
@@ -482,7 +485,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogLevel set to nil", func(t *testing.T) {
 		tmpLogLevel := c.LogLevel
 		c.LogLevel = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil LogLevel: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting LogLevel to nil: %s", err)
@@ -490,7 +493,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.LogLevel = tmpLogLevel
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogLevel field")
@@ -500,7 +503,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogLevel set to invalid value", func(t *testing.T) {
 		tmpLogLevel := *c.LogLevel
 		*c.LogLevel = fakeValue
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogLevel: %v", *c.LogLevel, err)
 		} else {
 			t.Logf("Config failed as expected after setting LogLevel to %q: %v", *c.LogLevel, err)
@@ -508,7 +511,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.LogLevel = tmpLogLevel
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogLevel field")
@@ -533,7 +536,7 @@ func TestValidate(t *testing.T) {
 		}
 		for _, v := range tests {
 			*c.LogLevel = v
-			if err := c.Validate(); err == nil {
+			if err := c.Validate(checkPaths); err == nil {
 				t.Logf("Config passed as expected after setting LogLevel to %q: %v", *c.LogLevel, err)
 
 			} else {
@@ -544,7 +547,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		*c.LogLevel = tmpLogLevel
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring LogLevel: %s", err)
 		} else {
 			t.Log("Validation successful after restoring LogLevel field")
@@ -554,7 +557,7 @@ func TestValidate(t *testing.T) {
 	t.Run("UseSyslog set to nil", func(t *testing.T) {
 		tmpUseSyslog := c.UseSyslog
 		c.UseSyslog = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil UseSyslog: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting UseSyslog to nil: %s", err)
@@ -562,7 +565,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.UseSyslog = tmpUseSyslog
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring UseSyslog: %s", err)
 		} else {
 			t.Log("Validation successful after restoring UseSyslog field")
@@ -572,7 +575,7 @@ func TestValidate(t *testing.T) {
 	t.Run("logger set to nil", func(t *testing.T) {
 		tmplogger := c.logger
 		c.logger = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil logger: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting logger to nil: %s", err)
@@ -580,7 +583,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.logger = tmplogger
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring logger: %s", err)
 		} else {
 			t.Log("Validation successful after restoring logger field")
@@ -590,7 +593,7 @@ func TestValidate(t *testing.T) {
 	t.Run("ConfigFile set to nil", func(t *testing.T) {
 		tmpConfigFile := c.ConfigFile
 		c.ConfigFile = nil
-		if err := c.Validate(); err == nil {
+		if err := c.Validate(checkPaths); err == nil {
 			t.Errorf("Config passed, but should have failed on nil ConfigFile: %s", err)
 		} else {
 			t.Logf("Config failed as expected after setting ConfigFile to nil: %s", err)
@@ -598,7 +601,7 @@ func TestValidate(t *testing.T) {
 		// Set back to prior value
 		c.ConfigFile = tmpConfigFile
 
-		if err := c.Validate(); err != nil {
+		if err := c.Validate(checkPaths); err != nil {
 			t.Errorf("Validation failed for config after restoring ConfigFile: %s", err)
 		} else {
 			t.Log("Validation successful after restoring ConfigFile field")
