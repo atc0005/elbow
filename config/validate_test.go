@@ -20,6 +20,10 @@ import (
 	"testing"
 )
 
+// Fix linting error
+// string `fakeValue` has 3 occurrences, make it a constant (goconst)
+const fakeValue = "fakeValue"
+
 // This is *mostly* a default config struct with the addition of config.Paths
 // and config.FileExtensions fields set to fill out the set.
 func TestValidate(t *testing.T) {
@@ -357,7 +361,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("LogFormat set to invalid value", func(t *testing.T) {
 		tmpLogFormat := *c.LogFormat
-		*c.LogFormat = "fakeValue"
+		*c.LogFormat = fakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogFormat: %v", *c.LogFormat, err)
 		} else {
@@ -435,7 +439,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("ConsoleOutput set to invalid value", func(t *testing.T) {
 		tmpConsoleOutput := *c.ConsoleOutput
-		*c.ConsoleOutput = "fakeValue"
+		*c.ConsoleOutput = fakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for ConsoleOutput: %v", *c.ConsoleOutput, err)
 		} else {
@@ -495,7 +499,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("LogLevel set to invalid value", func(t *testing.T) {
 		tmpLogLevel := *c.LogLevel
-		*c.LogLevel = "fakeValue"
+		*c.LogLevel = fakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogLevel: %v", *c.LogLevel, err)
 		} else {
