@@ -251,10 +251,10 @@ func NewConfig(appVersion string) (*Config, error) {
 			})
 		}
 
-		// TODO: Ensure that we don't fail the new configuration due to
-		// fileConfig not providing a value for the config.Paths struct
-		// field; we are *feathering* values here, not replacing all
-		// existing values with the new ones!
+		// Don't fail the new configuration due to fileConfig not providing
+		// all required values; we are *feathering* values, not replacing all
+		// existing values in the config struct with ones from the next
+		// configuration source.
 		if err := baseConfig.Validate(); err != nil {
 			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
