@@ -262,6 +262,11 @@ func NewConfig(appVersion string) (*Config, error) {
 				},
 			})
 
+			// TODO: Ensure that we don't fail the new configuration due to
+			// fileConfig not providing a value for the config.Paths struct
+			// field; we are *feathering* values here, not replacing all
+			// existing values with the new ones!
+
 			// Application failure codepath. Dump collected log messages and
 			// return control to the caller.
 			logging.Buffer.Flush(baseConfig.GetLogger())
