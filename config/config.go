@@ -251,7 +251,12 @@ func NewConfig(appVersion string) (*Config, error) {
 			})
 		}
 
-		if err := baseConfig.Validate(); err != nil {
+		// TODO: Ensure that we don't fail the new configuration due to
+		// fileConfig not providing a value for the config.Paths struct
+		// field; we are *feathering* values here, not replacing all
+		// existing values with the new ones!
+		checkPathsField := false
+		if err := baseConfig.Validate(checkPathsField); err != nil {
 			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
 				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
@@ -261,11 +266,6 @@ func NewConfig(appVersion string) (*Config, error) {
 					"file_config": fmt.Sprintf("%+v", fileConfig),
 				},
 			})
-
-			// TODO: Ensure that we don't fail the new configuration due to
-			// fileConfig not providing a value for the config.Paths struct
-			// field; we are *feathering* values here, not replacing all
-			// existing values with the new ones!
 
 			// Application failure codepath. Dump collected log messages and
 			// return control to the caller.
@@ -293,7 +293,9 @@ func NewConfig(appVersion string) (*Config, error) {
 		})
 	}
 
-	if err := baseConfig.Validate(); err != nil {
+	// At this point it is safe to enforce full validation
+	checkPathsField := true
+	if err := baseConfig.Validate(checkPathsField); err != nil {
 
 		// ###################################################################
 		// This code should only be reached if we were unable to properly

@@ -20,10 +20,17 @@ package config
 
 import (
 	"fmt"
+
+	"github.com/atc0005/elbow/logging"
+	"github.com/sirupsen/logrus"
 )
 
-// Validate verifies all struct fields have been provided acceptable
-func (c Config) Validate() error {
+// Validate verifies all struct fields have been provided acceptable values
+// unless checkPaths is specified, which omits that particular validation. This
+// is intended to allow the majority of validation checks to be applied after
+// merging any available configuration file options into the base/default
+// configuration options.
+func (c Config) Validate(checkPaths bool) error {
 
 	if c.AppName == nil {
 		return fmt.Errorf("field AppName not configured")
@@ -57,8 +64,19 @@ func (c Config) Validate() error {
 	// 	return false, fmt.Errorf("file extensions option not configured")
 	// }
 
-	if c.Paths == nil {
-		return fmt.Errorf("one or more paths not provided")
+	if checkPaths {
+		if c.Paths == nil {
+			return fmt.Errorf("one or more paths not provided")
+		}
+	} else {
+		logging.Buffer.Add(logging.LogRecord{
+			Level:   logrus.DebugLevel,
+			Message: "Skipping validation for Paths field per request",
+			Fields: logrus.Fields{
+				"line":       logging.GetLineNumber(),
+				"checkpaths": checkPaths,
+			},
+		})
 	}
 
 	// RecursiveSearch is optional
