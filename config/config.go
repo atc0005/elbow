@@ -265,6 +265,15 @@ func NewConfig(appVersion string) (*Config, error) {
 					"file_config": fmt.Sprintf("%+v", fileConfig),
 				},
 			})
+
+			logging.Buffer.Add(logging.LogRecord{
+				Level:   logrus.DebugLevel,
+				Message: "Proceeding with evaluation of argsConfig",
+				Fields: logrus.Fields{
+					"line": logging.GetLineNumber(),
+				},
+			})
+
 		}
 
 	}
