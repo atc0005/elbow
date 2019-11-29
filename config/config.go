@@ -265,12 +265,6 @@ func NewConfig(appVersion string) (*Config, error) {
 					"file_config": fmt.Sprintf("%+v", fileConfig),
 				},
 			})
-
-			// Application failure codepath. Dump collected log messages and
-			// return control to the caller.
-			logging.Buffer.Flush(baseConfig.GetLogger())
-			// TODO: Wrap errors and return so they can be unpacked in main()
-			return nil, fmt.Errorf("configuration validation failed after merging fileConfig: %s", err)
 		}
 
 	}
