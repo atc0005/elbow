@@ -18,10 +18,22 @@ package config
 
 import (
 	"bytes"
+	"github.com/atc0005/elbow/units"
 	"os"
+	"path"
 	"runtime"
 	"testing"
 )
+
+func GetBaseProjectDir(t *testing.T) string {
+
+	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
+	_, filename, _, _ := runtime.Caller(1)
+	// The ".." reflects the path above the current working directory
+	dir := path.Join(path.Dir(filename), "..")
+	return dir
+
+}
 
 // TODO: Lots of variations here
 func TestNewConfigFlagsOnly(t *testing.T) {
@@ -142,23 +154,39 @@ func TestLoadConfigFileExampleConfigInRepo(t *testing.T) {
 
 	c := NewDefaultConfig("x.y.z")
 
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf(err.Error())
+	}
+	t.Log("Current working directory:", cwd)
+
 	// this file is located in the base of the repo
-	exampleConfigFile := "../config.example.toml"
+	exampleConfigFile := "config.example.toml"
+
+	// Get path above cwd in order to load config file (from base path of repo)
+	baseDir := GetBaseProjectDir(t)
+	if err := os.Chdir(baseDir); err != nil {
+		t.Error(err)
+		t.FailNow()
+	}
 
 	// this isn't handled by the config file settings and is ordinarily taken
 	// care of by the time the config file is pulled in
 	c.logger = c.GetLogger()
 
-	if _, err := os.Stat(exampleConfigFile); os.IsNotExist(err) {
+	if fileDetails, err := os.Stat(exampleConfigFile); os.IsNotExist(err) {
 		t.Errorf("requested config file not found: %v", err)
 	} else {
-		t.Log("config file found: ", exampleConfigFile)
+		t.Log("config file found")
+		t.Log("name:", fileDetails.Name())
+		t.Log("size:", units.ByteCountSI(fileDetails.Size()))
+		t.Log("date/time stamp:", fileDetails.ModTime())
 
 		fh, err := os.Open(exampleConfigFile)
 		if err != nil {
-			t.Errorf("unable to open config file: %v", err)
+			t.Errorf("Unable to open config file: %v", err)
 		} else {
-			t.Log("Successfully opened config file ", exampleConfigFile)
+			t.Log("Successfully opened config file", exampleConfigFile)
 		}
 		defer fh.Close()
 

@@ -14,6 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+[appmetadata]
+
+# Optionally override metadata for this application.
+# NOTE: This behavior should not be considered stable. The value in overriding
+# these values is questionable and may be dropped in a future release.
+app_name = "toml_app_name"
+app_description = "toml_app_description"
+app_version = "toml_app_version"
+app_url = "toml_app_url"
+
 [filehandling]
 
 pattern = "reach-masterdev-"
