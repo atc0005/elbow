@@ -219,7 +219,7 @@ func TestValidate(t *testing.T) {
 		tmpNumFilesToKeep := *c.NumFilesToKeep
 		*c.NumFilesToKeep = 1
 		if err := c.Validate(); err == nil {
-			t.Logf("Config passed as expected after setting NumFilesToKeep to %d: %q", *c.NumFilesToKeep, err)
+			t.Logf("Config passed as expected after setting NumFilesToKeep to %d: %v", *c.NumFilesToKeep, err)
 		} else {
 			t.Errorf("Config failed, but should have passed on valid value %d for NumFilesToKeep: %v", *c.NumFilesToKeep, err)
 		}
@@ -273,7 +273,7 @@ func TestValidate(t *testing.T) {
 		tmpFileAge := *c.FileAge
 		*c.FileAge = 1
 		if err := c.Validate(); err == nil {
-			t.Logf("Config passed as expected after setting FileAge to %d: %q", *c.FileAge, err)
+			t.Logf("Config passed as expected after setting FileAge to %d: %v", *c.FileAge, err)
 		} else {
 			t.Errorf("Config failed, but should have passed on valid value %d for FileAge: %v", *c.FileAge, err)
 		}
