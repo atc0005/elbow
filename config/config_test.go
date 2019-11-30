@@ -143,13 +143,16 @@ func TestLoadConfigFileExampleConfigInRepo(t *testing.T) {
 	c := NewDefaultConfig("x.y.z")
 
 	// this file is located in the base of the repo
-	exampleConfigFile := "config.example.toml"
+	exampleConfigFile := "../config.example.toml"
 
 	// this isn't handled by the config file settings and is ordinarily taken
 	// care of by the time the config file is pulled in
 	c.logger = c.GetLogger()
 
-	if _, err := os.Stat(exampleConfigFile); !os.IsNotExist(err) {
+	if _, err := os.Stat(exampleConfigFile); os.IsNotExist(err) {
+		t.Errorf("requested config file not found: %v", err)
+	} else {
+		t.Log("config file found: ", exampleConfigFile)
 
 		fh, err := os.Open(exampleConfigFile)
 		if err != nil {
@@ -160,9 +163,9 @@ func TestLoadConfigFileExampleConfigInRepo(t *testing.T) {
 		defer fh.Close()
 
 		if err := c.LoadConfigFile(fh); err != nil {
-			t.Error("Unable to load in-memory configuration:", err)
+			t.Error("Unable to load configuration file:", err)
 		} else {
-			t.Log("Loaded in-memory configuration file")
+			t.Log("Loaded configuration file")
 		}
 
 		if err := c.Validate(); err != nil {
