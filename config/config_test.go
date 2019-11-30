@@ -25,6 +25,49 @@ import (
 	"testing"
 )
 
+var defaultConfigFile = []byte(`
+[appmetadata]
+
+app_name = "toml_app_name"
+app_description = "toml_app_description"
+app_version = "toml_app_version"
+app_url = "toml_app_url"
+
+[filehandling]
+
+pattern = "reach-masterdev-"
+file_extensions = [
+	".war",
+	".tmp",
+]
+
+file_age = 1
+files_to_keep = 2
+keep_oldest = false
+remove = false
+ignore_errors = true
+
+[search]
+
+paths = [
+	"/tmp/elbow/path1",
+	"/tmp/elbow/path2",
+]
+
+recursive_search = true
+
+
+[logging]
+
+log_level = "debug"
+log_format = "text"
+
+# If set, all output to the console will be muted and sent here instead
+#log_file_path = "/tmp/log.json"
+
+console_output = "stdout"
+use_syslog = false`)
+
 func GetBaseProjectDir(t *testing.T) string {
 
 	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
@@ -77,7 +120,7 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 }
 
 // TODO: Need to ensure that the configuration was loaded properly.
-func TestLoadConfig(t *testing.T) {
+func TestLoadConfigOnTopOfBaseConfig(t *testing.T) {
 
 	c := NewDefaultConfig("x.y.z")
 
@@ -88,50 +131,8 @@ func TestLoadConfig(t *testing.T) {
 	// c.FileExtensions = testFileExtensions
 	c.logger = c.GetLogger()
 
-	configFile := []byte(`
-		[appmetadata]
-
-		app_name = "toml_app_name"
-		app_description = "toml_app_description"
-		app_version = "toml_app_version"
-		app_url = "toml_app_url"
-
-		[filehandling]
-
-		pattern = "reach-masterdev-"
-		file_extensions = [
-			".war",
-			".tmp",
-		]
-
-		file_age = 1
-		files_to_keep = 2
-		keep_oldest = false
-		remove = false
-		ignore_errors = true
-
-		[search]
-
-		paths = [
-		    "/tmp/elbow/path1",
-		    "/tmp/elbow/path2",
-		]
-
-		recursive_search = true
-
-
-		[logging]
-
-		log_level = "debug"
-		log_format = "text"
-
-		# If set, all output to the console will be muted and sent here instead
-		#log_file_path = "/tmp/log.json"
-
-		console_output = "stdout"
-		use_syslog = false`)
-
-	r := bytes.NewReader(configFile)
+	// Use stock configuration
+	r := bytes.NewReader(defaultConfigFile)
 
 	if err := c.LoadConfigFile(r); err != nil {
 		t.Error("Unable to load in-memory configuration:", err)
