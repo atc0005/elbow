@@ -62,3 +62,20 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 	}
 
 }
+
+func TestLoadConfig(t *testing.T) {
+	//
+
+	// doc := []byte(`
+	// [Postgres]
+	// User = "pelletier"
+	// Password = "mypassword"`)
+
+	// Old function name:
+	//LoadConfigFile
+
+	// if err := toml.Unmarshal(configFile, c); err != nil {
+	// 	return err
+	// }
+
+}

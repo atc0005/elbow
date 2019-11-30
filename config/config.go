@@ -20,6 +20,7 @@ package config
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -212,67 +213,81 @@ func NewConfig(appVersion string) (*Config, error) {
 	// TODO: Fail if not found, or continue using defaults in its place?
 	if argsConfig.ConfigFile != nil {
 		// Check for a configuration file and load it if found.
-		if err := fileConfig.LoadConfigFile(*argsConfig.ConfigFile); err != nil {
-			logging.Buffer.Add(logging.LogRecord{
-				Level:   logrus.ErrorLevel,
-				Message: fmt.Sprintf("Error loading config file: %s", err),
-				Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
-			})
 
-			// Application failure codepath. Dump collected log messages and
-			// return control to the caller.
-			logging.Buffer.Flush(baseConfig.GetLogger())
-			// TODO: Wrap errors and return so they can be unpacked in main()
-			return nil, fmt.Errorf("error loading configuration file: %s", err)
-		}
+		// path found
+		if _, err := os.Stat(*argsConfig.ConfigFile); !os.IsNotExist(err) {
 
-		logging.Buffer.Add(logging.LogRecord{
-			Level:   logrus.DebugLevel,
-			Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig),
-			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
-		})
+			// open file
+			// defer closure
 
-		logging.Buffer.Add(logging.LogRecord{
-			Level:   logrus.DebugLevel,
-			Message: "Processing fileConfig object with MergeConfig func",
-			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
-		})
+			fh, err := os.Open(*argsConfig.ConfigFile)
+			if err != nil {
+				return nil, fmt.Errorf("unable to open config file: %v", err)
+			}
+			defer fh.Close()
 
-		if err := MergeConfig(&baseConfig, fileConfig); err != nil {
-			logging.Buffer.Add(logging.LogRecord{
-				Level:   logrus.ErrorLevel,
-				Message: fmt.Sprintf("Error merging config file settings with base config: %s", err),
-				Fields: logrus.Fields{
-					"line":        logging.GetLineNumber(),
-					"base_config": fmt.Sprintf("%+v", baseConfig),
-					"file_config": fmt.Sprintf("%+v", fileConfig),
-				},
-			})
-		}
+			if err := fileConfig.LoadConfigFile(fh); err != nil {
+				logging.Buffer.Add(logging.LogRecord{
+					Level:   logrus.ErrorLevel,
+					Message: fmt.Sprintf("Error loading config file: %s", err),
+					Fields:  logrus.Fields{"config_file": argsConfig.ConfigFile},
+				})
 
-		// Don't fail the new configuration due to fileConfig not providing
-		// all required values; we are *feathering* values, not replacing all
-		// existing values in the config struct with ones from the next
-		// configuration source.
-		if err := baseConfig.Validate(); err != nil {
+				// Application failure codepath. Dump collected log messages and
+				// return control to the caller.
+				logging.Buffer.Flush(baseConfig.GetLogger())
+				// TODO: Wrap errors and return so they can be unpacked in main()
+				return nil, fmt.Errorf("error loading configuration file: %s", err)
+			}
+
 			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
-				Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
-				Fields: logrus.Fields{
-					"line":        logging.GetLineNumber(),
-					"base_config": fmt.Sprintf("%+v", baseConfig),
-					"file_config": fmt.Sprintf("%+v", fileConfig),
-				},
+				Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig),
+				Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 			})
 
 			logging.Buffer.Add(logging.LogRecord{
 				Level:   logrus.DebugLevel,
-				Message: "Proceeding with evaluation of argsConfig",
-				Fields: logrus.Fields{
-					"line": logging.GetLineNumber(),
-				},
+				Message: "Processing fileConfig object with MergeConfig func",
+				Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 			})
 
+			if err := MergeConfig(&baseConfig, fileConfig); err != nil {
+				logging.Buffer.Add(logging.LogRecord{
+					Level:   logrus.ErrorLevel,
+					Message: fmt.Sprintf("Error merging config file settings with base config: %s", err),
+					Fields: logrus.Fields{
+						"line":        logging.GetLineNumber(),
+						"base_config": fmt.Sprintf("%+v", baseConfig),
+						"file_config": fmt.Sprintf("%+v", fileConfig),
+					},
+				})
+			}
+
+			// Don't fail the new configuration due to fileConfig not providing
+			// all required values; we are *feathering* values, not replacing all
+			// existing values in the config struct with ones from the next
+			// configuration source.
+			if err := baseConfig.Validate(); err != nil {
+				logging.Buffer.Add(logging.LogRecord{
+					Level:   logrus.DebugLevel,
+					Message: fmt.Sprintf("Error validating config after merging %s: %s", "fileConfig", err),
+					Fields: logrus.Fields{
+						"line":        logging.GetLineNumber(),
+						"base_config": fmt.Sprintf("%+v", baseConfig),
+						"file_config": fmt.Sprintf("%+v", fileConfig),
+					},
+				})
+
+				logging.Buffer.Add(logging.LogRecord{
+					Level:   logrus.DebugLevel,
+					Message: "Proceeding with evaluation of argsConfig",
+					Fields: logrus.Fields{
+						"line": logging.GetLineNumber(),
+					},
+				})
+
+			}
 		}
 
 	}
@@ -352,11 +367,11 @@ func NewConfig(appVersion string) (*Config, error) {
 
 }
 
-// LoadConfigFile reads and unmarshals a configuration file in TOML format
-func (c *Config) LoadConfigFile(filename string) error {
+// LoadConfigFile reads from an io.Reader and unmarshals a configuration file
+// in TOML format
+func (c *Config) LoadConfigFile(fileHandle io.Reader) error {
 
-	// Read file to byte slice
-	configFile, err := ioutil.ReadFile(filename)
+	configFile, err := ioutil.ReadAll(fileHandle)
 	if err != nil {
 		return err
 	}
