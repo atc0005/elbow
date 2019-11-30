@@ -140,6 +140,7 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 }
 
 // PathExists confirms that the specified path exists
+// FIXME: Update this to break reliance on config.Config; use bare args
 func PathExists(path string, config *config.Config) bool {
 
 	log := config.GetLogger()
