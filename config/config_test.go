@@ -78,81 +78,7 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 
 }
 
-// TODO: What is the value of this test?
-// TODO: Answer: This can be the beginning of a merge test
-func TestLoadConfigOnTopOfBaseConfig(t *testing.T) {
-
-	c := NewDefaultConfig("x.y.z")
-
-	// testPaths := []string{"/tmp/elbow/path1"}
-	// testFileExtensions := []string{".tmp", ".war"}
-
-	// c.Paths = testPaths
-	// c.FileExtensions = testFileExtensions
-	c.logger = c.GetLogger()
-
-	// TODO: This currently mirrors the example config file. Replace with a read
-	// against that file?
-	var defaultConfigFile = []byte(`
-		[appmetadata]
-
-		app_name = "toml_app_name"
-		app_description = "toml_app_description"
-		app_version = "toml_app_version"
-		app_url = "toml_app_url"
-
-		[filehandling]
-
-		pattern = "reach-masterdev-"
-		file_extensions = [
-			".war",
-			".tmp",
-		]
-
-		file_age = 1
-		files_to_keep = 2
-		keep_oldest = false
-		remove = false
-		ignore_errors = true
-
-		[search]
-
-		paths = [
-			"/tmp/elbow/path1",
-			"/tmp/elbow/path2",
-		]
-
-		recursive_search = true
-
-
-		[logging]
-
-		log_level = "debug"
-		log_format = "text"
-
-		# If set, all output to the console will be muted and sent here instead
-		#log_file_path = "/tmp/log.json"
-
-		console_output = "stdout"
-		use_syslog = false`)
-
-	// Use our default in-memory config file settings
-	r := bytes.NewReader(defaultConfigFile)
-
-	if err := c.LoadConfigFile(r); err != nil {
-		t.Error("Unable to load in-memory configuration:", err)
-	} else {
-		t.Log("Loaded in-memory configuration file")
-	}
-
-	if err := c.Validate(); err != nil {
-		t.Error("Unable to validate configuration:", err)
-	} else {
-		t.Log("Validation successful")
-	}
-}
-
-func TestLoadConfigIntoMostlyEmptyConfig(t *testing.T) {
+func TestLoadConfigFileBaseline(t *testing.T) {
 
 	// TODO: This currently mirrors the example config file. Replace with a read
 	// against that file?
@@ -229,11 +155,19 @@ func TestLoadConfigIntoMostlyEmptyConfig(t *testing.T) {
 }
 
 // This function is intended to test the example config file included in the
-// repo. Since it is intended to reflect a template of valid settings, we
+// repo. That example config file is a template of valid settings, so we
 // should run tests against it to verify everything checks out.
-func TestLoadExampleConfigFile(t *testing.T) {
+func TestLoadConfigFileTemplate(t *testing.T) {
 
-	c := NewDefaultConfig("x.y.z")
+	// Construct a mostly empty config struct to load our config settings into.
+	// We only define values for settings that we have no intention of using
+	// from the config file, such as a logger object and an empty path to
+	// the log file that we already know the path to.
+	defaultConfigFilePath := ""
+	c := Config{
+		ConfigFile: &defaultConfigFilePath,
+		logger:     logrus.New(),
+	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -249,11 +183,13 @@ func TestLoadExampleConfigFile(t *testing.T) {
 	if err := os.Chdir(baseDir); err != nil {
 		t.Error(err)
 		t.FailNow()
+	} else {
+		cwd, err := os.Getwd()
+		if err != nil {
+			t.Fatalf(err.Error())
+		}
+		t.Log("New working directory:", cwd)
 	}
-
-	// this isn't handled by the config file settings and is ordinarily taken
-	// care of by the time the config file is pulled in
-	c.logger = c.GetLogger()
 
 	if fileDetails, err := os.Stat(exampleConfigFile); os.IsNotExist(err) {
 		t.Errorf("requested config file not found: %v", err)
@@ -276,6 +212,8 @@ func TestLoadExampleConfigFile(t *testing.T) {
 		} else {
 			t.Log("Loaded configuration file")
 		}
+
+		t.Logf("Current config settings: %s", c.String())
 
 		if err := c.Validate(); err != nil {
 			t.Error("Unable to validate configuration:", err)
