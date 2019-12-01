@@ -78,6 +78,8 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 
 }
 
+// TODO: What is the value of this test?
+// TODO: Answer: This can be the beginning of a merge test
 func TestLoadConfigOnTopOfBaseConfig(t *testing.T) {
 
 	c := NewDefaultConfig("x.y.z")
