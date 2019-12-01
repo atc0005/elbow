@@ -126,4 +126,17 @@ func TestMergeConfigFileIntoBaseConfig(t *testing.T) {
 	} else {
 		t.Log("Validation of base config settings after merge successful")
 	}
+
+	// TODO: We've confirmed that we end up with a config struct that passes
+	// field validation, but we've not yet confirmed that field values in
+	// the base config are overwritten for any non-nil field in the file
+	// configuration. We should experiment by creating at least three
+	// variations of this test:
+	//
+	// 1) in-memory complete file config (this test)
+	// 2) template config file (complete)
+	// 3) various partial in-memory file configurations
+	//
+	// This is test 1.
+	// TODO: Create tests 2 & 3; test 3 can be composed of sub or table tests
 }
