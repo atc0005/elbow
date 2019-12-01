@@ -365,7 +365,7 @@ func NewConfig(appVersion string) (*Config, error) {
 }
 
 // LoadConfigFile reads from an io.Reader and unmarshals a configuration file
-// in TOML format
+// in TOML format into the associated Config struct.
 func (c *Config) LoadConfigFile(fileHandle io.Reader) error {
 
 	configFile, err := ioutil.ReadAll(fileHandle)
