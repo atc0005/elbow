@@ -150,7 +150,8 @@ func (c Config) Validate() error {
 		return fmt.Errorf("field logger not configured")
 	}
 
-	// Make sure that a valid logger has been created
+	// Using a config file is optional, but should still be initialized so
+	// that user values can be stored later if specified.
 	if c.ConfigFile == nil {
 		return fmt.Errorf("field ConfigFile not configured")
 	}
