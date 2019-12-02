@@ -18,8 +18,10 @@ package config
 
 import (
 	"bytes"
+	"os"
 	"testing"
 
+	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -52,11 +54,12 @@ func TestMergeConfig(t *testing.T) {
 		t.Log("Validation of base config settings before merge successful")
 	}
 
-	defaultConfigFilePath := "/usr/local/etc/elbow/config.toml"
+	// ConfigFilePath for use with fileConfig struct tests
+	fcConfigFilePath := "/usr/local/etc/elbow/config.toml"
 	fileConfig := Config{
 
 		// This is required as well to pass validation checks
-		ConfigFile: &defaultConfigFilePath,
+		ConfigFile: &fcConfigFilePath,
 
 		// Not going to merge this in, but we have to specify it in order to
 		// pass validation checks.
@@ -144,14 +147,88 @@ func TestMergeConfig(t *testing.T) {
 
 	CompareConfig(baseConfig, fileConfig, t)
 
-	// TODO: Create Env var config by way of presetting env vars and then using
-	// these lines to parse them and construct a struct object:
-	// envArgsConfig := Config{}
-	// arg.MustParse(&envArgsConfig)
-	//
-	// TODO: Merge that new config struct into the baseConfig struct
-	// TODO: Compare the two structs
-	//
+	// Setup environment variables for parsing with alexflint/go-arg package
+
+	evConfigFilePath := ""
+
+	// Bolt these on directly as we're likely going to abandon support for
+	// overriding these values anyway (haven't been able to come up with a
+	// legitimate reason why others would need or want to do so)
+	evAppName := "ElbowEnvVar"
+	evAppDescription := "something nifty here"
+	evAppURL := "https://example.com"
+	evAppVersion := "x.y.z"
+
+	envConfig := Config{
+
+		// See earlier notes
+		AppMetadata: AppMetadata{
+			AppName:        &evAppName,
+			AppDescription: &evAppDescription,
+			AppURL:         &evAppURL,
+			AppVersion:     &evAppVersion,
+		},
+
+		// This is required as well to pass validation checks
+		ConfigFile: &evConfigFilePath,
+
+		// Not going to merge this in, but we have to specify it in order to
+		// pass validation checks.
+		logger: logrus.New(),
+	}
+
+	envVarTables := []struct {
+		envVar string
+		value  string
+	}{
+		{"ELBOW_FILE_PATTERN", "reach-masterqa-"},
+		{"ELBOW_FILE_AGE", "3"},
+		{"ELBOW_KEEP", "4"},
+		{"ELBOW_KEEP_OLD", "false"},
+		{"ELBOW_REMOVE", "false"},
+		{"ELBOW_IGNORE_ERRORS", "false"},
+		{"ELBOW_RECURSE", "false"},
+		{"ELBOW_LOG_LEVEL", "warning"},
+		{"ELBOW_LOG_FORMAT", "text"},
+		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
+		{"ELBOW_CONSOLE_OUTPUT", "stdout"},
+		{"ELBOW_USE_SYSLOG", "false"},
+		{"ELBOW_CONFIG_FILE", "/tmp/config.toml"},
+		{"ELBOW_PATHS", "/tmp/elbow/path3"},
+		{"ELBOW_EXTENSIONS", ".docx, .pptx"},
+	}
+
+	for _, table := range envVarTables {
+		t.Logf("Setting %q to %q", table.envVar, table.value)
+		os.Setenv(table.envVar, table.value)
+	}
+
+	t.Log("Parsing environment variables")
+	arg.MustParse(&envConfig)
+	t.Logf("Results of parsing environment variables: %v", envConfig.String())
+
+	// Validate the config file settings
+	if err := envConfig.Validate(); err != nil {
+		t.Error("Unable to validate environment vars config:", err)
+	} else {
+		t.Log("Validation of environment vars config settings successful")
+	}
+
+	if err := MergeConfig(&baseConfig, envConfig); err != nil {
+		t.Errorf("Error merging environment vars config settings with base config: %s", err)
+	} else {
+		t.Log("Merge of environment vars config settings with base config successful")
+	}
+
+	// Validate the base config settings after merging
+	if err := baseConfig.Validate(); err != nil {
+		t.Error("Unable to validate base configuration after merge:", err)
+	} else {
+		t.Log("Validation of base config settings after merge successful")
+	}
+
+	CompareConfig(baseConfig, envConfig, t)
+
 	// TODO: Create an os.Args slice with all desired flags
 	// TODO: Parse the flags
 	// TODO: Merge the config structs
