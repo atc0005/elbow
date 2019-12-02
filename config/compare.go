@@ -24,11 +24,8 @@ import (
 
 // https://stackoverflow.com/questions/15311969/checking-the-equality-of-two-slices
 // https://stackoverflow.com/a/15312097
-// Author: Stephen Weinberg
-// https://creativecommons.org/licenses/by-sa/4.0/
 //
-// TODO: Not sure where to place this. If I keep it, I should add an entry
-// to NOTICE.txt
+// TODO: Not sure what file/package to place this.
 func testStringSliceEqual(a []string, b []string) bool {
 
 	// If one is nil, the other must also be nil.
