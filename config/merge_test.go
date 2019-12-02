@@ -49,10 +49,15 @@ func TestMergeConfig(t *testing.T) {
 		t.Log("Validation of base config settings before merge successful")
 	}
 
-	defaultConfigFilePath := ""
+	defaultConfigFilePath := "/usr/local/etc/elbow/config.toml"
 	fileConfig := Config{
+
+		// This is required as well to pass validation checks
 		ConfigFile: &defaultConfigFilePath,
-		logger:     logrus.New(),
+
+		// Not going to merge this in, but we have to specify it in order to
+		// pass validation checks.
+		logger: logrus.New(),
 	}
 
 	// TODO: This currently mirrors the example config file. Replace with a read
@@ -65,40 +70,37 @@ func TestMergeConfig(t *testing.T) {
 		app_version = "toml_app_version"
 		app_url = "toml_app_url"
 
+
 		[filehandling]
 
+		file_age = 1
+		files_to_keep = 2
+		keep_oldest = true
+		remove = true
+		ignore_errors = true
 		pattern = "reach-masterdev-"
 		file_extensions = [
 			".war",
 			".tmp",
 		]
 
-		file_age = 1
-		files_to_keep = 2
-		keep_oldest = false
-		remove = false
-		ignore_errors = true
 
 		[search]
 
+		recursive_search = true
 		paths = [
 			"/tmp/elbow/path1",
 			"/tmp/elbow/path2",
 		]
 
-		recursive_search = true
-
 
 		[logging]
 
 		log_level = "debug"
-		log_format = "text"
-
-		# If set, all output to the console will be muted and sent here instead
-		log_file_path = "/tmp/log.json"
-
-		console_output = "stdout"
-		use_syslog = false`)
+		log_format = "json"
+		log_file_path = "/var/log/elbow.log"
+		console_output = "stderr"
+		use_syslog = true`)
 
 	// Use our default in-memory config file settings
 	r := bytes.NewReader(defaultConfigFile)
@@ -141,4 +143,19 @@ func TestMergeConfig(t *testing.T) {
 	//
 	// This is test 1.
 	// TODO: Create tests 2 & 3; test 3 can be composed of sub or table tests
+
+	// This is where we compare the field values of the baseConfig struct
+	// against the fileConfig struct to determine which are different
+
+	// configReflect := reflect.TypeOf(baseConfig)
+
+	// var field reflect.StructField
+	// var ok bool
+
+	// if field, ok = configReflect.FieldByName("FilePattern"); !ok {
+	// 	t.Error("unable to reference struct field")
+	// } else {
+	// 	t.Log("FilePattern value is", field)
+	// }
+
 }

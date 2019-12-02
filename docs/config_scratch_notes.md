@@ -57,7 +57,7 @@ are default values.
 | `AppName`         | `Elbow`                                                                                                            |
 | `AppDescription`  | `prunes content matching specific patterns, either in a single directory or recursively through a directory tree.` |
 | `AppURL`          | `https://github.com/atc0005/elbow`                                                                                 |
-| `AppVersion`      | `dev`                                                                                                              |
+| `AppVersion`      | `x.y.z`                                                                                                            |
 | `FilePattern`     | `""`                                                                                                               |
 | `FileAge`         | `0`                                                                                                                |
 | `NumFilesToKeep`  | `0`                                                                                                                |
