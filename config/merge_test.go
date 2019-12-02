@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func TestMergeConfigFileIntoBaseConfig(t *testing.T) {
+func TestMergeConfig(t *testing.T) {
 
 	// Validation will fail if this is all we do since the default config
 	// doesn't contain any Paths to process.
@@ -35,9 +35,11 @@ func TestMergeConfigFileIntoBaseConfig(t *testing.T) {
 
 	// TODO: Any reason to set this? The Validate() method does not currently
 	// enforce that the FileExtensions field be set.
+	// Answer: Yes, because we want to ensure that the final MergeConfig()
+	// result reflects our test case(s).
 	//
-	// testFileExtensions := []string{".tmp", ".war"}
-	// baseConfig.FileExtensions = testFileExtensions
+	testFileExtensions := []string{".yaml", ".json"}
+	baseConfig.FileExtensions = testFileExtensions
 
 	// Validate the base config settings before making further changes that
 	// could potentially break the configuration.
