@@ -23,6 +23,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// TestMergeConfig creates multiple Config structs and merges them in
+// sequence, verifying that after each MergeConfig operation that the initial
+// config struct has been updated to reflect the new state.
 func TestMergeConfig(t *testing.T) {
 
 	// Validation will fail if this is all we do since the default config
@@ -121,7 +124,7 @@ func TestMergeConfig(t *testing.T) {
 	if err := MergeConfig(&baseConfig, fileConfig); err != nil {
 		t.Errorf("Error merging config file settings with base config: %s", err)
 	} else {
-		t.Log("Merged config file settings with base config successfully")
+		t.Log("Merge of config file settings with base config successful")
 	}
 
 	// Validate the base config settings after merging
@@ -145,17 +148,13 @@ func TestMergeConfig(t *testing.T) {
 	// TODO: Create tests 2 & 3; test 3 can be composed of sub or table tests
 
 	// This is where we compare the field values of the baseConfig struct
-	// against the fileConfig struct to determine which are different
+	// against the fileConfig struct to determine if any are different. In
+	// normal use of this application it is likely that the fields WOULD be
+	// different, but in our test case we have explicitly defined most fields
+	// of each config struct to have conflicting values. This allows us to
+	// simply our test case(s) so that we can assume each field has a value
+	// that should be compared and merged.
 
-	// configReflect := reflect.TypeOf(baseConfig)
-
-	// var field reflect.StructField
-	// var ok bool
-
-	// if field, ok = configReflect.FieldByName("FilePattern"); !ok {
-	// 	t.Error("unable to reference struct field")
-	// } else {
-	// 	t.Log("FilePattern value is", field)
-	// }
+	CompareConfig(baseConfig, fileConfig, t)
 
 }
