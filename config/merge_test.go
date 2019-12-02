@@ -134,19 +134,6 @@ func TestMergeConfig(t *testing.T) {
 		t.Log("Validation of base config settings after merge successful")
 	}
 
-	// TODO: We've confirmed that we end up with a config struct that passes
-	// field validation, but we've not yet confirmed that field values in
-	// the base config are overwritten for any non-nil field in the file
-	// configuration. We should experiment by creating at least three
-	// variations of this test:
-	//
-	// 1) in-memory complete file config (this test)
-	// 2) template config file (complete)
-	// 3) various partial in-memory file configurations
-	//
-	// This is test 1.
-	// TODO: Create tests 2 & 3; test 3 can be composed of sub or table tests
-
 	// This is where we compare the field values of the baseConfig struct
 	// against the fileConfig struct to determine if any are different. In
 	// normal use of this application it is likely that the fields WOULD be
@@ -156,5 +143,18 @@ func TestMergeConfig(t *testing.T) {
 	// that should be compared and merged.
 
 	CompareConfig(baseConfig, fileConfig, t)
+
+	// TODO: Create Env var config by way of presetting env vars and then using
+	// these lines to parse them and construct a struct object:
+	// envArgsConfig := Config{}
+	// arg.MustParse(&envArgsConfig)
+	//
+	// TODO: Merge that new config struct into the baseConfig struct
+	// TODO: Compare the two structs
+	//
+	// TODO: Create an os.Args slice with all desired flags
+	// TODO: Parse the flags
+	// TODO: Merge the config structs
+	// TODO: Compare the two structs
 
 }
