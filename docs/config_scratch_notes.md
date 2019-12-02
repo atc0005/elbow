@@ -2,6 +2,12 @@
 
 ## Default config
 
+These values represent the default set of values used to create the
+`baseConfig` struct. They're intended to reflect a sane set of defaults that
+in most cases would not be overridden by the user, but can be as the situation
+requires. This set of defaults will likely be adjusted once sufficient "field
+testing" has been performed.
+
 | Field Name        | Default Value                                                                                                      |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `AppName`         | `Elbow`                                                                                                            |
