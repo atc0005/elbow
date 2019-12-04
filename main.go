@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"testing"
 
 	"github.com/atc0005/elbow/config"
 	"github.com/atc0005/elbow/paths"
@@ -46,7 +47,8 @@ func main() {
 
 	// TODO: Remove this and reactivate config/merge_test.go once a fix has
 	// been found for unexpected application flags that are passed by go test
-	config.MergeConfigTest()
+	var t testing.T
+	config.MergeConfigTest(&t)
 
 	// If this fails, the application should immediately exit.
 	appConfig, err := config.NewConfig(version)

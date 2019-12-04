@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"testing"
 
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
@@ -12,7 +13,7 @@ import (
 // MergeConfigTest creates multiple Config structs and merges them in
 // sequence, verifying that after each MergeConfig operation that the initial
 // config struct has been updated to reflect the new state.
-func MergeConfigTest() {
+func MergeConfigTest(t *testing.T) {
 
 	// Validation will fail if this is all we do since the default config
 	// doesn't contain any Paths to process.
@@ -35,7 +36,7 @@ func MergeConfigTest() {
 	if err := baseConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate base configuration before merge:", err)
 	} else {
-		fmt.Printf("Validation of base config settings before merge successful")
+		fmt.Printf("Validation of base config settings before merge successful\n")
 	}
 
 	// ConfigFilePath for use with fileConfig struct tests
@@ -98,27 +99,27 @@ func MergeConfigTest() {
 	if err := fileConfig.LoadConfigFile(r); err != nil {
 		fmt.Println("Unable to load in-memory configuration:", err)
 	} else {
-		fmt.Printf("Loaded in-memory configuration file")
+		fmt.Printf("Loaded in-memory configuration file\n")
 	}
 
 	// Validate the config file settings
 	if err := fileConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate file config:", err)
 	} else {
-		fmt.Printf("Validation of file config settings successful")
+		fmt.Printf("Validation of file config settings successful\n")
 	}
 
 	if err := MergeConfig(&baseConfig, fileConfig); err != nil {
-		fmt.Printf("Error merging config file settings with base config: %s", err)
+		fmt.Printf("Error merging config file settings with base config: %s\n", err)
 	} else {
-		fmt.Printf("Merge of config file settings with base config successful")
+		fmt.Printf("Merge of config file settings with base config successful\n")
 	}
 
 	// Validate the base config settings after merging
 	if err := baseConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate base configuration after merge:", err)
 	} else {
-		fmt.Printf("Validation of base config settings after merge successful")
+		fmt.Printf("Validation of base config settings after merge successful\n")
 	}
 
 	// This is where we compare the field values of the baseConfig struct
@@ -172,7 +173,7 @@ func MergeConfigTest() {
 		{"ELBOW_REMOVE", "false"},
 		{"ELBOW_IGNORE_ERRORS", "false"},
 		{"ELBOW_RECURSE", "false"},
-		{"ELBOW_LOG_LEVEL", "warning"},
+		{"ELBOW_LOG_LEVEL", "warn"},
 		{"ELBOW_LOG_FORMAT", "text"},
 		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
 		{"ELBOW_CONSOLE_OUTPUT", "stdout"},
@@ -183,32 +184,32 @@ func MergeConfigTest() {
 	}
 
 	for _, table := range envVarTables {
-		fmt.Printf("Setting %q to %q", table.envVar, table.value)
+		fmt.Printf("Setting %q to %q\n", table.envVar, table.value)
 		os.Setenv(table.envVar, table.value)
 	}
 
-	fmt.Printf("Parsing environment variables")
+	fmt.Println("Parsing environment variables")
 	arg.MustParse(&envConfig)
-	fmt.Printf("Results of parsing environment variables: %v", envConfig.String())
+	fmt.Printf("Results of parsing environment variables: %v\n", envConfig.String())
 
 	// Validate the config file settings
 	if err := envConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate environment vars config:", err)
 	} else {
-		fmt.Printf("Validation of environment vars config settings successful")
+		fmt.Print("Validation of environment vars config settings successful")
 	}
 
 	if err := MergeConfig(&baseConfig, envConfig); err != nil {
-		fmt.Printf("Error merging environment vars config settings with base config: %s", err)
+		fmt.Printf("Error merging environment vars config settings with base config: %s\n", err)
 	} else {
-		fmt.Printf("Merge of environment vars config settings with base config successful")
+		fmt.Println("Merge of environment vars config settings with base config successful")
 	}
 
 	// Validate the base config settings after merging
 	if err := baseConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate base configuration after merge:", err)
 	} else {
-		fmt.Printf("Validation of base config settings after merge successful")
+		fmt.Println("Validation of base config settings after merge successful")
 	}
 
 	CompareConfig(baseConfig, envConfig, t)
