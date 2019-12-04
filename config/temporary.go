@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"testing"
 
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
@@ -13,7 +12,7 @@ import (
 // MergeConfigTest creates multiple Config structs and merges them in
 // sequence, verifying that after each MergeConfig operation that the initial
 // config struct has been updated to reflect the new state.
-func MergeConfigTest(t *testing.T) {
+func MergeConfigTest() {
 
 	// Validation will fail if this is all we do since the default config
 	// doesn't contain any Paths to process.

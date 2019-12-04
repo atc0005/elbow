@@ -44,6 +44,10 @@ func main() {
 	// encountered during app run
 	problemsEncountered := false
 
+	// TODO: Remove this and reactivate config/merge_test.go once a fix has
+	// been found for unexpected application flags that are passed by go test
+	config.MergeConfigTest()
+
 	// If this fails, the application should immediately exit.
 	appConfig, err := config.NewConfig(version)
 	if err != nil {
