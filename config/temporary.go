@@ -186,6 +186,11 @@ func MergeConfigTest(t *testing.T) {
 	for _, table := range envVarTables {
 		fmt.Printf("Setting %q to %q\n", table.envVar, table.value)
 		os.Setenv(table.envVar, table.value)
+		defer func(envVar string) {
+			// Schedule unsetting environment variable that we just set
+			fmt.Printf("Unsetting %q\n", envVar)
+			os.Unsetenv(envVar)
+		}(table.envVar)
 	}
 
 	fmt.Println("Parsing environment variables")
@@ -213,12 +218,6 @@ func MergeConfigTest(t *testing.T) {
 	}
 
 	CompareConfig(baseConfig, envConfig, t)
-
-	// Unset environment variables that we just set
-	for _, table := range envVarTables {
-		fmt.Printf("Unsetting %q\n", table.envVar)
-		os.Unsetenv(table.envVar)
-	}
 
 	// TODO: Create an os.Args slice with all desired flags
 	// TODO: Parse the flags
