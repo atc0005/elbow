@@ -190,7 +190,7 @@ func TestMergeConfig(t *testing.T) {
 		{"ELBOW_REMOVE", "false"},
 		{"ELBOW_IGNORE_ERRORS", "false"},
 		{"ELBOW_RECURSE", "false"},
-		{"ELBOW_LOG_LEVEL", "warning"},
+		{"ELBOW_LOG_LEVEL", "warn"},
 		{"ELBOW_LOG_FORMAT", "text"},
 		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
 		{"ELBOW_CONSOLE_OUTPUT", "stdout"},
