@@ -196,7 +196,7 @@ func MergeConfigTest(t *testing.T) {
 	if err := envConfig.Validate(); err != nil {
 		fmt.Println("Unable to validate environment vars config:", err)
 	} else {
-		fmt.Print("Validation of environment vars config settings successful")
+		fmt.Println("Validation of environment vars config settings successful")
 	}
 
 	if err := MergeConfig(&baseConfig, envConfig); err != nil {
@@ -213,6 +213,12 @@ func MergeConfigTest(t *testing.T) {
 	}
 
 	CompareConfig(baseConfig, envConfig, t)
+
+	// Unset environment variables that we just set
+	for _, table := range envVarTables {
+		fmt.Printf("Unsetting %q\n", table.envVar)
+		os.Unsetenv(table.envVar)
+	}
 
 	// TODO: Create an os.Args slice with all desired flags
 	// TODO: Parse the flags
