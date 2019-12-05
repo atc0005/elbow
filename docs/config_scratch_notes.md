@@ -102,7 +102,7 @@ new changes into the default, `baseConfig` struct.
 | `UseSyslog`       | `true`                                 |
 | `ConfigFile`      | `/usr/local/etc/elbow/config.toml`     |
 | `Paths`           | `/tmp/elbow/path1`, `/tmp/elbow/path2` |
-| `FileExtensions`  | `.tmp`, `.war`                         |
+| `FileExtensions`  | `.tmp,.war`                            |
 
 ## Test: Environment variables
 
@@ -134,7 +134,7 @@ precedence over configuration files.
 | `UseSyslog`       | `false`                  |
 | `ConfigFile`      | `/tmp/config.toml`       |
 | `Paths`           | `/tmp/elbow/path3`       |
-| `FileExtensions`  | `.docx, .pptx`           |
+| `FileExtensions`  | `.docx,.pptx`            |
 
 ## Test: Command-line flags
 
@@ -164,4 +164,4 @@ override those values will be removed once this branch is rebased.
 | `UseSyslog`       | `true`                     |
 | `ConfigFile`      | `/tmp/configfile.toml`     |
 | `Paths`           | `/tmp/elbow/path4`         |
-| `FileExtensions`  | `.java, .class`            |
+| `FileExtensions`  | `.java,.class`             |
