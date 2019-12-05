@@ -19,6 +19,7 @@ package config
 import (
 	"bytes"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/alexflint/go-arg"
@@ -29,6 +30,10 @@ import (
 // sequence, verifying that after each MergeConfig operation that the initial
 // config struct has been updated to reflect the new state.
 func TestMergeConfig(t *testing.T) {
+
+	//
+	// Base Config testing
+	//
 
 	// Validation will fail if this is all we do since the default config
 	// doesn't contain any Paths to process.
@@ -53,6 +58,10 @@ func TestMergeConfig(t *testing.T) {
 	} else {
 		t.Log("Validation of base config settings before merge successful")
 	}
+
+	//
+	// File Config testing
+	//
 
 	// ConfigFilePath for use with fileConfig struct tests
 	fcConfigFilePath := "/usr/local/etc/elbow/config.toml"
@@ -146,6 +155,10 @@ func TestMergeConfig(t *testing.T) {
 	// that should be compared and merged.
 
 	CompareConfig(baseConfig, fileConfig, t)
+
+	//
+	// Environment variables config testing
+	//
 
 	// Setup environment variables for parsing with alexflint/go-arg package
 
@@ -248,9 +261,89 @@ func TestMergeConfig(t *testing.T) {
 		os.Unsetenv(table.envVar)
 	}
 
-	// TODO: Create an os.Args slice with all desired flags
-	// TODO: Parse the flags
-	// TODO: Merge the config structs
-	// TODO: Compare the two structs
+	//
+	// Flags Config testing
+	//
+
+	// Bolt these on directly as we're likely going to abandon support for
+	// overriding these values anyway (haven't been able to come up with a
+	// legitimate reason why others would need or want to do so)
+	flagsAppName := "ElbowFlagVar"
+	flagsAppDescription := "nothing fancy"
+	flagsAppURL := "https://example.org"
+	flagsAppVersion := "0.1.2"
+
+	flagsConfigFilePath := ""
+
+	flagsConfig := Config{
+
+		// See earlier notes
+		AppMetadata: AppMetadata{
+			AppName:        &flagsAppName,
+			AppDescription: &flagsAppDescription,
+			AppURL:         &flagsAppURL,
+			AppVersion:     &flagsAppVersion,
+		},
+
+		// This is required as well to pass validation checks
+		ConfigFile: &flagsConfigFilePath,
+
+		// Not going to merge this in, but we have to specify it in order to
+		// pass validation checks.
+		logger: logrus.New(),
+	}
+
+	// TODO: A useful way to automate retrieving the app name?
+	appName := "elbow"
+	if runtime.GOOS == "windows" {
+		appName += ".exe"
+	}
+
+	// Note to self: Don't add/escape double-quotes here. The shell strips
+	// them away and the application never sees them.
+	os.Args = []string{
+		appName,
+		"--paths", "/tmp/elbow/path4",
+		"--pattern", "reach-master-",
+		"--age", "5",
+		"--keep", "6",
+		"--remove",
+		"--ignore-errors",
+		"--recurse",
+		"--keep-old",
+		"--log-level", "info",
+		"--use-syslog",
+		"--log-format", "json",
+		"--console-output", "stderr",
+		"--log-file", "/var/log/elbow/flags.log",
+		"--config-file", "/tmp/configfile.toml",
+		"--extensions", ".java", ".class",
+	}
+
+	t.Log("Parsing command-line flags")
+	arg.MustParse(&flagsConfig)
+	t.Logf("Results of parsing flags: %v", flagsConfig.String())
+
+	// Validate the config file settings
+	if err := flagsConfig.Validate(); err != nil {
+		t.Error("Unable to validate flags config:", err)
+	} else {
+		t.Log("Validation of flags config settings successful")
+	}
+
+	if err := MergeConfig(&baseConfig, flagsConfig); err != nil {
+		t.Errorf("Error merging flags config settings with base config: %s", err)
+	} else {
+		t.Log("Merge of flags config settings with base config successful")
+	}
+
+	// Validate the base config settings after merging
+	if err := baseConfig.Validate(); err != nil {
+		t.Error("Unable to validate base configuration after merge:", err)
+	} else {
+		t.Log("Validation of base config settings after merge successful")
+	}
+
+	CompareConfig(baseConfig, flagsConfig, t)
 
 }

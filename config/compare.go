@@ -216,6 +216,14 @@ func CompareConfig(actual Config, wanted Config, t *testing.T) {
 			*actual.UseSyslog, *wanted.UseSyslog)
 	}
 
+	if *actual.ConfigFile != *wanted.ConfigFile {
+		t.Errorf("ConfigFile: actual (%v) does not equal wanted (%v)",
+			*actual.ConfigFile, *wanted.ConfigFile)
+	} else {
+		t.Logf("ConfigFile: actual (%v) == wanted (%v)",
+			*actual.ConfigFile, *wanted.ConfigFile)
+	}
+
 	t.Log("CompareConfig complete")
 
 }
