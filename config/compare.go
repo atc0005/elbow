@@ -105,18 +105,18 @@ func CompareConfig(actual Config, wanted Config, t *testing.T) {
 	}
 
 	if !testStringSliceEqual(actual.Paths, wanted.Paths) {
-		t.Errorf("Paths: actual (%v) does not equal wanted (%v)",
+		t.Errorf("Paths: actual (%q) does not equal wanted (%q)",
 			actual.Paths, wanted.Paths)
 	} else {
-		t.Logf("Paths: actual (%v) == wanted (%v)",
+		t.Logf("Paths: actual (%q) == wanted (%q)",
 			actual.Paths, wanted.Paths)
 	}
 
 	if !testStringSliceEqual(actual.FileExtensions, wanted.FileExtensions) {
-		t.Errorf("FileExtensions: actual (%v) does not equal wanted (%v)",
+		t.Errorf("FileExtensions: actual (%q) does not equal wanted (%q)",
 			actual.FileExtensions, wanted.FileExtensions)
 	} else {
-		t.Logf("FileExtensions: actual (%v) == wanted (%v)",
+		t.Logf("FileExtensions: actual (%q) == wanted (%q)",
 			actual.FileExtensions, wanted.FileExtensions)
 	}
 

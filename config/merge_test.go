@@ -197,7 +197,7 @@ func TestMergeConfig(t *testing.T) {
 		{"ELBOW_USE_SYSLOG", "false"},
 		{"ELBOW_CONFIG_FILE", "/tmp/config.toml"},
 		{"ELBOW_PATHS", "/tmp/elbow/path3"},
-		{"ELBOW_EXTENSIONS", ".docx, .pptx"},
+		{"ELBOW_EXTENSIONS", ".docx,.pptx"},
 	}
 
 	for _, table := range envVarTables {
