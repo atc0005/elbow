@@ -16,8 +16,6 @@
 
 package config
 
-/*
-
 import (
 	"bytes"
 	"os"
@@ -205,6 +203,19 @@ func TestMergeConfig(t *testing.T) {
 		os.Setenv(table.envVar, table.value)
 	}
 
+	// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
+	// Save old command-line arguments so that we can restore them later
+	oldArgs := os.Args
+
+	// Defer restoring original command-line arguments
+	defer func() { os.Args = oldArgs }()
+
+	// Wipe existing command-line arguments so that the unexpected testing
+	// package flags don't trip alexflint/go-arg package logic for invalid
+	// flags.
+	// https://github.com/alexflint/go-arg/issues/97#issuecomment-561995206
+	os.Args = nil
+
 	t.Log("Parsing environment variables")
 	arg.MustParse(&envConfig)
 	t.Logf("Results of parsing environment variables: %v", envConfig.String())
@@ -231,11 +242,15 @@ func TestMergeConfig(t *testing.T) {
 
 	CompareConfig(baseConfig, envConfig, t)
 
+	// Unset environment variables that we just set
+	for _, table := range envVarTables {
+		t.Logf("Unsetting %q\n", table.envVar)
+		os.Unsetenv(table.envVar)
+	}
+
 	// TODO: Create an os.Args slice with all desired flags
 	// TODO: Parse the flags
 	// TODO: Merge the config structs
 	// TODO: Compare the two structs
 
 }
-
-*/
