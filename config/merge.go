@@ -125,6 +125,13 @@ func MergeConfig(destination *Config, source Config) error {
 		*destination.LogFilePath = *source.LogFilePath
 	}
 
+	// TODO: Was this intentionally left out in the past?
+	// This was added as part of the work on #161 to implement
+	// testing of the MergeConfig() function.
+	if source.ConfigFile != nil {
+		*destination.ConfigFile = *source.ConfigFile
+	}
+
 	if source.ConsoleOutput != nil {
 		// TODO: Add debug output for each of these decisions, but enable it
 		// only for debug/troubleshooting builds.
