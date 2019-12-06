@@ -26,10 +26,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TestMergeConfig creates multiple Config structs and merges them in
-// sequence, verifying that after each MergeConfig operation that the initial
-// config struct has been updated to reflect the new state.
-func TestMergeConfig(t *testing.T) {
+// TestMergeConfigUsingCompletConfigObjects creates multiple Config structs
+// and merges them in sequence, verifying that after each MergeConfig
+// operation that the initial config struct has been updated to reflect the
+// new state.
+func TestMergeConfigUsingCompletConfigObjects(t *testing.T) {
 
 	//
 	// Base Config testing
