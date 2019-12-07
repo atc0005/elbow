@@ -18,7 +18,10 @@ package config
 
 import (
 	"bytes"
+	"os"
 	"testing"
+
+	"github.com/alexflint/go-arg"
 )
 
 // TestMergeConfigUsingIncompletConfigObjects creates multiple Config structs
@@ -59,8 +62,6 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 	// File Config testing
 	//
 
-	fileConfig := Config{}
-
 	// TODO: This currently mirrors the example config file. Replace with a read
 	// against that file?
 	var defaultConfigFile = []byte(`
@@ -89,11 +90,16 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 	// Use our default in-memory config file settings
 	r := bytes.NewReader(defaultConfigFile)
 
+	fileConfig := Config{}
 	if err := fileConfig.LoadConfigFile(r); err != nil {
 		t.Error("Unable to load in-memory configuration:", err)
 	} else {
 		t.Log("Loaded in-memory configuration file")
 	}
+
+	// NOTE: We cannot validate the fileConfig object at this point because it
+	// is a partial object, missing the rest of the settings that are required
+	// for a full config validation check
 
 	// Build EXPECTED baseConfig after merge so we can use Compare() against
 	// it and the actual baseConfig
@@ -109,8 +115,8 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 	// settings that we are not overriding
 	// NOTE: Paths and FileExtensions are set below after config struct is
 	// instantiated
-	expectedFileConfigPathsAfterFileMerge := []string{"/tmp/elbow/path1"}
-	expectedFileConfigFileExtensionsAfterFileMerge := []string{".war"}
+	expectedPathsAfterFileMerge := []string{"/tmp/elbow/path1"}
+	expectedFileExtensionsAfterFileMerge := []string{".war"}
 	expectedFileAgeAfterFileMerge := 90
 	expectedNumFilesToKeepAfterFileMerge := 1
 	expectedRecursiveSearchAfterFileMerge := true
@@ -133,8 +139,7 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 			AppVersion:     &expectedAppVersionAfterFileMerge,
 		},
 		FileHandling: FileHandling{
-			FilePattern: &expectedFilePatternAfterFileMerge,
-			//FileExtensions: &expectedfileExtensionsAfterFileMerge,
+			FilePattern:    &expectedFilePatternAfterFileMerge,
 			FileAge:        &expectedFileAgeAfterFileMerge,
 			NumFilesToKeep: &expectedNumFilesToKeepAfterFileMerge,
 			KeepOldest:     &expectedKeepOldestAfterFileMerge,
@@ -156,8 +161,8 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 		logger:     baseConfig.GetLogger(),
 	}
 
-	expectedBaseConfigAfterFileConfigMerge.Paths = expectedFileConfigPathsAfterFileMerge
-	expectedBaseConfigAfterFileConfigMerge.FileExtensions = expectedFileConfigFileExtensionsAfterFileMerge
+	expectedBaseConfigAfterFileConfigMerge.Paths = expectedPathsAfterFileMerge
+	expectedBaseConfigAfterFileConfigMerge.FileExtensions = expectedFileExtensionsAfterFileMerge
 
 	// Validate the expectedBaseConfigAfterFileConfigMerge config settings
 	// to ensure that we're not going to compare against a broken configuration
@@ -186,114 +191,149 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 
 	CompareConfig(baseConfig, expectedBaseConfigAfterFileConfigMerge, t)
 
+	///////////////////////////////////////////////////////////
+	//
+	// CODE ABOVE THIS IS WORKING
+	//
+	///////////////////////////////////////////////////////////
+
+	//
+	// Environment variables config testing
+	//
+
+	// Setup subset of total environment variables for parsing with
+	// alexflint/go-arg package. These values should override baseConfig
+	// settings
+	envVarTables := []struct {
+		envVar string
+		value  string
+	}{
+		{"ELBOW_FILE_PATTERN", "reach-masterqa-"},
+		{"ELBOW_FILE_AGE", "3"},
+		{"ELBOW_KEEP", "4"},
+		{"ELBOW_KEEP_OLD", "false"},
+		{"ELBOW_REMOVE", "true"},
+		{"ELBOW_LOG_FORMAT", "text"},
+		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
+		{"ELBOW_PATHS", "/tmp/elbow/path3"},
+		{"ELBOW_EXTENSIONS", ".docx,.pptx"},
+	}
+
+	envConfig := Config{}
+
+	for _, table := range envVarTables {
+		t.Logf("Setting %q to %q", table.envVar, table.value)
+		os.Setenv(table.envVar, table.value)
+	}
+
+	// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
+	// Save old command-line arguments so that we can restore them later
+	oldArgs := os.Args
+
+	// Defer restoring original command-line arguments
+	defer func() { os.Args = oldArgs }()
+
+	// Wipe existing command-line arguments so that the unexpected testing
+	// package flags don't trip alexflint/go-arg package logic for invalid
+	// flags.
+	// https://github.com/alexflint/go-arg/issues/97#issuecomment-561995206
+	os.Args = nil
+
+	t.Log("Parsing environment variables")
+	arg.MustParse(&envConfig)
+	t.Logf("Results of parsing environment variables: %v", envConfig.String())
+
+	// Build EXPECTED baseConfig after env vars merge so we can use Compare()
+	// against it and the actual baseConfig
+
+	expectedAppNameAfterEnvVarsMerge := baseConfig.GetAppName()
+	expectedAppDescriptionAfterEnvVarsMerge := baseConfig.GetAppDescription()
+	expectedAppURLAfterEnvVarsMerge := baseConfig.GetAppURL()
+	expectedAppVersionAfterEnvVarsMerge := baseConfig.GetAppVersion()
+
+	// Explicitly set these; we want to ensure the final merged config has
+	// the values we provided (incomplete fileConfig) and the prior baseConfig
+	// settings that we are not overriding
+	// NOTE: Paths and FileExtensions are set below after config struct is
+	// instantiated
+	expectedPathsAfterEnvVarsMerge := []string{"/tmp/elbow/path3"}
+	expectedFileExtensionsAfterEnvVarsMerge := []string{".docx", ".pptx"}
+	expectedFilePatternAfterEnvVarsMerge := "reach-masterqa-"
+	expectedFileAgeAfterEnvVarsMerge := 3
+	expectedNumFilesToKeepAfterEnvVarsMerge := 4
+	expectedKeepOldestAfterEnvVarsMerge := false
+	expectedRemoveAfterEnvVarsMerge := true
+	expectedLogFormatAfterEnvVarsMerge := "text"
+	expectedLogFilePathAfterEnvVarsMerge := "/var/log/elbow/env.log"
+
+	expectedRecursiveSearchAfterEnvVarsMerge := baseConfig.GetRecursiveSearch()
+	expectedLogLevelAfterEnvVarsMerge := baseConfig.GetLogLevel()
+	expectedUseSyslogAfterEnvVarsMerge := baseConfig.GetUseSyslog()
+	expectedIgnoreErrorsAfterEnvVarsMerge := baseConfig.GetIgnoreErrors()
+	expectedConsoleOutputAfterEnvVarsMerge := baseConfig.GetConsoleOutput()
+	expectedConfigFileAfterEnvVarsMerge := baseConfig.GetConfigFile()
+
+	expectedBaseConfigAfterEnvVarsMerge := Config{
+		AppMetadata: AppMetadata{
+			AppName:        &expectedAppNameAfterEnvVarsMerge,
+			AppDescription: &expectedAppDescriptionAfterEnvVarsMerge,
+			AppURL:         &expectedAppURLAfterEnvVarsMerge,
+			AppVersion:     &expectedAppVersionAfterEnvVarsMerge,
+		},
+		FileHandling: FileHandling{
+			FilePattern:    &expectedFilePatternAfterEnvVarsMerge,
+			FileAge:        &expectedFileAgeAfterEnvVarsMerge,
+			NumFilesToKeep: &expectedNumFilesToKeepAfterEnvVarsMerge,
+			KeepOldest:     &expectedKeepOldestAfterEnvVarsMerge,
+			Remove:         &expectedRemoveAfterEnvVarsMerge,
+			IgnoreErrors:   &expectedIgnoreErrorsAfterEnvVarsMerge,
+		},
+		Logging: Logging{
+			LogLevel:      &expectedLogLevelAfterEnvVarsMerge,
+			LogFormat:     &expectedLogFormatAfterEnvVarsMerge,
+			LogFilePath:   &expectedLogFilePathAfterEnvVarsMerge,
+			ConsoleOutput: &expectedConsoleOutputAfterEnvVarsMerge,
+			UseSyslog:     &expectedUseSyslogAfterEnvVarsMerge,
+		},
+		Search: Search{
+			RecursiveSearch: &expectedRecursiveSearchAfterEnvVarsMerge,
+		},
+		ConfigFile: &expectedConfigFileAfterEnvVarsMerge,
+		logger:     baseConfig.GetLogger(),
+	}
+
+	expectedBaseConfigAfterEnvVarsMerge.Paths = expectedPathsAfterEnvVarsMerge
+	expectedBaseConfigAfterEnvVarsMerge.FileExtensions = expectedFileExtensionsAfterEnvVarsMerge
+
+	// Validate the env vars settings
+	if err := expectedBaseConfigAfterEnvVarsMerge.Validate(); err != nil {
+		t.Error("Unable to validate expectedBaseConfigAfterEnvVarsMerge before merge:", err)
+	} else {
+		t.Log("Validation of expectedBaseConfigAfterEnvVarsMerge before merge successful")
+	}
+
+	if err := MergeConfig(&baseConfig, envConfig); err != nil {
+		t.Errorf("Error merging environment vars config settings with base config: %s", err)
+	} else {
+		t.Log("Merge of environment vars config settings with base config successful")
+	}
+
+	// Validate the base config settings after merging
+	if err := baseConfig.Validate(); err != nil {
+		t.Error("Unable to validate base configuration after merge:", err)
+	} else {
+		t.Log("Validation of base config settings after merge successful")
+	}
+
+	CompareConfig(baseConfig, expectedBaseConfigAfterEnvVarsMerge, t)
+
+	// Unset environment variables that we just set
+	for _, table := range envVarTables {
+		t.Logf("Unsetting %q\n", table.envVar)
+		os.Unsetenv(table.envVar)
+	}
+
 	/*
-
-		TODO: Need to flesh this part out
-
-		//
-		// Environment variables config testing
-		//
-
-		// Setup environment variables for parsing with alexflint/go-arg package
-
-		evConfigFilePath := ""
-
-		// Bolt these on directly as we're likely going to abandon support for
-		// overriding these values anyway (haven't been able to come up with a
-		// legitimate reason why others would need or want to do so)
-		evAppName := "ElbowEnvVar"
-		evAppDescription := "something nifty here"
-		evAppURL := "https://example.com"
-		evAppVersion := "x.y.z"
-
-		envConfig := Config{
-
-			// See earlier notes
-			AppMetadata: AppMetadata{
-				AppName:        &evAppName,
-				AppDescription: &evAppDescription,
-				AppURL:         &evAppURL,
-				AppVersion:     &evAppVersion,
-			},
-
-			// This is required as well to pass validation checks
-			ConfigFile: &evConfigFilePath,
-
-			// Not going to merge this in, but we have to specify it in order to
-			// pass validation checks.
-			logger: logrus.New(),
-		}
-
-		envVarTables := []struct {
-			envVar string
-			value  string
-		}{
-			{"ELBOW_FILE_PATTERN", "reach-masterqa-"},
-			{"ELBOW_FILE_AGE", "3"},
-			{"ELBOW_KEEP", "4"},
-			{"ELBOW_KEEP_OLD", "false"},
-			{"ELBOW_REMOVE", "false"},
-			{"ELBOW_IGNORE_ERRORS", "false"},
-			{"ELBOW_RECURSE", "false"},
-			{"ELBOW_LOG_LEVEL", "warn"},
-			{"ELBOW_LOG_FORMAT", "text"},
-			{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
-			{"ELBOW_CONSOLE_OUTPUT", "stdout"},
-			{"ELBOW_USE_SYSLOG", "false"},
-			{"ELBOW_CONFIG_FILE", "/tmp/config.toml"},
-			{"ELBOW_PATHS", "/tmp/elbow/path3"},
-			{"ELBOW_EXTENSIONS", ".docx,.pptx"},
-		}
-
-		for _, table := range envVarTables {
-			t.Logf("Setting %q to %q", table.envVar, table.value)
-			os.Setenv(table.envVar, table.value)
-		}
-
-		// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
-		// Save old command-line arguments so that we can restore them later
-		oldArgs := os.Args
-
-		// Defer restoring original command-line arguments
-		defer func() { os.Args = oldArgs }()
-
-		// Wipe existing command-line arguments so that the unexpected testing
-		// package flags don't trip alexflint/go-arg package logic for invalid
-		// flags.
-		// https://github.com/alexflint/go-arg/issues/97#issuecomment-561995206
-		os.Args = nil
-
-		t.Log("Parsing environment variables")
-		arg.MustParse(&envConfig)
-		t.Logf("Results of parsing environment variables: %v", envConfig.String())
-
-		// Validate the config file settings
-		if err := envConfig.Validate(); err != nil {
-			t.Error("Unable to validate environment vars config:", err)
-		} else {
-			t.Log("Validation of environment vars config settings successful")
-		}
-
-		if err := MergeConfig(&baseConfig, envConfig); err != nil {
-			t.Errorf("Error merging environment vars config settings with base config: %s", err)
-		} else {
-			t.Log("Merge of environment vars config settings with base config successful")
-		}
-
-		// Validate the base config settings after merging
-		if err := baseConfig.Validate(); err != nil {
-			t.Error("Unable to validate base configuration after merge:", err)
-		} else {
-			t.Log("Validation of base config settings after merge successful")
-		}
-
-		CompareConfig(baseConfig, envConfig, t)
-
-		// Unset environment variables that we just set
-		for _, table := range envVarTables {
-			t.Logf("Unsetting %q\n", table.envVar)
-			os.Unsetenv(table.envVar)
-		}
 
 		//
 		// Flags Config testing
@@ -379,7 +419,6 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 		}
 
 		CompareConfig(baseConfig, flagsConfig, t)
-
 	*/
 
 }

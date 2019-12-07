@@ -234,7 +234,7 @@ func TestMergeConfigUsingCompletConfigObjects(t *testing.T) {
 	arg.MustParse(&envConfig)
 	t.Logf("Results of parsing environment variables: %v", envConfig.String())
 
-	// Validate the config file settings
+	// Validate the env vars settings
 	if err := envConfig.Validate(); err != nil {
 		t.Error("Unable to validate environment vars config:", err)
 	} else {
