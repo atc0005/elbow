@@ -19,6 +19,7 @@ package config
 import (
 	"bytes"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/alexflint/go-arg"
@@ -243,6 +244,9 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 	arg.MustParse(&envConfig)
 	t.Logf("Results of parsing environment variables: %v", envConfig.String())
 
+	// NOTE: We cannot validate envConfig here since the set of options is
+	// incomplete.
+
 	// Build EXPECTED baseConfig after env vars merge so we can use Compare()
 	// against it and the actual baseConfig
 
@@ -333,92 +337,120 @@ func TestMergeConfigUsingIncompletConfigObjects(t *testing.T) {
 		os.Unsetenv(table.envVar)
 	}
 
-	/*
+	//
+	// Flags Config testing
+	//
 
-		//
-		// Flags Config testing
-		//
+	flagsConfig := Config{}
 
-		// Bolt these on directly as we're likely going to abandon support for
-		// overriding these values anyway (haven't been able to come up with a
-		// legitimate reason why others would need or want to do so)
-		flagsAppName := "ElbowFlagVar"
-		flagsAppDescription := "nothing fancy"
-		flagsAppURL := "https://example.org"
-		flagsAppVersion := "0.1.2"
+	// TODO: A useful way to automate retrieving the app name?
+	appName := "elbow"
+	if runtime.GOOS == "windows" {
+		appName += ".exe"
+	}
 
-		flagsConfigFilePath := ""
+	// Note to self: Don't add/escape double-quotes here. The shell strips
+	// them away and the application never sees them.
+	os.Args = []string{
+		appName,
+		"--pattern", "reach-master-",
+		"--age", "5",
+		"--keep", "6",
+		"--remove",
+		"--log-level", "panic",
+		"--log-format", "json",
+		"--console-output", "stderr",
+		"--extensions", ".java", ".class",
+	}
 
-		flagsConfig := Config{
+	t.Log("Parsing command-line flags")
+	arg.MustParse(&flagsConfig)
+	t.Logf("Results of parsing flags: %v", flagsConfig.String())
 
-			// See earlier notes
-			AppMetadata: AppMetadata{
-				AppName:        &flagsAppName,
-				AppDescription: &flagsAppDescription,
-				AppURL:         &flagsAppURL,
-				AppVersion:     &flagsAppVersion,
-			},
+	// NOTE: We cannot validate flagsConfig here since the set of options is
+	// incomplete.
 
-			// This is required as well to pass validation checks
-			ConfigFile: &flagsConfigFilePath,
+	// Build EXPECTED baseConfig after flags merge so we can use Compare()
+	// against it and the actual baseConfig
 
-			// Not going to merge this in, but we have to specify it in order to
-			// pass validation checks.
-			logger: logrus.New(),
-		}
+	expectedAppNameAfterFlagsMerge := baseConfig.GetAppName()
+	expectedAppDescriptionAfterFlagsMerge := baseConfig.GetAppDescription()
+	expectedAppURLAfterFlagsMerge := baseConfig.GetAppURL()
+	expectedAppVersionAfterFlagsMerge := baseConfig.GetAppVersion()
+	expectedPathsAfterFlagsMerge := baseConfig.GetPaths()
+	expectedKeepOldestAfterFlagsMerge := baseConfig.GetKeepOldest()
+	expectedLogFilePathAfterFlagsMerge := baseConfig.GetLogFilePath()
+	expectedRecursiveSearchAfterFlagsMerge := baseConfig.GetRecursiveSearch()
+	expectedUseSyslogAfterFlagsMerge := baseConfig.GetUseSyslog()
+	expectedIgnoreErrorsAfterFlagsMerge := baseConfig.GetIgnoreErrors()
+	expectedConfigFileAfterFlagsMerge := baseConfig.GetConfigFile()
 
-		// TODO: A useful way to automate retrieving the app name?
-		appName := "elbow"
-		if runtime.GOOS == "windows" {
-			appName += ".exe"
-		}
+	// Explicitly set these; we want to ensure the final merged config has
+	// the values we provided (incomplete fileConfig) and the prior baseConfig
+	// settings that we are not overriding
+	// NOTE: Paths and FileExtensions are set below after config struct is
+	// instantiated
+	expectedFileExtensionsAfterFlagsMerge := []string{".java", ".class"}
+	expectedFilePatternAfterFlagsMerge := "reach-master-"
+	expectedFileAgeAfterFlagsMerge := 5
+	expectedNumFilesToKeepAfterFlagsMerge := 6
+	expectedRemoveAfterFlagsMerge := true
+	expectedLogFormatAfterFlagsMerge := "json"
+	expectedLogLevelAfterFlagsMerge := "panic"
+	expectedConsoleOutputAfterFlagsMerge := "stderr"
 
-		// Note to self: Don't add/escape double-quotes here. The shell strips
-		// them away and the application never sees them.
-		os.Args = []string{
-			appName,
-			"--paths", "/tmp/elbow/path4",
-			"--pattern", "reach-master-",
-			"--age", "5",
-			"--keep", "6",
-			"--remove",
-			"--ignore-errors",
-			"--recurse",
-			"--keep-old",
-			"--log-level", "info",
-			"--use-syslog",
-			"--log-format", "json",
-			"--console-output", "stderr",
-			"--log-file", "/var/log/elbow/flags.log",
-			"--config-file", "/tmp/configfile.toml",
-			"--extensions", ".java", ".class",
-		}
+	expectedBaseConfigAfterFlagsMerge := Config{
+		AppMetadata: AppMetadata{
+			AppName:        &expectedAppNameAfterFlagsMerge,
+			AppDescription: &expectedAppDescriptionAfterFlagsMerge,
+			AppURL:         &expectedAppURLAfterFlagsMerge,
+			AppVersion:     &expectedAppVersionAfterFlagsMerge,
+		},
+		FileHandling: FileHandling{
+			FilePattern:    &expectedFilePatternAfterFlagsMerge,
+			FileAge:        &expectedFileAgeAfterFlagsMerge,
+			NumFilesToKeep: &expectedNumFilesToKeepAfterFlagsMerge,
+			KeepOldest:     &expectedKeepOldestAfterFlagsMerge,
+			Remove:         &expectedRemoveAfterFlagsMerge,
+			IgnoreErrors:   &expectedIgnoreErrorsAfterFlagsMerge,
+		},
+		Logging: Logging{
+			LogLevel:      &expectedLogLevelAfterFlagsMerge,
+			LogFormat:     &expectedLogFormatAfterFlagsMerge,
+			LogFilePath:   &expectedLogFilePathAfterFlagsMerge,
+			ConsoleOutput: &expectedConsoleOutputAfterFlagsMerge,
+			UseSyslog:     &expectedUseSyslogAfterFlagsMerge,
+		},
+		Search: Search{
+			RecursiveSearch: &expectedRecursiveSearchAfterFlagsMerge,
+		},
+		ConfigFile: &expectedConfigFileAfterFlagsMerge,
+		logger:     baseConfig.GetLogger(),
+	}
 
-		t.Log("Parsing command-line flags")
-		arg.MustParse(&flagsConfig)
-		t.Logf("Results of parsing flags: %v", flagsConfig.String())
+	expectedBaseConfigAfterFlagsMerge.Paths = expectedPathsAfterFlagsMerge
+	expectedBaseConfigAfterFlagsMerge.FileExtensions = expectedFileExtensionsAfterFlagsMerge
 
-		// Validate the config file settings
-		if err := flagsConfig.Validate(); err != nil {
-			t.Error("Unable to validate flags config:", err)
-		} else {
-			t.Log("Validation of flags config settings successful")
-		}
+	// Validate the config file settings
+	if err := expectedBaseConfigAfterFlagsMerge.Validate(); err != nil {
+		t.Error("Unable to validate expectedBaseConfigAfterFlagsMerge before merging:", err)
+	} else {
+		t.Log("Validation of expectedBaseConfigAfterFlagsMerge before merging successful")
+	}
 
-		if err := MergeConfig(&baseConfig, flagsConfig); err != nil {
-			t.Errorf("Error merging flags config settings with base config: %s", err)
-		} else {
-			t.Log("Merge of flags config settings with base config successful")
-		}
+	if err := MergeConfig(&baseConfig, flagsConfig); err != nil {
+		t.Errorf("Error merging flags config settings with base config: %s", err)
+	} else {
+		t.Log("Merge of flags config settings with base config successful")
+	}
 
-		// Validate the base config settings after merging
-		if err := baseConfig.Validate(); err != nil {
-			t.Error("Unable to validate base configuration after merge:", err)
-		} else {
-			t.Log("Validation of base config settings after merge successful")
-		}
+	// Validate the base config settings after merging
+	if err := baseConfig.Validate(); err != nil {
+		t.Error("Unable to validate base configuration after merge:", err)
+	} else {
+		t.Log("Validation of base config settings after merge successful")
+	}
 
-		CompareConfig(baseConfig, flagsConfig, t)
-	*/
+	CompareConfig(baseConfig, expectedBaseConfigAfterFlagsMerge, t)
 
 }
