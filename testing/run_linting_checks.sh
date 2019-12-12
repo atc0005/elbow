@@ -91,7 +91,13 @@ else
         -E stylecheck \
         -E goconst \
         -E depguard \
-        -E prealloc
+        -E prealloc \
+        -E misspell \
+        -E maligned \
+        -E dupl \
+        -E unconvert \
+        -E golint \
+        -E gocritic
 fi
 
 status=$?
