@@ -138,7 +138,7 @@ func main() {
 		log.Debugf("Length of matches slice: %d", len(fileMatches))
 
 		log.Debugf("Early exit if no matching files were found.")
-		if len(fileMatches) <= 0 {
+		if len(fileMatches) == 0 {
 
 			log.WithFields(logrus.Fields{
 				"path":         path,
