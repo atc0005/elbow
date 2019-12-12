@@ -222,7 +222,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 
 	envConfig := Config{}
 
-	t.Log("Explictly setting AppMetadata fields to pass validation checks")
+	t.Log("Explicitly setting AppMetadata fields to pass validation checks")
 	envConfig.AppName = baseConfig.GetAppName()
 	envConfig.AppVersion = baseConfig.GetAppVersion()
 	envConfig.AppURL = baseConfig.GetAppURL()
@@ -349,7 +349,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 
 	flagsConfig := Config{}
 
-	t.Log("Explictly setting AppMetadata fields to pass validation checks")
+	t.Log("Explicitly setting AppMetadata fields to pass validation checks")
 	flagsConfig.AppName = baseConfig.GetAppName()
 	flagsConfig.AppVersion = baseConfig.GetAppVersion()
 	flagsConfig.AppURL = baseConfig.GetAppURL()
