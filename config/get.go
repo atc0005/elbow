@@ -27,7 +27,7 @@ import (
 // otherwise
 func (c *Config) GetAppName() string {
 	if c == nil || c.AppName == "" {
-		return "Elbow"
+		return defaultAppName
 	}
 	return c.AppName
 }
@@ -161,7 +161,7 @@ func (c *Config) GetLogLevel() string {
 // otherwise
 func (c *Config) GetLogFormat() string {
 	if c == nil || c.LogFormat == nil {
-		return "text"
+		return logFormatText
 	}
 	return *c.LogFormat
 }

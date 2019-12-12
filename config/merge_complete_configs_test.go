@@ -20,11 +20,14 @@ import (
 	"bytes"
 	"os"
 	"runtime"
+	"strings"
 	"testing"
 
 	"github.com/alexflint/go-arg"
 	"github.com/sirupsen/logrus"
 )
+
+// TODO: Evaluate replacing bare strings with constants (see constants.go)
 
 // TestMergeConfigUsingCompleteConfigObjects creates multiple Config structs
 // and merges them in sequence, verifying that after each MergeConfig
@@ -189,6 +192,7 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 		logger: logrus.New(),
 	}
 
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	envVarTables := []struct {
 		envVar string
 		value  string
@@ -293,13 +297,14 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 	}
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := "elbow"
-	if runtime.GOOS == "windows" {
-		appName += ".exe"
+	appName := strings.ToLower(defaultAppName)
+	if runtime.GOOS == windowsOSName {
+		appName += windowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
 	// them away and the application never sees them.
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	os.Args = []string{
 		appName,
 		"--paths", "/tmp/elbow/path4",

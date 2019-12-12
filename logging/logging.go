@@ -106,6 +106,7 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) error {
 // logger object.
 func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 	switch format {
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	case "text":
 		logger.SetFormatter(&logrus.TextFormatter{})
 	case "json":
@@ -123,6 +124,8 @@ func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) error {
 
 	switch {
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
+	// TODO: Update switch statement to switch on consoleOutput
 	case consoleOutput == "stdout":
 		logger.SetOutput(os.Stdout)
 	case consoleOutput == "stderr":
@@ -162,6 +165,8 @@ func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, erro
 // SetLoggerLevel applies the requested logger level to filter out messages
 // with a lower level than the one configured.
 func SetLoggerLevel(logger *logrus.Logger, logLevel string) error {
+
+	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://golang.org/pkg/log/syslog/#Priority
