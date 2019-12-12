@@ -82,6 +82,8 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel s
 		// syslog: N/A
 		// logrus: Finer-grained informational events than debug.
 		syslogLogLevel = syslog.LOG_DEBUG
+	default:
+		return fmt.Errorf("invalid syslog log level: %q", logLevel)
 	}
 
 	logBuffer.Add(LogRecord{
@@ -98,12 +100,7 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel s
 	hook, err := lSyslog.NewSyslogHook("", "", syslogLogLevel, "")
 
 	if err == nil {
-		// https://github.com/sirupsen/logrus#hooks
-		// https://github.com/sirupsen/logrus/blob/master/hooks/syslog/README.md
-		// Seems to require `log.AddHook(hook)`` vs `log.Hooks.Add(hook)`
 
-		// FIXME: Confirm that we can use Record{} without specifying the
-		// `Fields` struct file key/value pair.
 		logBuffer.Add(LogRecord{
 			Level:   logrus.InfoLevel,
 			Message: "Connected to syslog socket",

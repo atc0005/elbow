@@ -22,10 +22,19 @@ package logging
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
 
 	"github.com/sirupsen/logrus"
 )
+
+// Buffer is a package global instance of LogBuffer intended to ease log
+// message collection for later emission when all required logger settings
+// have been applied.
+//
+// FIXME: Moved here from Config package What is the best approach to handling
+// this instead of using a package global?
+var Buffer LogBuffer
 
 // LogRecord holds logrus.Field values along with additional metadata that can be
 // used later to complete the log message submission process.
@@ -44,7 +53,12 @@ func (lb *LogBuffer) Add(r LogRecord) {
 }
 
 // Flush LogRecord entries after applying user-provided logging settings
-func (lb LogBuffer) Flush(logger *logrus.Logger) {
+func (lb LogBuffer) Flush(logger *logrus.Logger) error {
+
+	// Check for nil *logrus.Logger before attempting to use it.
+	if logger == nil {
+		return fmt.Errorf("nil logger received by LogBuffer.Flush()")
+	}
 
 	for _, entry := range lb {
 
@@ -72,42 +86,53 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) {
 			logger.WithFields(entry.Fields).Trace(entry.Message)
 
 		default:
-			panic("This should not have been reachable")
+			return fmt.Errorf("unhandled codepath; invalid option provided for entry.Level: %v", entry.Level)
 
 		}
 
 	}
 
-	// TODO: Empty slice now that we're done processing all items
+	// Empty slice now that we're done processing all items
+	// https://yourbasic.org/golang/clear-slice/
+	// lb = nil
+	// FIXME
+	// ineffectual assignment to `lb` (ineffassign)
 
+	// indicate no errors were encountered
+	return nil
 }
 
 // SetLoggerFormatter sets a user-specified logging format for the provided
 // logger object.
-func SetLoggerFormatter(logger *logrus.Logger, format string) {
+func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 	switch format {
 	case "text":
 		logger.SetFormatter(&logrus.TextFormatter{})
 	case "json":
 		// Log as JSON instead of the default ASCII formatter.
 		logger.SetFormatter(&logrus.JSONFormatter{})
+	default:
+		return fmt.Errorf("invalid option provided: %v", format)
 	}
+
+	return nil
 }
 
 // SetLoggerConsoleOutput configures the chosen console output to one of
 // stdout or stderr.
-func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) {
-	var loggerOutput *os.File
+func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) error {
+
 	switch {
 	case consoleOutput == "stdout":
-		loggerOutput = os.Stdout
+		logger.SetOutput(os.Stdout)
 	case consoleOutput == "stderr":
-		loggerOutput = os.Stderr
+		logger.SetOutput(os.Stderr)
+	default:
+		return fmt.Errorf("invalid option provided: %v", consoleOutput)
 	}
 
-	// Apply chosen output based on earlier checks
-	// Note: Can be any io.Writer
-	logger.SetOutput(loggerOutput)
+	return nil
+
 }
 
 // SetLoggerLogFile configures a log file as the destination for all log
@@ -136,7 +161,7 @@ func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, erro
 
 // SetLoggerLevel applies the requested logger level to filter out messages
 // with a lower level than the one configured.
-func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
+func SetLoggerLevel(logger *logrus.Logger, logLevel string) error {
 
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://golang.org/pkg/log/syslog/#Priority
@@ -156,6 +181,19 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) {
 		logger.SetLevel(logrus.DebugLevel)
 	case "trace":
 		logger.SetLevel(logrus.TraceLevel)
+	default:
+		return fmt.Errorf("invalid option provided: %v", logLevel)
 	}
 
+	// signal that a case was triggered as expected
+	return nil
+
+}
+
+// GetLineNumber is a wrapper around runtime.Caller to return only the current
+// line number from the point this function was called.
+// TODO: Find a better location for this utility function
+func GetLineNumber() int {
+	_, _, line, _ := runtime.Caller(1)
+	return line
 }

@@ -39,3 +39,8 @@ elbow.upx
 
 # Ignore local copy of config file
 config.toml
+
+
+# Ignore local "scatch" directory that may
+# contain temporary files that should not be included in the repo
+scratch/

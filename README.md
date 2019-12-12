@@ -30,7 +30,7 @@ Elbow, Elbow grease.
           - [Multiple paths](#multiple-paths)
       - [JSON format](#json-format)
     - [Help Output](#help-output)
-    - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
+    - [Prune .war files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
     - [Keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
     - [Log to a file in JSON format](#log-to-a-file-in-json-format)
   - [References](#references)
@@ -157,22 +157,27 @@ against these newly created test files.
 The priority order is (mostly):
 
 1. Command line flags (highest priority)
-1. Configuration file
 1. Environment variables
 1. Environment variables loaded from `.env` files (lowest priority)
    - **Not supported yet**
+1. Configuration file
+1. Default settings
 
 Configuration sources lower in the list are loaded first, with configuration
-sources above loaded sequentially (if enabled) after. Any non-default values
-specified for later sources (higher in the list) override default values
-specified previously. This means that a non-default value specified in the
-configuration file (which has to be intentionally loaded) can *survive* a
-default value explicitly provided via a command-line option.
+sources above loaded sequentially (if enabled) after. Settings are *merged*,
+with settings specifically defined in sources with higher precedence
+overriding values set by configuration sources with lower precedence.
+
+For example, if the configuration file defines `/tmp/elbow/path1` as the path
+to process, an environment variable defines `/tmp/elbow/path2` and the
+command-line flag for that setting specifies `/tmp/elbow/path3`, the
+command-line flag will win and `/tmp/elbow/path3` will be used.
 
 The intent of this behavior is to provide a *feathered* layering of
-configuration settings; multiple configuration sources can be used to provide
-overrides for default values, but not to override non-default values set
-previously by another configuration source.
+configuration settings; if a configuration file provides all settings that you
+want other than one, you can use the configuration file for the other settings
+and specify the settings that you wish to override via environment variable or
+command-line flag.
 
 **Note: This behavior is subject to change based on feedback.**
 
@@ -180,28 +185,30 @@ previously by another configuration source.
 
 Aside from the built-in `-h`, short flag names are currently not supported.
 
-| Long             | Required | Default        | Repeat | Possible                                                                                                | Description                                                                                              |
-| ---------------- | -------- | -------------- | ------ | ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `keep`           | No       | `0`            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                 |
-| `paths`          | Yes      | N/A            | No     | *one or more valid directory paths*                                                                     | List of comma or space-separated paths to process.                                                       |
-| `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                             |
-| `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.       |
-| `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                            |
-| `keep-old`       | No       | `false`        | No     | `true`, `false`                                                                                         | Keep oldest files instead of newer.                                                                      |
-| `age`            | No       | `0`            | No     | `0+`                                                                                                    | Limit search to files that are the specified number of days old or older.                                |
-| `remove`         | Maybe    | `false`        | No     | `true`, `false`                                                                                         | Remove matched files. The default behavior is to only note what matching files *would* be removed.       |
-| `ignore-errors`  | No       | `false`        | No     | `true`, `false`                                                                                         | Ignore errors encountered during file removal.                                                           |
-| `log-format`     | No       | `text`         | No     | `text`, `json`                                                                                          | Log formatter used by logging package.                                                                   |
-| `log-file`       | No       | *empty string* | No     | *writable directory path*                                                                               | Optional log file used to hold logged messages. If set, log messages are not displayed on the console.   |
-| `console-output` | No       | `stdout`       | No     | `stdout`, `stderr`                                                                                      | Specify how log messages are logged to the console.                                                      |
-| `log-level`      | No       | `info`         | No     | `emergency`, `alert`, `critical`, `panic`, `fatal`, `error`, `warn`, `info`, `notice`, `debug`, `trace` | Maximum log level at which messages will be logged. Log messages below this threshold will be discarded. |
-| `use-syslog`     | No       | `false`        | No     | `true`, `false`                                                                                         | Log messages to syslog in addition to other ouputs. Not supported on Windows.                            |
+| Long             | Required | Default        | Repeat | Possible                                                                                                | Description                                                                                                |
+| ---------------- | -------- | -------------- | ------ | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `keep`           | No       | `0`            | No     | `0+`                                                                                                    | Keep specified number of matching files.                                                                   |
+| `paths`          | Yes      | N/A            | No     | *one or more valid directory paths*                                                                     | List of comma or space-separated paths to process.                                                         |
+| `pattern`        | No       | *empty string* | No     | *valid file name characters*                                                                            | Substring pattern to compare filenames against. Wildcards are not supported.                               |
+| `extensions`     | No       | *empty list*   | No     | *valid file extensions*                                                                                 | Limit search to specified file extension. Specify as needed to match multiple required extensions.         |
+| `recurse`        | No       | `false`        | No     | `true`, `false`                                                                                         | Perform recursive search into subdirectories.                                                              |
+| `keep-old`       | No       | `false`        | No     | `true`, `false`                                                                                         | Keep oldest files instead of newer.                                                                        |
+| `age`            | No       | `0`            | No     | `0+`                                                                                                    | Limit search to files that are the specified number of days old or older.                                  |
+| `remove`         | Maybe    | `false`        | No     | `true`, `false`                                                                                         | Remove matched files. The default behavior is to only note what matching files *would* be removed.         |
+| `ignore-errors`  | No       | `false`        | No     | `true`, `false`                                                                                         | Ignore errors encountered during file removal.                                                             |
+| `log-format`     | No       | `text`         | No     | `text`, `json`                                                                                          | Log formatter used by logging package.                                                                     |
+| `log-file`       | No       | *empty string* | No     | *writable directory path*                                                                               | Optional log file used to hold logged messages. If set, log messages are not displayed on the console.     |
+| `console-output` | No       | `stdout`       | No     | `stdout`, `stderr`                                                                                      | Specify how log messages are logged to the console.                                                        |
+| `log-level`      | No       | `info`         | No     | `emergency`, `alert`, `critical`, `panic`, `fatal`, `error`, `warn`, `info`, `notice`, `debug`, `trace` | Maximum log level at which messages will be logged. Log messages below this threshold will be discarded.   |
+| `use-syslog`     | No       | `false`        | No     | `true`, `false`                                                                                         | Log messages to syslog in addition to other ouputs. Not supported on Windows.                              |
+| `config-file`    | No       | *empty string* | No     | *valid path to config file*                                                                             | Full path to optional TOML-formatted configuration file. See `config.example.toml` for a starter template. |
 
 ### Environment Variables
 
-If set, command-line arguments override the equivalent environment variables
-listed below. See the [Command-line Arguments](#command-line-arguments) table
-for more information.
+If set, environment variables override settings provided by a configuration
+file. If used, command-line arguments override the equivalent environment
+variables listed below. See the [Command-line
+Arguments](#command-line-arguments) table for more information.
 
 | Flag Name        | Environment Variable Name | Notes                        | Example                                                                             |
 | ---------------- | ------------------------- | ---------------------------- | ----------------------------------------------------------------------------------- |
@@ -219,13 +226,15 @@ for more information.
 | `console-output` | `ELBOW_CONSOLE_OUTPUT`    |                              | `ELBOW_CONSOLE_OUTPUT="stdout"`                                                     |
 | `log-level`      | `ELBOW_LOG_LEVEL`         |                              | `ELBOW_LOG_LEVEL="debug"`                                                           |
 | `use-syslog`     | `ELBOW_USE_SYSLOG`        |                              | `ELBOW_USE_SYSLOG="true"`                                                           |
+| `config-file`    | `ELBOW_CONFIG_FILE`       |                              | `ELBOW_CONFIG_FILE="/usr/local/elbow/config.toml"`                                  |
 
 ### Configuration File
 
-If set, configuration file settings override equivalent environment variables,
-but "lose" to command-line flags. See the [Command-line
-Arguments](#command-line-arguments) table for more information, including the
-available values for the listed configuration settings.
+Configuration file settings have the lowest priority and are overridden by
+settings specified in other configuration sources, except for default values.
+See the [Command-line Arguments](#command-line-arguments) table for more
+information, including the available values for the listed configuration
+settings.
 
 | Flag Name        | Config file Setting Name | Section Name   | Notes                                                                    |
 | ---------------- | ------------------------ | -------------- | ------------------------------------------------------------------------ |
@@ -257,14 +266,14 @@ within an Ubuntu Linux Subsystem for Windows (WSL) instance. The `t` volume is
 present on the Windows host.
 
 The file extension used in the examples below is for `WAR` files that are
-generated on a build system that our group maintains. The idea is that `elbow`
-could be run as a cron job to help ensure that only X copies (the most recent
-in our case) for each of three branches remain on the build box.
+generated on a build system that our group used to maintain. The idea is that
+`elbow` could be run as a cron job to help ensure that only X copies (the most
+recent in our case) for each of three branches remain on the build box.
 
-There are better approaches to managing build artifacts (e.g., containers), but
-that is the problem that this tool seeks to solve in a simple, "low tech" way.
+There are better approaches to managing build artifacts (e.g., containers);
+this tool seeks to solve in a simple, "low tech" way.
 
-The particular repo that the build system processes has three branches:
+The particular repo that the build system processed has three branches:
 
 | Branch Name | Type of build |
 | ----------- | ------------- |

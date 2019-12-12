@@ -34,68 +34,63 @@ import (
 // build by our Makefile
 var version = "x.y.z"
 
+// TODO: Move this elsewhere to a dedicated location.
+// TODO: Create a metadata subpackage?
+var defaultAppName = "Elbow"
+
 func main() {
 
-	// Checked at the end to determine if any issues were encountered during
-	// app run. There is likely a much better way to handle this
+	// Checked at the end to determine if any non-fatal issues were
+	// encountered during app run
 	problemsEncountered := false
 
-	appName := "Elbow"
-	appDescription := "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
-	appURL := "https://github.com/atc0005/elbow"
-
-	//log.Debug("Constructing config object")
-
-	// If this fails, the application will immediately exit.
-	appConfig := config.NewConfig(appName, appDescription, appURL, version)
-	// defaultConfig := config.NewConfig(appName, appDescription, appURL, version)
-
-	// Validate configuration
-	if ok, err := appConfig.Validate(); !ok {
+	// If this fails, the application should immediately exit.
+	appConfig, err := config.NewConfig(version)
+	if err != nil {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
 
-		// Provide user with error and valid usage details
-		fmt.Printf("\nERROR: configuration validation failed\n%s\n\n", err)
-		appConfig.FlagParser.WriteUsage(os.Stdout)
+		// TODO: Any point in setting this? Perhaps wire it into a function
+		// that handles setting the flag and other useful spindown tasks?
 		problemsEncountered = true
-		os.Exit(1)
 
-		// failMessage := fmt.Sprint("configuration validation failed: ", err)
-		// appConfig.FlagParser.Fail(failMessage)
+		// Provide user with error and valid usage details
+		fmt.Printf("Failed to process configuration:\n%s\n\n", err)
+		config.WriteDefaultHelpText(defaultAppName)
+		os.Exit(1)
 
 	}
 
-	log := appConfig.Logger
+	log := appConfig.GetLogger()
 
 	log.Debug("Config object created")
 
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
-	if appConfig.LogFileHandle != nil {
+	if appConfig.GetLogFileHandle() != nil {
 		log.Debug("Deferring closure of log file")
-		defer appConfig.LogFileHandle.Close()
+		defer appConfig.GetLogFileHandle().Close()
 	}
 
 	log.WithFields(logrus.Fields{
-		"paths":        appConfig.Paths,
-		"file_pattern": appConfig.FilePattern,
-		"extensions":   appConfig.FileExtensions,
-		"file_age":     appConfig.FileAge,
+		"paths":        appConfig.GetPaths(),
+		"file_pattern": appConfig.GetFilePattern(),
+		"extensions":   appConfig.GetFileExtensions(),
+		"file_age":     appConfig.GetFileAge(),
 	}).Info("Starting evaluation of paths list")
 
 	// Used as a global counter/bucket for presentation/logging purposes
 	var appResults paths.ProcessingResults
 
 	var pass int
-	var totalPaths int = len(appConfig.Paths)
-	for _, path := range appConfig.Paths {
+	var totalPaths int = len(appConfig.GetPaths())
+	for _, path := range appConfig.GetPaths() {
 
 		pass++
 
 		log.WithFields(logrus.Fields{
 			"total_paths":   totalPaths,
 			"iteration":     pass,
-			"ignore_errors": appConfig.IgnoreErrors,
+			"ignore_errors": appConfig.GetIgnoreErrors(),
 		}).Infof("Beginning processing of path %q (%d of %d)",
 			path, pass, totalPaths)
 
@@ -105,17 +100,17 @@ func main() {
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.GetIgnoreErrors(),
 			}).Errorf("Requested path not found: %q", path)
 
-			if appConfig.IgnoreErrors {
+			if appConfig.GetIgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.GetIgnoreErrors(),
 				}).Warn("Error encountered, but continuing as requested.")
 				continue
 			} else {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.GetIgnoreErrors(),
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 
 				os.Exit(1)
@@ -128,13 +123,13 @@ func main() {
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.GetIgnoreErrors(),
 				"iteration":     pass,
 			}).Error("error:", err)
 
-			if !appConfig.IgnoreErrors {
+			if !appConfig.GetIgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.GetIgnoreErrors(),
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
 			}
 			log.Warn("Error encountered, but continuing as requested.")
@@ -147,16 +142,16 @@ func main() {
 
 			log.WithFields(logrus.Fields{
 				"path":         path,
-				"file_pattern": appConfig.FilePattern,
-				"extensions":   appConfig.FileExtensions,
-				"file_age":     appConfig.FileAge,
+				"file_pattern": appConfig.GetFilePattern(),
+				"extensions":   appConfig.GetFileExtensions(),
+				"file_age":     appConfig.GetFileAge(),
 				"iteration":    pass,
 			}).Info("No matches found")
 
 			log.WithFields(logrus.Fields{
 				"total_paths":   totalPaths,
 				"iteration":     pass,
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.GetIgnoreErrors(),
 			}).Infof("Ending processing of path %q (%d of %d)",
 				path, pass, totalPaths)
 			if pass < totalPaths {
@@ -168,9 +163,9 @@ func main() {
 
 		log.WithFields(logrus.Fields{
 			"path":            path,
-			"file_pattern":    appConfig.FilePattern,
-			"extensions":      appConfig.FileExtensions,
-			"file_age":        appConfig.FileAge,
+			"file_pattern":    appConfig.GetFilePattern(),
+			"extensions":      appConfig.GetFileExtensions(),
+			"file_age":        appConfig.GetFileAge(),
 			"total_file_size": fileMatches.TotalFileSize(),
 			"iteration":       pass,
 		}).Infof("%d files eligible for removal (%s)",
@@ -181,9 +176,9 @@ func main() {
 		appResults.EligibleFileSize += fileMatches.TotalFileSize()
 
 		log.WithFields(logrus.Fields{
-			"keep_oldest": appConfig.KeepOldest,
+			"keep_oldest": appConfig.GetKeepOldest(),
 			"iteration":   pass,
-		}).Infof("%d files to keep as requested", appConfig.NumFilesToKeep)
+		}).Infof("%d files to keep as requested", appConfig.GetNumFilesToKeep())
 
 		filesToPrune := fileMatches.FilesToPrune(appConfig)
 
@@ -192,7 +187,7 @@ func main() {
 			log.WithFields(logrus.Fields{
 				"total_paths":   totalPaths,
 				"iteration":     pass,
-				"ignore_errors": appConfig.IgnoreErrors,
+				"ignore_errors": appConfig.GetIgnoreErrors(),
 			}).Infof("Ending processing of path %q (%d of %d)",
 				path, pass, totalPaths)
 			if pass < totalPaths {
@@ -206,7 +201,7 @@ func main() {
 			"total_file_size": filesToPrune.TotalFileSizeHR(),
 			"iteration":       pass,
 		}).Debug("Calling cleanPath")
-		log.Infof("Ignoring file removal errors: %t", appConfig.IgnoreErrors)
+		log.Infof("Ignoring file removal errors: %t", appConfig.GetIgnoreErrors())
 		removalResults, err := paths.CleanPath(filesToPrune, appConfig)
 
 		appResults.SuccessRemoved += len(removalResults.SuccessfulRemovals)
@@ -242,11 +237,12 @@ func main() {
 
 			log.Warnf("Error encountered while processing %s: %s", path, err)
 
-			if !appConfig.IgnoreErrors {
+			if !appConfig.GetIgnoreErrors() {
 				log.WithFields(logrus.Fields{
-					"ignore_errors": appConfig.IgnoreErrors,
+					"ignore_errors": appConfig.GetIgnoreErrors(),
 					"iteration":     pass,
 				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+				os.Exit(1)
 			}
 			log.Warn("Error encountered, but continuing as requested.")
 			continue
@@ -255,7 +251,7 @@ func main() {
 		log.WithFields(logrus.Fields{
 			"total_paths":   totalPaths,
 			"iteration":     pass,
-			"ignore_errors": appConfig.IgnoreErrors,
+			"ignore_errors": appConfig.GetIgnoreErrors(),
 		}).Infof("Ending processing of path %q (%d of %d)",
 			path, pass, totalPaths)
 
@@ -277,9 +273,9 @@ func main() {
 	})
 
 	if problemsEncountered {
-		summaryLogger.Warnf("%s completed, but issues were encountered.", appConfig.AppName)
+		summaryLogger.Warnf("%s completed, but issues were encountered.", appConfig.GetAppName())
 	} else {
-		summaryLogger.Infof("%s successfully completed.", appConfig.AppName)
+		summaryLogger.Infof("%s successfully completed.", appConfig.GetAppName())
 	}
 
 }
