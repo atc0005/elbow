@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	"github.com/atc0005/elbow/config"
+	"github.com/atc0005/elbow/logging"
 )
 
 func TestMain(t *testing.T) {
@@ -35,9 +36,9 @@ func TestMain(t *testing.T) {
 	defer func() { os.Args = oldArgs }()
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := "elbow"
-	if runtime.GOOS == "windows" {
-		appName += ".exe"
+	appName := config.DefaultAppName
+	if runtime.GOOS == config.WindowsOSName {
+		appName += config.WindowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
@@ -49,10 +50,10 @@ func TestMain(t *testing.T) {
 		"--keep", "1",
 		"--recurse",
 		"--keep-old",
-		"--log-level", "info",
+		"--log-level", logging.LogLevelInfo,
 		"--use-syslog",
-		"--log-format", "text",
-		"--console-output", "stdout",
+		"--log-format", logging.LogFormatText,
+		"--console-output", logging.ConsoleOutputStdout,
 	}
 
 	// TODO: Flesh this out

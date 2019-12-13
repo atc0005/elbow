@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/alexflint/go-arg"
+	"github.com/atc0005/elbow/logging"
 	"github.com/sirupsen/logrus"
 )
 
@@ -204,10 +205,10 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 		{"ELBOW_REMOVE", "false"},
 		{"ELBOW_IGNORE_ERRORS", "false"},
 		{"ELBOW_RECURSE", "false"},
-		{"ELBOW_LOG_LEVEL", "warn"},
-		{"ELBOW_LOG_FORMAT", "text"},
+		{"ELBOW_LOG_LEVEL", logging.LogLevelWarn},
+		{"ELBOW_LOG_FORMAT", logging.LogFormatText},
 		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
-		{"ELBOW_CONSOLE_OUTPUT", "stdout"},
+		{"ELBOW_CONSOLE_OUTPUT", logging.ConsoleOutputStdout},
 		{"ELBOW_USE_SYSLOG", "false"},
 		{"ELBOW_CONFIG_FILE", "/tmp/config.toml"},
 		{"ELBOW_PATHS", "/tmp/elbow/path3"},
@@ -297,9 +298,9 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 	}
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := strings.ToLower(defaultAppName)
-	if runtime.GOOS == windowsOSName {
-		appName += windowsAppSuffix
+	appName := strings.ToLower(DefaultAppName)
+	if runtime.GOOS == WindowsOSName {
+		appName += WindowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
@@ -315,10 +316,10 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 		"--ignore-errors",
 		"--recurse",
 		"--keep-old",
-		"--log-level", "info",
+		"--log-level", logging.LogLevelInfo,
 		"--use-syslog",
-		"--log-format", "json",
-		"--console-output", "stderr",
+		"--log-format", logging.LogFormatJSON,
+		"--console-output", logging.ConsoleOutputStderr,
 		"--log-file", "/var/log/elbow/flags.log",
 		"--config-file", "/tmp/configfile.toml",
 		"--extensions", ".java", ".class",

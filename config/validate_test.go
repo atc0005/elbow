@@ -18,6 +18,8 @@ package config
 
 import (
 	"testing"
+
+	"github.com/atc0005/elbow/logging"
 )
 
 // TODO: Evaluate replacing bare strings with constants (see constants.go)
@@ -359,7 +361,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("LogFormat set to invalid value", func(t *testing.T) {
 		tmpLogFormat := *c.LogFormat
-		*c.LogFormat = fakeValue
+		*c.LogFormat = FakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogFormat: %v", *c.LogFormat, err)
 		} else {
@@ -378,7 +380,7 @@ func TestValidate(t *testing.T) {
 	t.Run("LogFormat set to valid values", func(t *testing.T) {
 
 		tmpLogFormat := *c.LogFormat
-		tests := []string{"text", "json"}
+		tests := []string{logging.LogFormatText, logging.LogFormatJSON}
 		for _, v := range tests {
 			*c.LogFormat = v
 			if err := c.Validate(); err == nil {
@@ -437,7 +439,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("ConsoleOutput set to invalid value", func(t *testing.T) {
 		tmpConsoleOutput := *c.ConsoleOutput
-		*c.ConsoleOutput = fakeValue
+		*c.ConsoleOutput = FakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for ConsoleOutput: %v", *c.ConsoleOutput, err)
 		} else {
@@ -456,7 +458,7 @@ func TestValidate(t *testing.T) {
 	t.Run("ConsoleOutput set to valid values", func(t *testing.T) {
 
 		tmpConsoleOutput := *c.ConsoleOutput
-		tests := []string{"stdout", "stderr"}
+		tests := []string{logging.ConsoleOutputStdout, logging.ConsoleOutputStderr}
 		for _, v := range tests {
 			*c.ConsoleOutput = v
 			if err := c.Validate(); err == nil {
@@ -497,7 +499,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("LogLevel set to invalid value", func(t *testing.T) {
 		tmpLogLevel := *c.LogLevel
-		*c.LogLevel = fakeValue
+		*c.LogLevel = FakeValue
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on invalid value %q for LogLevel: %v", *c.LogLevel, err)
 		} else {
@@ -517,17 +519,17 @@ func TestValidate(t *testing.T) {
 
 		tmpLogLevel := *c.LogLevel
 		tests := []string{
-			"emergency",
-			"alert",
-			"critical",
-			"panic",
-			"fatal",
-			"error",
-			"warn",
-			"info",
-			"notice",
-			"debug",
-			"trace",
+			logging.LogLevelEmergency,
+			logging.LogLevelAlert,
+			logging.LogLevelCritical,
+			logging.LogLevelPanic,
+			logging.LogLevelFatal,
+			logging.LogLevelError,
+			logging.LogLevelWarn,
+			logging.LogLevelInfo,
+			logging.LogLevelNotice,
+			logging.LogLevelDebug,
+			logging.LogLevelTrace,
 		}
 		for _, v := range tests {
 			*c.LogLevel = v
