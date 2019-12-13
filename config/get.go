@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"github.com/alexflint/go-arg"
+	"github.com/atc0005/elbow/logging"
 	"github.com/sirupsen/logrus"
 )
 
@@ -27,7 +28,7 @@ import (
 // otherwise
 func (c *Config) GetAppName() string {
 	if c == nil || c.AppName == "" {
-		return defaultAppName
+		return DefaultAppName
 	}
 	return c.AppName
 }
@@ -36,7 +37,7 @@ func (c *Config) GetAppName() string {
 // default value otherwise
 func (c *Config) GetAppDescription() string {
 	if c == nil || c.AppDescription == "" {
-		return "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
+		return DefaultAppDescription
 	}
 	return c.AppDescription
 
@@ -46,7 +47,7 @@ func (c *Config) GetAppDescription() string {
 // value otherwise
 func (c *Config) GetAppVersion() string {
 	if c == nil || c.AppVersion == "" {
-		return "dev"
+		return DefaultAppVersion
 	}
 	return c.AppVersion
 }
@@ -55,7 +56,7 @@ func (c *Config) GetAppVersion() string {
 // otherwise
 func (c *Config) GetAppURL() string {
 	if c == nil || c.AppURL == "" {
-		return "https://github.com/atc0005/elbow"
+		return DefaultAppURL
 	}
 	return c.AppURL
 }
@@ -152,7 +153,7 @@ func (c *Config) GetRecursiveSearch() bool {
 // otherwise
 func (c *Config) GetLogLevel() string {
 	if c == nil || c.LogLevel == nil {
-		return "info"
+		return logging.LogLevelInfo
 	}
 	return *c.LogLevel
 }
@@ -161,7 +162,7 @@ func (c *Config) GetLogLevel() string {
 // otherwise
 func (c *Config) GetLogFormat() string {
 	if c == nil || c.LogFormat == nil {
-		return logFormatText
+		return logging.LogFormatText
 	}
 	return *c.LogFormat
 }
@@ -179,7 +180,7 @@ func (c *Config) GetLogFilePath() string {
 // value otherwise.
 func (c *Config) GetConsoleOutput() string {
 	if c == nil || c.ConsoleOutput == nil {
-		return "stdout"
+		return logging.ConsoleOutputStdout
 	}
 	return *c.ConsoleOutput
 }

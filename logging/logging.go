@@ -106,10 +106,9 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) error {
 // logger object.
 func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 	switch format {
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-	case "text":
+	case LogFormatText:
 		logger.SetFormatter(&logrus.TextFormatter{})
-	case "json":
+	case LogFormatJSON:
 		// Log as JSON instead of the default ASCII formatter.
 		logger.SetFormatter(&logrus.JSONFormatter{})
 	default:
@@ -123,12 +122,10 @@ func SetLoggerFormatter(logger *logrus.Logger, format string) error {
 // stdout or stderr.
 func SetLoggerConsoleOutput(logger *logrus.Logger, consoleOutput string) error {
 
-	switch {
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-	// TODO: Update switch statement to switch on consoleOutput
-	case consoleOutput == "stdout":
+	switch consoleOutput {
+	case ConsoleOutputStdout:
 		logger.SetOutput(os.Stdout)
-	case consoleOutput == "stderr":
+	case ConsoleOutputStderr:
 		logger.SetOutput(os.Stderr)
 	default:
 		return fmt.Errorf("invalid option provided: %v", consoleOutput)
@@ -166,25 +163,23 @@ func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, erro
 // with a lower level than the one configured.
 func SetLoggerLevel(logger *logrus.Logger, logLevel string) error {
 
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-
 	// https://godoc.org/github.com/sirupsen/logrus#Level
 	// https://golang.org/pkg/log/syslog/#Priority
 	// https://en.wikipedia.org/wiki/Syslog#Severity_level
 	switch logLevel {
-	case "emerg", "panic":
+	case LogLevelEmergency, LogLevelPanic:
 		logger.SetLevel(logrus.PanicLevel)
-	case "alert", "critical", "fatal":
+	case LogLevelAlert, LogLevelCritical, LogLevelFatal:
 		logger.SetLevel(logrus.FatalLevel)
-	case "error":
+	case LogLevelError:
 		logger.SetLevel(logrus.ErrorLevel)
-	case "warn", "notice":
+	case LogLevelWarn, LogLevelNotice:
 		logger.SetLevel(logrus.WarnLevel)
-	case "info":
+	case LogLevelInfo:
 		logger.SetLevel(logrus.InfoLevel)
-	case "debug":
+	case LogLevelDebug:
 		logger.SetLevel(logrus.DebugLevel)
-	case "trace":
+	case LogLevelTrace:
 		logger.SetLevel(logrus.TraceLevel)
 	default:
 		return fmt.Errorf("invalid option provided: %v", logLevel)

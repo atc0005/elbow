@@ -44,44 +44,23 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel s
 	var syslogLogLevel syslog.Priority
 
 	switch logLevel {
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-	case "emerg", "panic":
-		// syslog: System is unusable; a panic condition.
-		// logrus: calls panic
+	case LogLevelEmergency, LogLevelPanic:
 		syslogLogLevel = syslog.LOG_EMERG
-	case "alert", "fatal":
-		// syslog: A condition that should be corrected immediately, such as a
-		// corrupted system database
-		// logrus: calls os.Exit(1)
+	case LogLevelAlert, LogLevelFatal:
 		syslogLogLevel = syslog.LOG_ALERT
-	case "critical":
-		// syslog: Critical conditions, such as hard device errors.
+	case LogLevelCritical:
 		syslogLogLevel = syslog.LOG_CRIT
-	case "error":
-		// syslog: Error conditions
-		// logrus: Used for errors that should definitely be noted. Commonly
-		// used for hooks to send errors to an error tracking service.
+	case LogLevelError:
 		syslogLogLevel = syslog.LOG_ERR
-	case "warn":
-		// syslog: Warning conditions
-		// logrus: Non-critical entries that deserve eyes.
+	case LogLevelWarn:
 		syslogLogLevel = syslog.LOG_WARNING
-	case "notice":
-		// syslog: Normal but significant conditions; conditions that are not
-		// error conditions, but that may require special handling.
-		// logrus: N/A
+	case LogLevelNotice:
 		syslogLogLevel = syslog.LOG_NOTICE
-	case "info":
-		// syslog: Informational messages
-		// logrus: General application operational entries
+	case LogLevelInfo:
 		syslogLogLevel = syslog.LOG_INFO
-	case "debug":
-		// syslog: Debug-level messages
-		// logrus: Usually only enabled when debugging. Very verbose logging.
+	case LogLevelDebug:
 		syslogLogLevel = syslog.LOG_DEBUG
-	case "trace":
-		// syslog: N/A
-		// logrus: Finer-grained informational events than debug.
+	case LogLevelTrace:
 		syslogLogLevel = syslog.LOG_DEBUG
 	default:
 		return fmt.Errorf("invalid syslog log level: %q", logLevel)

@@ -24,6 +24,7 @@ import (
 	"testing"
 
 	"github.com/alexflint/go-arg"
+	"github.com/atc0005/elbow/logging"
 )
 
 // TODO: Evaluate replacing bare strings with constants (see constants.go)
@@ -46,8 +47,8 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	baseConfig.Paths = testBaseConfigPaths
 	baseConfig.logger = baseConfig.GetLogger()
 
-	// TODO: Any reason to set this? The Validate() method does not currently
-	// enforce that the FileExtensions field be set.
+	// Question: Any reason to set this? The Validate() method does not
+	// currently enforce that the FileExtensions field be set.
 	// Answer: Yes, because we want to ensure that the final MergeConfig()
 	// result reflects our test case(s).
 	//
@@ -131,8 +132,8 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	expectedFileAgeAfterFileMerge := 90
 	expectedNumFilesToKeepAfterFileMerge := 1
 	expectedRecursiveSearchAfterFileMerge := true
-	expectedLogLevelAfterFileMerge := "notice"
-	expectedLogFormatAfterFileMerge := logFormatText
+	expectedLogLevelAfterFileMerge := logging.LogLevelNotice
+	expectedLogFormatAfterFileMerge := logging.LogFormatText
 	expectedUseSyslogAfterFileMerge := true
 
 	expectedKeepOldestAfterFileMerge := baseConfig.GetKeepOldest()
@@ -219,7 +220,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 		{"ELBOW_KEEP", "4"},
 		{"ELBOW_KEEP_OLD", "false"},
 		{"ELBOW_REMOVE", "true"},
-		{"ELBOW_LOG_FORMAT", "text"},
+		{"ELBOW_LOG_FORMAT", logging.LogFormatText},
 		{"ELBOW_LOG_FILE", "/var/log/elbow/env.log"},
 		{"ELBOW_PATHS", "/tmp/elbow/path3"},
 		{"ELBOW_EXTENSIONS", ".docx,.pptx"},
@@ -279,7 +280,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	expectedNumFilesToKeepAfterEnvVarsMerge := 4
 	expectedKeepOldestAfterEnvVarsMerge := false
 	expectedRemoveAfterEnvVarsMerge := true
-	expectedLogFormatAfterEnvVarsMerge := logFormatText
+	expectedLogFormatAfterEnvVarsMerge := logging.LogFormatText
 	expectedLogFilePathAfterEnvVarsMerge := "/var/log/elbow/env.log"
 
 	expectedRecursiveSearchAfterEnvVarsMerge := baseConfig.GetRecursiveSearch()
@@ -362,9 +363,9 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	flagsConfig.AppDescription = baseConfig.GetAppDescription()
 
 	// TODO: A useful way to automate retrieving the app name?
-	appName := strings.ToLower(defaultAppName)
-	if runtime.GOOS == windowsOSName {
-		appName += windowsAppSuffix
+	appName := strings.ToLower(DefaultAppName)
+	if runtime.GOOS == WindowsOSName {
+		appName += WindowsAppSuffix
 	}
 
 	// Note to self: Don't add/escape double-quotes here. The shell strips
@@ -376,9 +377,9 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 		"--age", "5",
 		"--keep", "6",
 		"--remove",
-		"--log-level", "panic",
-		"--log-format", "json",
-		"--console-output", "stderr",
+		"--log-level", logging.LogLevelPanic,
+		"--log-format", logging.LogFormatJSON,
+		"--console-output", logging.ConsoleOutputStderr,
 		"--extensions", ".java", ".class",
 	}
 
@@ -415,9 +416,9 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	expectedFileAgeAfterFlagsMerge := 5
 	expectedNumFilesToKeepAfterFlagsMerge := 6
 	expectedRemoveAfterFlagsMerge := true
-	expectedLogFormatAfterFlagsMerge := logFormatJSON
-	expectedLogLevelAfterFlagsMerge := "panic"
-	expectedConsoleOutputAfterFlagsMerge := "stderr"
+	expectedLogFormatAfterFlagsMerge := logging.LogFormatJSON
+	expectedLogLevelAfterFlagsMerge := logging.LogLevelPanic
+	expectedConsoleOutputAfterFlagsMerge := logging.ConsoleOutputStderr
 
 	expectedBaseConfigAfterFlagsMerge := Config{
 		AppMetadata: AppMetadata{

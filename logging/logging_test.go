@@ -24,10 +24,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Fix linting error
-// string `fakeValue` has 3 occurrences, make it a constant (goconst)
-const fakeValue = "fakeValue"
-
 func TestLogBufferFlushNilLoggerShouldFail(t *testing.T) {
 
 	var nilLogger *logrus.Logger
@@ -125,17 +121,17 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 
 	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
-		test{logLevel: "emerg", loggerLevel: logrus.PanicLevel},
-		test{logLevel: "panic", loggerLevel: logrus.PanicLevel},
-		test{logLevel: "alert", loggerLevel: logrus.FatalLevel},
-		test{logLevel: "critical", loggerLevel: logrus.FatalLevel},
-		test{logLevel: "fatal", loggerLevel: logrus.FatalLevel},
-		test{logLevel: "error", loggerLevel: logrus.ErrorLevel},
-		test{logLevel: "warn", loggerLevel: logrus.WarnLevel},
-		test{logLevel: "notice", loggerLevel: logrus.WarnLevel},
-		test{logLevel: "info", loggerLevel: logrus.InfoLevel},
-		test{logLevel: "debug", loggerLevel: logrus.DebugLevel},
-		test{logLevel: "trace", loggerLevel: logrus.TraceLevel},
+		test{logLevel: LogLevelEmergency, loggerLevel: logrus.PanicLevel},
+		test{logLevel: LogLevelPanic, loggerLevel: logrus.PanicLevel},
+		test{logLevel: LogLevelAlert, loggerLevel: logrus.FatalLevel},
+		test{logLevel: LogLevelCritical, loggerLevel: logrus.FatalLevel},
+		test{logLevel: LogLevelFatal, loggerLevel: logrus.FatalLevel},
+		test{logLevel: LogLevelError, loggerLevel: logrus.ErrorLevel},
+		test{logLevel: LogLevelWarn, loggerLevel: logrus.WarnLevel},
+		test{logLevel: LogLevelNotice, loggerLevel: logrus.WarnLevel},
+		test{logLevel: LogLevelInfo, loggerLevel: logrus.InfoLevel},
+		test{logLevel: LogLevelDebug, loggerLevel: logrus.DebugLevel},
+		test{logLevel: LogLevelTrace, loggerLevel: logrus.TraceLevel},
 	}
 
 	logger := logrus.New()
@@ -182,10 +178,9 @@ func TestSetLoggerFormatterShouldSucceed(t *testing.T) {
 
 	logger := logrus.New()
 
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
-		test{format: "text", result: nil},
-		test{format: "json", result: nil},
+		test{format: LogFormatText, result: nil},
+		test{format: LogFormatJSON, result: nil},
 	}
 
 	for _, give := range tests {
@@ -221,8 +216,8 @@ func TestSetLoggerConsoleOutputShouldSucceed(t *testing.T) {
 
 	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
-		test{consoleOutput: "stdout", result: nil},
-		test{consoleOutput: "stderr", result: nil},
+		test{consoleOutput: ConsoleOutputStdout, result: nil},
+		test{consoleOutput: ConsoleOutputStderr, result: nil},
 	}
 
 	for _, give := range tests {

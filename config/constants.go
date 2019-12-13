@@ -25,10 +25,28 @@ package config
 
 // Workarounds for golantci-lint errors:
 // string `STRING` has N occurrences, make it a constant (goconst)
-const fakeValue = "fakeValue"
-const defaultAppName string = "Elbow"
-const fieldValueNotSet string = "NotSet"
-const windowsOSName string = "windows"
-const logFormatText string = "text"
-const logFormatJSON string = "json"
-const windowsAppSuffix string = ".exe"
+const (
+	FakeValue        string = "fakeValue"
+	FieldValueNotSet string = "NotSet"
+	WindowsOSName    string = "windows"
+	WindowsAppSuffix string = ".exe"
+)
+
+const (
+
+	// DefaultAppName is the default name for this application
+	DefaultAppName string = "Elbow"
+
+	// DefaultAppDescription is the description for this application shown in
+	// HelpText output.
+	DefaultAppDescription string = "prunes content matching specific patterns, either in a single directory or recursively through a directory tree."
+
+	// DefaultAppVersion is a placeholder that is used when the application is
+	// compiled without the use of the Makefile (which handles setting the
+	// value via a build tag)
+	DefaultAppVersion string = "dev"
+
+	// DefaultAppURL is the website where users can learn more about the
+	// application, submit problem reports, etc.
+	DefaultAppURL string = "https://github.com/atc0005/elbow"
+)

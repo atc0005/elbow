@@ -18,6 +18,8 @@ package config
 
 import (
 	"fmt"
+
+	"github.com/atc0005/elbow/logging"
 )
 
 // Validate verifies all struct fields have been provided acceptable values
@@ -99,8 +101,8 @@ func (c Config) Validate() error {
 	switch {
 	case c.LogFormat == nil:
 		return fmt.Errorf("field LogFormat not configured")
-	case *c.LogFormat == logFormatText:
-	case *c.LogFormat == logFormatJSON:
+	case *c.LogFormat == logging.LogFormatText:
+	case *c.LogFormat == logging.LogFormatJSON:
 	default:
 		return fmt.Errorf("invalid option %q provided for log format", *c.LogFormat)
 	}
@@ -115,8 +117,8 @@ func (c Config) Validate() error {
 	case c.ConsoleOutput == nil:
 		return fmt.Errorf("field ConsoleOutput not configured")
 	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-	case *c.ConsoleOutput == "stdout":
-	case *c.ConsoleOutput == "stderr":
+	case *c.ConsoleOutput == logging.ConsoleOutputStdout:
+	case *c.ConsoleOutput == logging.ConsoleOutputStderr:
 	default:
 		return fmt.Errorf("invalid option %q provided for console output destination", *c.ConsoleOutput)
 	}
@@ -124,18 +126,17 @@ func (c Config) Validate() error {
 	switch {
 	case c.LogLevel == nil:
 		return fmt.Errorf("field LogLevel not configured")
-	// TODO: Evaluate replacing bare strings with constants (see constants.go)
-	case *c.LogLevel == "emergency":
-	case *c.LogLevel == "alert":
-	case *c.LogLevel == "critical":
-	case *c.LogLevel == "panic":
-	case *c.LogLevel == "fatal":
-	case *c.LogLevel == "error":
-	case *c.LogLevel == "warn":
-	case *c.LogLevel == "info":
-	case *c.LogLevel == "notice":
-	case *c.LogLevel == "debug":
-	case *c.LogLevel == "trace":
+	case *c.LogLevel == logging.LogLevelEmergency:
+	case *c.LogLevel == logging.LogLevelAlert:
+	case *c.LogLevel == logging.LogLevelCritical:
+	case *c.LogLevel == logging.LogLevelPanic:
+	case *c.LogLevel == logging.LogLevelFatal:
+	case *c.LogLevel == logging.LogLevelError:
+	case *c.LogLevel == logging.LogLevelWarn:
+	case *c.LogLevel == logging.LogLevelInfo:
+	case *c.LogLevel == logging.LogLevelNotice:
+	case *c.LogLevel == logging.LogLevelDebug:
+	case *c.LogLevel == logging.LogLevelTrace:
 	default:
 		return fmt.Errorf("invalid option %q provided for log level", *c.LogLevel)
 	}
