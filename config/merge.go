@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MergeConfig receives source, destination and default Config objects and
+// MergeConfig receives source and destination Config objects and
 // merges select, non-nil field values from the source Config object to
 // the destination config object, overwriting any field value already present.
 //
