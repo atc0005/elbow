@@ -407,21 +407,6 @@ func (c Config) Version() string {
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
 
-	// If the AppMetadata fields are empty, note that to aid in
-	// troubleshooting elsewhere in the codebase
-	if c.AppName == "" {
-		c.AppName = FieldValueNotSet
-	}
-	if c.AppDescription == "" {
-		c.AppDescription = FieldValueNotSet
-	}
-	if c.AppVersion == "" {
-		c.AppVersion = FieldValueNotSet
-	}
-	if c.AppURL == "" {
-		c.AppURL = FieldValueNotSet
-	}
-
 	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, ConfigFile=%q, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, logger=%v, flagParser=%v,  logFileHandle=%v",
 
 		c.GetAppName(),
