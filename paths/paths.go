@@ -251,6 +251,11 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 		// FileMatch objects
 		for _, file := range files {
 
+			// ignore directories
+			if file.IsDir() {
+				continue
+			}
+
 			filename := file.Name()
 
 			// Apply validity checks against filename. If validity fails,
