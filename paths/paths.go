@@ -186,11 +186,25 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 		// inefficient. Walk does not follow symbolic links.
 		err = filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
 
-			// If an error is received, return it. If we return a non-nil error, this
-			// will stop the filepath.Walk() function from continuing to walk the
-			// path, and your main function will immediately move to the next line.
+			// If an error is received, check to see whether we should ignore
+			// it or return it. If we return a non-nil error, this will stop
+			// the filepath.Walk() function from continuing to walk the path,
+			// and your main function will immediately move to the next line.
+			// If the option to ignore errors is set, processing of the current
+			// path will continue until complete
 			if err != nil {
-				return err
+				if !config.GetIgnoreErrors() {
+					return err
+				}
+
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.GetIgnoreErrors(),
+				}).Warn("Error encountered:", err)
+
+				log.WithFields(logrus.Fields{
+					"ignore_errors": config.GetIgnoreErrors(),
+				}).Warn("Ignoring error as requested")
+
 			}
 
 			// make sure we're not working with the root directory itself
