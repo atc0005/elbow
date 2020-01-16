@@ -98,6 +98,7 @@ func main() {
 		log.Debug("Confirm that requested path actually exists")
 		if !paths.PathExists(path, appConfig) {
 
+			// checked at end of application run for summary report
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
@@ -121,6 +122,7 @@ func main() {
 		fileMatches, err := paths.ProcessPath(appConfig, path)
 		if err != nil {
 
+			// checked at end of application run for summary report
 			problemsEncountered = true
 
 			log.WithFields(logrus.Fields{
@@ -234,7 +236,11 @@ func main() {
 			}).Info(file.Path)
 		}
 
+		// this is the error checking for paths.CleanPath()
 		if err != nil {
+
+			// checked at end of application run for summary report
+			problemsEncountered = true
 
 			log.Warnf("Error encountered while processing %s: %s", path, err)
 
