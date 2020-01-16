@@ -30,7 +30,7 @@ Elbow, Elbow grease.
           - [Multiple paths](#multiple-paths)
       - [JSON format](#json-format)
     - [Help Output](#help-output)
-    - [Prune .war files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
+    - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
     - [Keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
     - [Log to a file in JSON format](#log-to-a-file-in-json-format)
   - [References](#references)
@@ -158,10 +158,10 @@ The priority order is (mostly):
 
 1. Command line flags (highest priority)
 1. Environment variables
-1. Environment variables loaded from `.env` files (lowest priority)
+1. Environment variables loaded from `.env` files
    - **Not supported yet**
 1. Configuration file
-1. Default settings
+1. Default settings (lowest priority)
 
 Configuration sources lower in the list are loaded first, with configuration
 sources above loaded sequentially (if enabled) after. Settings are *merged*,
