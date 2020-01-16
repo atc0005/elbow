@@ -294,7 +294,11 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 
 			// If we made it to this point, then we must assume that the file
 			// has met all criteria to be removed by this application.
-			fileMatch := matches.FileMatch{FileInfo: file, Path: filename}
+			fileMatch := matches.FileMatch{
+				FileInfo: file,
+				Path:     filepath.Join(path, file.Name()),
+			}
+
 			fileMatches = append(fileMatches, fileMatch)
 		}
 	}
