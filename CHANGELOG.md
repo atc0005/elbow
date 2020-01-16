@@ -26,6 +26,57 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.0] - 2020-01-16
+
+### Added
+
+- Add support for importing settings from a TOML configuration file
+- Add support for merging multiple config sources
+  - the defined precedence decides what config source wins for a specific setting in case of a
+  conflict.
+  - non-conflicting settings are merged into one comprehensive configuration
+- Extend GitHub Actions Workflow to include Markdown linting
+- Add logger object for use in pre-config initialization
+  - this allows delaying the filtering of leveled log messages until the user
+    has indicated what logging level they prefer
+- Add tests for bulk of core config source handling which includes validation
+  of options, precedence/merge rules and other functionality
+  - TODO: additional coverage is needed
+  - TODO: many of the tests are inefficient and need further work
+- Expand list of golangci-lint linters
+  - `prealloc`
+  - `misspell`
+  - `maligned`
+  - `dupl`
+  - `unconvert`
+  - `golint`
+  - `gocritic`
+
+### Changed
+
+- Increase use of constants for common string comparison cases
+- Configuration source precedence/priority has changed
+  1. Command line flags (highest priority)
+  1. Environment variables
+  1. Environment variables loaded from `.env` files
+      - **Not supported yet**
+  1. Configuration file
+  1. Default settings (lowest priority)
+
+### Fixed
+
+- "Successfully completed" message shown when failures occur during file removal
+- Non-recursive directory processing sets wrong value for `FileMatch.Path`
+- Anonymous function for `filepath.Walk()` doesn't check `Config.IgnoreErrors`
+  before returning error
+- Non-recursive directory processing attempts to open a directory as a file
+- "NotSet successfully completed" message shown at end of test run
+- Miscellaneous doc comments for updated function outdated
+- Various linting errors for lack of constants, misspellings, inefficient logic
+- `linting` Makefile recipe returns zero exit code even when `golangci-lint`
+  reports problems
+- Minor typos in Makefile output
+
 ## [v0.6.2] - 2019-11-04
 
 ### Fixed
