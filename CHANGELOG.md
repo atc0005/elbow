@@ -26,6 +26,12 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.1] - 2020-01-16
+
+### Fixed
+
+- Fix release links in this CHANGELOG file
+
 ## [v0.7.0] - 2020-01-16
 
 ### Added
@@ -361,7 +367,9 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.6.2...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.1...HEAD
+[v0.7.1]: https://github.com/atc0005/elbow/releases/tag/v0.7.1
+[v0.7.0]: https://github.com/atc0005/elbow/releases/tag/v0.7.0
 [v0.6.2]: https://github.com/atc0005/elbow/releases/tag/v0.6.2
 [v0.6.1]: https://github.com/atc0005/elbow/releases/tag/v0.6.1
 [v0.6.0]: https://github.com/atc0005/elbow/releases/tag/v0.6.0
