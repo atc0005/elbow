@@ -438,7 +438,7 @@ See the [docs/references.md](docs/references.md) for details.
 
 ## License
 
-Taken directly from the `LICENSE` and `NOTICES.txt` files:
+Taken directly from the `LICENSE` and `NOTICE.txt` files:
 
 ```License
 Copyright 2019-Present Adam Chalkley
