@@ -319,7 +319,7 @@ Documentation:
 
 - `LICENSE` file
 - `CHANGELOG.md` file
-- `NOTICES.txt` file
+- `NOTICE.txt` file
 - License header to all source files
 
 Logging:
