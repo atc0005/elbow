@@ -26,6 +26,55 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.4] - 2020-04-26
+
+### Fixed
+
+- Linting
+  - dogsled linting warnings regarding use of `runtime.Caller(1)`
+    - applied `// nolint:dogsled` hotfix (GH-237)
+
+### Changed
+
+- Use `cmd/elbow` directory to match best practices
+
+- Vendor dependencies
+
+- README
+  - update one-off build examples to include new cmd subdirectory
+
+- Update GitHub Actions Workflows
+  - specify new cmd subdir path for builds
+  - Disable running `go get` after checking out code
+  - Exclude `vendor` folder from ...
+  - Markdown linting checks
+  - tests
+  - basic build
+
+- Update `.gitignore`
+  - add ignored paths for binaries
+  - add `release_assets`
+
+- Update Makefile
+  - replace two external shell scripts with equivalent embedded commands
+  - borrow heavily from existing `Makefile` for `atc0005/send2teams` project
+  - generate binaries within `release_assets` subdirectory structure
+  - dynamically determine go module path for version tag use
+    - disabled for now as I have not moved this into a subpkg (e.g., `config`)
+      yet
+  - include `-mod=vendor` build flag for applicable `go` commands to reflect
+    Go 1.13 vendoring
+    - this includes specifying `-mod=vendor` even for `go list` commands,
+      which unless specified results in dependencies being downloaded, even
+      when they're already provided in a local, top-level `vendor` directory
+  - dynamic help/menu output based on recipe "doc comment"
+
+- Linting
+  - Enabled `scopelint` linter
+  - Moved `golangci-lint` config settings to external file
+
+- Copyright date bump
+
 ## [v0.7.3] - 2020-04-26
 
 ### Fixed
@@ -397,7 +446,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.3...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.4...HEAD
+[v0.7.4]: https://github.com/atc0005/elbow/releases/tag/v0.7.4
 [v0.7.3]: https://github.com/atc0005/elbow/releases/tag/v0.7.3
 [v0.7.2]: https://github.com/atc0005/elbow/releases/tag/v0.7.2
 [v0.7.1]: https://github.com/atc0005/elbow/releases/tag/v0.7.1
