@@ -4,7 +4,7 @@
 # variables already configured.
 
 
-# Copyright 2019 Adam Chalkley
+# Copyright 2020 Adam Chalkley
 #
 # https://github.com/atc0005/elbow
 #
