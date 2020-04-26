@@ -26,6 +26,30 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.3] - 2020-04-26
+
+### Fixed
+
+- Correct filename reference
+
+### Changed
+
+- GitHub Actions Workflow
+  - Go v1.12.x dropped
+  - Go v1.14.x added
+  - Echo Go version used by workflow
+
+- Dependencies updated
+  - `pelletier/go-toml`
+    - `v1.6.0` to `v1.7.0`
+  - `sirupsen/logrus`
+    - `v1.4.2` to `v1.5.0`
+  - `alexflint/go-arg`
+    - `v1.2.0` to `v1.3.0`
+
+- Install `golangci-lint` binary via `make lintinstall` instead of building
+  from source
+
 ## [v0.7.2] - 2020-02-12
 
 ### Fixed
@@ -373,7 +397,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.3...HEAD
+[v0.7.3]: https://github.com/atc0005/elbow/releases/tag/v0.7.3
 [v0.7.2]: https://github.com/atc0005/elbow/releases/tag/v0.7.2
 [v0.7.1]: https://github.com/atc0005/elbow/releases/tag/v0.7.1
 [v0.7.0]: https://github.com/atc0005/elbow/releases/tag/v0.7.0
