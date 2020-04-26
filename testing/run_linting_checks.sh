@@ -97,7 +97,8 @@ else
         -E dupl \
         -E unconvert \
         -E golint \
-        -E gocritic
+        -E gocritic \
+        -E scopelint
 fi
 
 status=$?
