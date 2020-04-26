@@ -31,7 +31,8 @@ import (
 func GetBaseProjectDir(t *testing.T) string {
 
 	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
-	_, filename, _, _ := runtime.Caller(1)
+	// TODO: How else to retrieve only the one value that I need? See GH-237.
+	_, filename, _, _ := runtime.Caller(1) // nolint:dogsled
 	// The ".." reflects the path above the current working directory
 	dir := path.Join(path.Dir(filename), "..")
 	return dir

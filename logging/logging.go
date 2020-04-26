@@ -194,6 +194,7 @@ func SetLoggerLevel(logger *logrus.Logger, logLevel string) error {
 // line number from the point this function was called.
 // TODO: Find a better location for this utility function
 func GetLineNumber() int {
-	_, _, line, _ := runtime.Caller(1)
+	// TODO: How else to retrieve only the one value that I need? See GH-237.
+	_, _, line, _ := runtime.Caller(1) // nolint:dogsled
 	return line
 }
