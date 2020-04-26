@@ -27,8 +27,17 @@
 # https://www.gnu.org/software/make/manual/html_node/Special-Variables.html#Special-Variables
 
 
-OUTPUTBASEFILENAME		= elbow
-TESTENVBASEDIR			= /tmp/elbow
+SHELL = /bin/bash
+
+APPNAME					= elbow
+
+# What package holds the "version" variable used in branding/version output?
+# VERSION_VAR_PKG			= $(shell go list .)
+VERSION_VAR_PKG			= main
+
+OUTPUTDIR 				= release_assets
+
+TESTENVBASEDIR			= /tmp/$(APPNAME)
 TESTENVDIR1				= $(TESTENVBASEDIR)/path1
 TESTENVDIR2				= $(TESTENVBASEDIR)/path2
 
@@ -36,109 +45,165 @@ TESTENVDIR2				= $(TESTENVBASEDIR)/path2
 # https://github.com/atc0005/elbow/issues/54
 VERSION 				= $(shell git describe --always --long --dirty)
 
+# https://github.com/golangci/golangci-lint#install
+# https://github.com/golangci/golangci-lint/releases/latest
+GOLANGCI_LINT_VERSION		= v1.25.0
+
 # The default `go build` process embeds debugging information. Building
 # without that debugging information reduces the binary size by around 28%.
-BUILDCMD				=	go build -a -ldflags="-s -w -X main.version=${VERSION}"
-GOCLEANCMD				=	go clean
+BUILDCMD				=	go build -mod=vendor -a -ldflags="-s -w -X $(VERSION_VAR_PKG).version=$(VERSION)"
+GOCLEANCMD				=	go clean -mod=vendor ./...
 GITCLEANCMD				= 	git clean -xfd
 CHECKSUMCMD				=	sha256sum -b
 
+# TODO: Deprecate these?
 TESTENVCMD				=   bash testing/setup_testenv.sh
 TESTRUNCMD				=   bash testing/run_with_test_settings.sh
-LINTINGCMD				=   bash testing/run_linting_checks.sh
-LINTINSTALLCMD			=   bash testing/install_linting_tools.sh
 
 .DEFAULT_GOAL := help
 
-# Targets will not work properly if a file with the same name is ever created
-# in this directory. We explicitly declare our targets to be phony by
-# making them a prerequisite of the special target .PHONY
-.PHONY: help clean goclean gitclean pristine all windows linux testenv testrun linting lintinstall gotests
+  ##########################################################################
+  # Targets will not work properly if a file with the same name is ever
+  # created in this directory. We explicitly declare our targets to be phony
+  # by making them a prerequisite of the special target .PHONY
+  ##########################################################################
 
-# WARNING: Make expects you to use tabs to introduce recipe lines
+
+.PHONY: help
+## help: prints this help message
 help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  clean          go clean to remove local build artifacts, temporary files, etc"
-	@echo "  pristine       go clean and git clean local changes"
-	@echo "  all            cross-compile for multiple operating systems"
-	@echo "  windows        to generate a binary file for Windows"
-	@echo "  linux          to generate a binary file for Linux distros"
-	@echo "  testenv        setup test environment in Windows Subsystem for Linux or other Linux system"
-	@echo "  testrun        use wrapper script to call binary with test settings"
-	@echo "  lintinstall    use wrapper script to install common linting tools"
-	@echo "  linting        use wrapper script to run common linting checks"
-	@echo "  gotests        go test recursively, verbosely"
+	@echo "Usage:"
+	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
+.PHONY: testenv
+## testenv: setup test environment in Windows Subsystem for Linux or other Linux system
 testenv:
 	@echo "Setting up test environment in \"$(TESTENVDIR1)\" and \"$(TESTENVDIR2)\""
 	@$(TESTENVCMD) "$(TESTENVDIR1)" "$(TESTENVDIR2)"
 	@echo "Finished creating test files in \"$(TESTENVDIR1)\" and \"$(TESTENVDIR2)\""
 
+.PHONY: testrun
+## testrun: use wrapper script to call binary with test settings
 testrun:
 	@echo "Calling wrapper script: $(TESTRUNCMD)"
 	@$(TESTRUNCMD) "$(OUTPUTBASEFILENAME)" "$(TESTENVDIR1)" "$(TESTENVDIR2)"
 	@echo "Finished running wrapper script"
 
+.PHONY: lintinstall
+## lintinstall: install common linting tools
+# https://github.com/golang/go/issues/30515#issuecomment-582044819
 lintinstall:
-	@echo "Calling wrapper script: $(LINTINSTALLCMD)"
-	@$(LINTINSTALLCMD)
-	@echo "Finished running linting tools install script"
+	@echo "Installing linting tools"
 
+	@export PATH="${PATH}:$(go env GOPATH)/bin"
+
+	@echo "Explicitly enabling Go modules mode per command"
+	(cd; GO111MODULE="on" go get golang.org/x/lint/golint)
+	(cd; GO111MODULE="on" go get honnef.co/go/tools/cmd/staticcheck)
+
+	@echo Installing golangci-lint ${GOLANGCI_LINT_VERSION} per official binary installation docs ...
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin ${GOLANGCI_LINT_VERSION}
+	golangci-lint --version
+
+	@echo "Finished updating linting tools"
+
+.PHONY: linting
+## linting: runs common linting checks
+# https://stackoverflow.com/a/42510278/903870
 linting:
-	@echo "Calling wrapper script: $(LINTINGCMD)"
-	@$(LINTINGCMD)
+	@echo "Running linting tools ..."
+
+	@echo "Running gofmt ..."
+
+	@test -z $(shell gofmt -l -e .) || (echo "WARNING: gofmt linting errors found" \
+		&& gofmt -l -e -d . \
+		&& exit 1 )
+
+	@echo "Running go vet ..."
+	@go vet -mod=vendor $(shell go list -mod=vendor ./... | grep -v /vendor/)
+
+	@echo "Running golint ..."
+	@golint -set_exit_status $(shell go list -mod=vendor ./... | grep -v /vendor/)
+
+	@echo "Running golangci-lint ..."
+	@golangci-lint run
+
+	@echo "Running staticcheck ..."
+	@staticcheck $(shell go list -mod=vendor ./... | grep -v /vendor/)
+
 	@echo "Finished running linting checks"
 
+.PHONY: gotests
+## gotests: runs go test recursively, verbosely
 gotests:
 	@echo "Running go tests ..."
-	@go test ./...
+	@go test -mod=vendor ./...
 	@echo "Finished running go tests"
 
+.PHONY: goclean
+## goclean: removes local build artifacts, temporary files, etc
 goclean:
 	@echo "Removing object files and cached files ..."
 	@$(GOCLEANCMD)
 	@echo "Removing any existing release assets"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-386)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-386.sha256)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-amd64)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-linux-amd64.sha256)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-386.exe)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-386.exe.sha256)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-amd64.exe)"
-	@rm -vf "$(wildcard ${OUTPUTBASEFILENAME}-*-windows-amd64.exe.sha256)"
+	@mkdir -p "$(OUTPUTDIR)"
+	@rm -vf $(wildcard ${OUTPUTDIR}/*/*-linux-*)
+	@rm -vf $(wildcard ${OUTPUTDIR}/*/*-windows-*)
 
-# Setup alias for user reference
+.PHONY: clean
+## clean: alias for goclean
 clean: goclean
 
+.PHONY: gitclean
+## gitclean: WARNING - recursively cleans working tree by removing non-versioned files
 gitclean:
-	@echo "Recursively cleaning working tree by removing non-versioned files ..."
+	@echo "Removing non-versioned files ..."
 	@$(GITCLEANCMD)
 
+.PHONY: pristine
+## pristine: run goclean and gitclean to remove local changes
 pristine: goclean gitclean
 
-
+.PHONY: all
 # https://stackoverflow.com/questions/3267145/makefile-execute-another-target
+## all: generates assets for Linux distros and Windows
 all: clean windows linux
 	@echo "Completed all cross-platform builds ..."
 
+.PHONY: windows
+## windows: generates assets for Windows systems
 windows:
-	@echo "Building release assets for Windows ..."
-	@echo "Building 386 binary"
-	@env GOOS=windows GOARCH=386 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe
-	@echo "Building amd64 binary"
-	@env GOOS=windows GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe
-	@echo "Generating checksum files"
-	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe > $(OUTPUTBASEFILENAME)-$(VERSION)-windows-386.exe.sha256
-	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe > $(OUTPUTBASEFILENAME)-$(VERSION)-windows-amd64.exe.sha256
-	@echo "Completed build for Windows"
+	@echo "Building release assets for windows ..."
 
-linux:
-	@echo "Building release assets for Linux ..."
-	@echo "Building 386 binary"
-	@env GOOS=linux GOARCH=386 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386
-	@echo "Building amd64 binary"
-	@env GOOS=linux GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64
+	@mkdir -p $(OUTPUTDIR)/$(APPNAME)
+
+	@echo "Building 386 binaries"
+	@env GOOS=windows GOARCH=386 $(BUILDCMD) -o $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-386.exe ${PWD}/cmd/$(APPNAME)
+
+	@echo "Building amd64 binaries"
+	@env GOOS=windows GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-amd64.exe ${PWD}/cmd/$(APPNAME)
+
 	@echo "Generating checksum files"
-	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386 > $(OUTPUTBASEFILENAME)-$(VERSION)-linux-386.sha256
-	@$(CHECKSUMCMD) $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64 > $(OUTPUTBASEFILENAME)-$(VERSION)-linux-amd64.sha256
-	@echo "Completed build for Linux"
+	@$(CHECKSUMCMD) $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-386.exe > $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-386.exe.sha256
+	@$(CHECKSUMCMD) $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-amd64.exe > $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-windows-amd64.exe.sha256
+
+	@echo "Completed build tasks for windows"
+
+.PHONY: linux
+## linux: generates assets for Linux distros
+linux:
+	@echo "Building release assets for linux ..."
+
+	@mkdir -p $(OUTPUTDIR)/$(APPNAME)
+
+	@echo "Building 386 binaries"
+	@env GOOS=linux GOARCH=386 $(BUILDCMD) -o $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-386 ${PWD}/cmd/$(APPNAME)
+
+	@echo "Building amd64 binaries"
+	@env GOOS=linux GOARCH=amd64 $(BUILDCMD) -o $(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-amd64 ${PWD}/cmd/$(APPNAME)
+
+	@echo "Generating checksum files"
+	@$(CHECKSUMCMD) "$(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-386" > "$(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-386.sha256"
+	@$(CHECKSUMCMD) "$(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-amd64" > "$(OUTPUTDIR)/$(APPNAME)/$(APPNAME)-$(VERSION)-linux-amd64.sha256"
+
+	@echo "Completed build tasks for linux"
