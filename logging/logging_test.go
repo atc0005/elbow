@@ -48,19 +48,24 @@ func TestLogBufferFlushShouldSucceed(t *testing.T) {
 
 	type test struct {
 		entryLevel logrus.Level
-		result     error
+		// potentially used for dealing with PanicLevel and FatalLevel?
+		//result     error
 	}
 
 	tests := []test{
 		// TODO: Need to add coverage for messages at these log levels:
-		//test{entryLevel: logrus.PanicLevel, result: nil},
-		//test{entryLevel: logrus.FatalLevel, result: nil},
+		//
+		//{entryLevel: logrus.PanicLevel, result: nil},
+		//{entryLevel: logrus.FatalLevel, result: nil},
+		//
+		// Problem: Flushing either of these types results in that immediate
+		// action; FatalLevel forces an exit, PanicLevel forces a panic.
 
-		{entryLevel: logrus.ErrorLevel, result: nil},
-		{entryLevel: logrus.WarnLevel, result: nil},
-		{entryLevel: logrus.InfoLevel, result: nil},
-		{entryLevel: logrus.DebugLevel, result: nil},
-		{entryLevel: logrus.TraceLevel, result: nil},
+		{entryLevel: logrus.ErrorLevel},
+		{entryLevel: logrus.WarnLevel},
+		{entryLevel: logrus.InfoLevel},
+		{entryLevel: logrus.DebugLevel},
+		{entryLevel: logrus.TraceLevel},
 	}
 
 	// Create test log buffer entries
