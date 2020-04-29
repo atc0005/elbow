@@ -26,6 +26,25 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.5] - 2020-04-29
+
+### Fixed
+
+- Linting errors
+  - Unused field in table test struct
+  - Remove explicit struct type for each struct entry in table test slice
+
+- Remove gofmt and golint as separate checks, enable these linters in
+  golangci-lint config
+
+- Update README to list accurate build/deploy steps based on recent
+  restructuring work
+
+### Changed
+
+- Update golangci-lint to v1.25.1
+- Enable `gofmt` linter in golangci-lint config file
+
 ## [v0.7.4] - 2020-04-26
 
 ### Fixed
@@ -446,7 +465,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.4...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.5...HEAD
+[v0.7.5]: https://github.com/atc0005/elbow/releases/tag/v0.7.5
 [v0.7.4]: https://github.com/atc0005/elbow/releases/tag/v0.7.4
 [v0.7.3]: https://github.com/atc0005/elbow/releases/tag/v0.7.3
 [v0.7.2]: https://github.com/atc0005/elbow/releases/tag/v0.7.2
