@@ -118,17 +118,19 @@ Tested using:
    - for CentOS Linux
      1. `sudo yum install make gcc`
 1. Build
-   - for current operating system with default `go` build options
-     - `go build ./cmd/elbow/`
-       - Go 1.14+ automatically uses bundled dependencies in top-level
-         `vendor` folder
-       - Go 1.11, 1.12 and 1.13 will default to fetching dependencies
+   - for current operating system
      - `go build -mod=vendor ./cmd/elbow/`
-       - force build to use bundled dependencies in top-level `vendor` folder
+       - *forces build to use bundled dependencies in top-level `vendor`
+         folder*
    - for all supported platforms (where `make` is installed)
+      - `make all`
+   - for Windows
+      - `make windows`
+   - for Linux
+     - `make linux`
 1. Copy the applicable binary to whatever systems needs to run it
-   1. Linux: `/tmp/elbow/elbow`
-   1. Windows: `/tmp/elbow/elbow.exe`
+   - if using `Makefile`: look in `/tmp/release_assets/elbow/`
+   - if using `go build`: look in `/tmp/elbow/`
 
 ## Setup test environment
 
