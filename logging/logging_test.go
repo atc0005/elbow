@@ -48,19 +48,24 @@ func TestLogBufferFlushShouldSucceed(t *testing.T) {
 
 	type test struct {
 		entryLevel logrus.Level
-		result     error
+		// potentially used for dealing with PanicLevel and FatalLevel?
+		//result     error
 	}
 
 	tests := []test{
 		// TODO: Need to add coverage for messages at these log levels:
-		//test{entryLevel: logrus.PanicLevel, result: nil},
-		//test{entryLevel: logrus.FatalLevel, result: nil},
+		//
+		//{entryLevel: logrus.PanicLevel, result: nil},
+		//{entryLevel: logrus.FatalLevel, result: nil},
+		//
+		// Problem: Flushing either of these types results in that immediate
+		// action; FatalLevel forces an exit, PanicLevel forces a panic.
 
-		test{entryLevel: logrus.ErrorLevel, result: nil},
-		test{entryLevel: logrus.WarnLevel, result: nil},
-		test{entryLevel: logrus.InfoLevel, result: nil},
-		test{entryLevel: logrus.DebugLevel, result: nil},
-		test{entryLevel: logrus.TraceLevel, result: nil},
+		{entryLevel: logrus.ErrorLevel},
+		{entryLevel: logrus.WarnLevel},
+		{entryLevel: logrus.InfoLevel},
+		{entryLevel: logrus.DebugLevel},
+		{entryLevel: logrus.TraceLevel},
 	}
 
 	// Create test log buffer entries
@@ -121,17 +126,17 @@ func TestSetLoggerLevelShouldSucceed(t *testing.T) {
 
 	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
-		test{logLevel: LogLevelEmergency, loggerLevel: logrus.PanicLevel},
-		test{logLevel: LogLevelPanic, loggerLevel: logrus.PanicLevel},
-		test{logLevel: LogLevelAlert, loggerLevel: logrus.FatalLevel},
-		test{logLevel: LogLevelCritical, loggerLevel: logrus.FatalLevel},
-		test{logLevel: LogLevelFatal, loggerLevel: logrus.FatalLevel},
-		test{logLevel: LogLevelError, loggerLevel: logrus.ErrorLevel},
-		test{logLevel: LogLevelWarn, loggerLevel: logrus.WarnLevel},
-		test{logLevel: LogLevelNotice, loggerLevel: logrus.WarnLevel},
-		test{logLevel: LogLevelInfo, loggerLevel: logrus.InfoLevel},
-		test{logLevel: LogLevelDebug, loggerLevel: logrus.DebugLevel},
-		test{logLevel: LogLevelTrace, loggerLevel: logrus.TraceLevel},
+		{logLevel: LogLevelEmergency, loggerLevel: logrus.PanicLevel},
+		{logLevel: LogLevelPanic, loggerLevel: logrus.PanicLevel},
+		{logLevel: LogLevelAlert, loggerLevel: logrus.FatalLevel},
+		{logLevel: LogLevelCritical, loggerLevel: logrus.FatalLevel},
+		{logLevel: LogLevelFatal, loggerLevel: logrus.FatalLevel},
+		{logLevel: LogLevelError, loggerLevel: logrus.ErrorLevel},
+		{logLevel: LogLevelWarn, loggerLevel: logrus.WarnLevel},
+		{logLevel: LogLevelNotice, loggerLevel: logrus.WarnLevel},
+		{logLevel: LogLevelInfo, loggerLevel: logrus.InfoLevel},
+		{logLevel: LogLevelDebug, loggerLevel: logrus.DebugLevel},
+		{logLevel: LogLevelTrace, loggerLevel: logrus.TraceLevel},
 	}
 
 	logger := logrus.New()
@@ -179,8 +184,8 @@ func TestSetLoggerFormatterShouldSucceed(t *testing.T) {
 	logger := logrus.New()
 
 	tests := []test{
-		test{format: LogFormatText, result: nil},
-		test{format: LogFormatJSON, result: nil},
+		{format: LogFormatText, result: nil},
+		{format: LogFormatJSON, result: nil},
 	}
 
 	for _, give := range tests {
@@ -216,8 +221,8 @@ func TestSetLoggerConsoleOutputShouldSucceed(t *testing.T) {
 
 	// TODO: Evaluate replacing bare strings with constants (see constants.go)
 	tests := []test{
-		test{consoleOutput: ConsoleOutputStdout, result: nil},
-		test{consoleOutput: ConsoleOutputStderr, result: nil},
+		{consoleOutput: ConsoleOutputStdout, result: nil},
+		{consoleOutput: ConsoleOutputStderr, result: nil},
 	}
 
 	for _, give := range tests {
