@@ -184,8 +184,15 @@ func NewConfig(appVersion string) (*Config, error) {
 	// This object will always be set in some manner as either flags or env
 	// vars will be needed to bootstrap the application. While we may support
 	// using a configuration file to provide settings, it is not used by
-	// default.
-	argsConfig := Config{}
+	// default. Directly add app version string here since this is the config
+	// object referenced if the user requests either `--version` or `-h`
+	// flags; the combined config object is not created in time to serve either
+	// of those needs.
+	argsConfig := Config{
+		AppMetadata: AppMetadata{
+			AppVersion: appVersion,
+		},
+	}
 
 	// Initialize logger "handle" for later use
 	baseConfig.logger = logrus.New()
