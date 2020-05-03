@@ -26,6 +26,16 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.6] - 2020-05-03
+
+### Fixed
+
+- Version string/output was not shown when `-h` or `--version` flags were used
+
+### Changed
+
+- `sirupsen/logrus` updated from `v1.5.0` to `v1.6.0`
+
 ## [v0.7.5] - 2020-04-29
 
 ### Fixed
@@ -465,7 +475,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.5...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.6...HEAD
+[v0.7.6]: https://github.com/atc0005/elbow/releases/tag/v0.7.6
 [v0.7.5]: https://github.com/atc0005/elbow/releases/tag/v0.7.5
 [v0.7.4]: https://github.com/atc0005/elbow/releases/tag/v0.7.4
 [v0.7.3]: https://github.com/atc0005/elbow/releases/tag/v0.7.3
