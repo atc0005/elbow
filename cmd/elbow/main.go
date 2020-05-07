@@ -34,11 +34,6 @@ import (
 // build by our Makefile
 var version = "x.y.z"
 
-// TODO: Move this elsewhere to a dedicated location.
-// TODO: Create a metadata subpackage?
-// TODO: Evaluate replacing bare strings with constants (see constants.go)
-const defaultAppName = "Elbow"
-
 func main() {
 
 	// Checked at the end to determine if any non-fatal issues were
@@ -57,7 +52,7 @@ func main() {
 
 		// Provide user with error and valid usage details
 		fmt.Printf("Failed to process configuration:\n%s\n\n", err)
-		config.WriteDefaultHelpText(defaultAppName)
+		config.WriteDefaultHelpText(config.DefaultAppName)
 		os.Exit(1)
 
 	}
