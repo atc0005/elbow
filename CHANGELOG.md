@@ -28,15 +28,20 @@ The following types of changes will be recorded in this file:
 
 ## [v0.7.6] - 2020-05-03
 
-### Fixed
-
-- Version string/output was not shown when `-h` or `--version` flags were used
-
 ### Changed
 
 - `sirupsen/logrus` updated from `v1.5.0` to `v1.6.0`
 
+### Fixed
+
+- Version string/output was not shown when `-h` or `--version` flags were used
+
 ## [v0.7.5] - 2020-04-29
+
+### Changed
+
+- Update golangci-lint to v1.25.1
+- Enable `gofmt` linter in golangci-lint config file
 
 ### Fixed
 
@@ -50,18 +55,7 @@ The following types of changes will be recorded in this file:
 - Update README to list accurate build/deploy steps based on recent
   restructuring work
 
-### Changed
-
-- Update golangci-lint to v1.25.1
-- Enable `gofmt` linter in golangci-lint config file
-
 ## [v0.7.4] - 2020-04-26
-
-### Fixed
-
-- Linting
-  - dogsled linting warnings regarding use of `runtime.Caller(1)`
-    - applied `// nolint:dogsled` hotfix (GH-237)
 
 ### Changed
 
@@ -104,11 +98,13 @@ The following types of changes will be recorded in this file:
 
 - Copyright date bump
 
-## [v0.7.3] - 2020-04-26
-
 ### Fixed
 
-- Correct filename reference
+- Linting
+  - dogsled linting warnings regarding use of `runtime.Caller(1)`
+    - applied `// nolint:dogsled` hotfix (GH-237)
+
+## [v0.7.3] - 2020-04-26
 
 ### Changed
 
@@ -127,6 +123,10 @@ The following types of changes will be recorded in this file:
 
 - Install `golangci-lint` binary via `make lintinstall` instead of building
   from source
+
+### Fixed
+
+- Correct filename reference
 
 ## [v0.7.2] - 2020-02-12
 
