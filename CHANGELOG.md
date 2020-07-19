@@ -26,6 +26,31 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.7] - 2020-07-19
+
+### Added
+
+- Dependabot
+  - enable version updates
+  - enable GitHub Actions updates
+
+### Changed
+
+- Dependencies
+  - upgrade `pelletier/go-toml`
+    - `v1.7.0` to `v1.8.0`
+  - upgrade `actions/setup-go`
+    - `v1` to `v2.1.0`
+  - upgrade `actions/checkout`
+    - `v1` to `v2.3.1`
+  - upgrade `actions/setup-node`
+    - `v1` to `v2.1.0`
+
+### Fixed
+
+- Remove duplicate defaultAppName const
+- Fix CHANGELOG section order
+
 ## [v0.7.6] - 2020-05-03
 
 ### Changed
@@ -475,7 +500,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.6...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.7...HEAD
+[v0.7.7]: https://github.com/atc0005/elbow/releases/tag/v0.7.7
 [v0.7.6]: https://github.com/atc0005/elbow/releases/tag/v0.7.6
 [v0.7.5]: https://github.com/atc0005/elbow/releases/tag/v0.7.5
 [v0.7.4]: https://github.com/atc0005/elbow/releases/tag/v0.7.4
