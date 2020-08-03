@@ -4,10 +4,10 @@ Elbow, Elbow grease.
 
 [![Latest Release](https://img.shields.io/github/release/atc0005/elbow.svg?style=flat-square)](https://github.com/atc0005/elbow/releases/latest)
 [![GoDoc](https://godoc.org/github.com/atc0005/elbow?status.svg)](https://godoc.org/github.com/atc0005/elbow)
-![Validate Codebase](https://github.com/atc0005/elbow/workflows/Validate%20Codebase/badge.svg)
-![Validate Docs](https://github.com/atc0005/elbow/workflows/Validate%20Docs/badge.svg)
-![Lint and Build using Makefile](https://github.com/atc0005/elbow/workflows/Lint%20and%20Build%20using%20Makefile/badge.svg)
-![Quick Validation](https://github.com/atc0005/elbow/workflows/Quick%20Validation/badge.svg)
+[![Validate Codebase](https://github.com/atc0005/elbow/workflows/Validate%20Codebase/badge.svg)](https://github.com/atc0005/elbow/actions?query=workflow%3A%22Validate+Codebase%22)
+[![Validate Docs](https://github.com/atc0005/elbow/workflows/Validate%20Docs/badge.svg)](https://github.com/atc0005/elbow/actions?query=workflow%3A%22Validate+Docs%22)
+[![Lint and Build using Makefile](https://github.com/atc0005/elbow/workflows/Lint%20and%20Build%20using%20Makefile/badge.svg)](https://github.com/atc0005/elbow/actions?query=workflow%3A%22Lint+and+Build+using+Makefile%22)
+[![Quick Validation](https://github.com/atc0005/elbow/workflows/Quick%20Validation/badge.svg)](https://github.com/atc0005/elbow/actions?query=workflow%3A%22Quick+Validation%22)
 
 - [elbow](#elbow)
   - [Project home](#project-home)
