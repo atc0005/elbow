@@ -236,7 +236,9 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 
 	for _, table := range envVarTables {
 		t.Logf("Setting %q to %q", table.envVar, table.value)
-		os.Setenv(table.envVar, table.value)
+		if err := os.Setenv(table.envVar, table.value); err != nil {
+			t.Errorf("Unable to set environment variable: %v", err)
+		}
 	}
 
 	// https://stackoverflow.com/questions/33723300/how-to-test-the-passing-of-arguments-in-golang
@@ -347,7 +349,10 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 	// Unset environment variables that we just set
 	for _, table := range envVarTables {
 		t.Logf("Unsetting %q\n", table.envVar)
-		os.Unsetenv(table.envVar)
+		if err := os.Unsetenv(table.envVar); err != nil {
+			t.Errorf("Unable to unset environment variable: %v", err)
+
+		}
 	}
 
 	//

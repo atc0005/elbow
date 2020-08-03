@@ -22,6 +22,7 @@ package logging
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -146,7 +147,11 @@ func SetLoggerLogFile(logger *logrus.Logger, logFilePath string) (*os.File, erro
 		// If this is set, do not log to console unless writing to log file fails
 		// FIXME: How do we defer the file close without killing the file handle?
 		// https://github.com/sirupsen/logrus/blob/de736cf91b921d56253b4010270681d33fdf7cb5/logger.go#L332
-		file, err = os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		file, err = os.OpenFile(
+			filepath.Clean(logFilePath),
+			os.O_CREATE|os.O_WRONLY|os.O_APPEND,
+			0600,
+		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to log to %s, will leave configuration as is",
 				logFilePath)

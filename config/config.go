@@ -19,6 +19,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -230,7 +231,22 @@ func NewConfig(appVersion string) (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("unable to open config file: %v", err)
 		}
-		defer fh.Close()
+		defer func() {
+			if err := fh.Close(); err != nil {
+				// Ignore "file already closed" errors
+				if !errors.Is(err, os.ErrClosed) {
+					logging.Buffer.Add(logging.LogRecord{
+						Level: logrus.ErrorLevel,
+						Message: fmt.Sprintf(
+							"failed to close file %q: %s",
+							*argsConfig.ConfigFile,
+							err.Error(),
+						),
+						Fields: logrus.Fields{"line": logging.GetLineNumber()},
+					})
+				}
+			}
+		}()
 
 		if err := fileConfig.LoadConfigFile(fh); err != nil {
 			logging.Buffer.Add(logging.LogRecord{
@@ -241,7 +257,13 @@ func NewConfig(appVersion string) (*Config, error) {
 
 			// Application failure codepath. Dump collected log messages and
 			// return control to the caller.
-			logging.Buffer.Flush(baseConfig.GetLogger())
+			if err := logging.Buffer.Flush(baseConfig.GetLogger()); err != nil {
+				// if we're unable to flush the buffer, then something serious
+				// has occurred and we should emit the error directly to the
+				// console
+				fmt.Printf("Failed to flush the log buffer: %v", err.Error())
+			}
+
 			// TODO: Wrap errors and return so they can be unpacked in main()
 			return nil, fmt.Errorf("error loading configuration file: %s", err)
 		}
@@ -335,7 +357,12 @@ func NewConfig(appVersion string) (*Config, error) {
 
 		// Application failure codepath. Dump collected log messages and
 		// return control to the caller.
-		logging.Buffer.Flush(baseConfig.GetLogger())
+		if err := logging.Buffer.Flush(baseConfig.GetLogger()); err != nil {
+			// if we're unable to flush the buffer, then something serious
+			// has occurred and we should emit the error directly to the
+			// console
+			fmt.Printf("Failed to flush the log buffer: %v", err.Error())
+		}
 		// TODO: Wrap errors and return so they can be unpacked in main()
 		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
 
@@ -365,7 +392,12 @@ func NewConfig(appVersion string) (*Config, error) {
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
-	logging.Buffer.Flush(baseConfig.GetLogger())
+	if err := logging.Buffer.Flush(baseConfig.GetLogger()); err != nil {
+		// if we're unable to flush the buffer, then something serious
+		// has occurred and we should emit the error directly to the
+		// console
+		fmt.Printf("Failed to flush the log buffer: %v", err.Error())
+	}
 
 	return &baseConfig, nil
 
@@ -410,7 +442,7 @@ func (c Config) Version() string {
 	return "\n" + versionString + "\n"
 }
 
-// String() satisfies the Stringer{} interface. This is intended for non-JSON
+// String satisfies the Stringer interface. This is intended for non-JSON
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
 
