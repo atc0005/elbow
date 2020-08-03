@@ -17,6 +17,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -64,7 +65,18 @@ func main() {
 	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
 	if appConfig.GetLogFileHandle() != nil {
 		log.Debug("Deferring closure of log file")
-		defer appConfig.GetLogFileHandle().Close()
+		defer func() {
+			if err := appConfig.GetLogFileHandle().Close(); err != nil {
+				// Ignore "file already closed" errors
+				if !errors.Is(err, os.ErrClosed) {
+					log.Errorf(
+						"failed to close log file %q: %s",
+						appConfig.GetLogFilePath(),
+						err.Error(),
+					)
+				}
+			}
+		}()
 	}
 
 	log.WithFields(logrus.Fields{
