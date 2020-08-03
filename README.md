@@ -6,6 +6,8 @@ Elbow, Elbow grease.
 [![GoDoc](https://godoc.org/github.com/atc0005/elbow?status.svg)](https://godoc.org/github.com/atc0005/elbow)
 ![Validate Codebase](https://github.com/atc0005/elbow/workflows/Validate%20Codebase/badge.svg)
 ![Validate Docs](https://github.com/atc0005/elbow/workflows/Validate%20Docs/badge.svg)
+![Lint and Build using Makefile](https://github.com/atc0005/elbow/workflows/Lint%20and%20Build%20using%20Makefile/badge.svg)
+![Quick Validation](https://github.com/atc0005/elbow/workflows/Quick%20Validation/badge.svg)
 
 - [elbow](#elbow)
   - [Project home](#project-home)
