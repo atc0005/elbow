@@ -18,6 +18,7 @@ package config
 
 import (
 	"bytes"
+	"errors"
 	"os"
 	"path"
 	"runtime"
@@ -206,7 +207,18 @@ func TestLoadConfigFileTemplate(t *testing.T) {
 		} else {
 			t.Log("Successfully opened config file", exampleConfigFile)
 		}
-		defer fh.Close()
+		defer func() {
+			if err := fh.Close(); err != nil {
+				// Ignore "file already closed" errors
+				if !errors.Is(err, os.ErrClosed) {
+					t.Errorf(
+						"failed to close file %q: %s",
+						exampleConfigFile,
+						err.Error(),
+					)
+				}
+			}
+		}()
 
 		if err := c.LoadConfigFile(fh); err != nil {
 			t.Error("Unable to load configuration file:", err)
