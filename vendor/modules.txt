@@ -4,7 +4,7 @@ github.com/alexflint/go-arg
 github.com/alexflint/go-scalar
 # github.com/konsorten/go-windows-terminal-sequences v1.0.3
 github.com/konsorten/go-windows-terminal-sequences
-# github.com/pelletier/go-toml v1.8.0
+# github.com/pelletier/go-toml v1.8.1
 github.com/pelletier/go-toml
 # github.com/sirupsen/logrus v1.6.0
 github.com/sirupsen/logrus
