@@ -207,11 +207,11 @@ func (c *Config) GetConfigFile() string {
 // otherwise
 func (c *Config) GetLogger() *logrus.Logger {
 	if c == nil || c.logger == nil {
-		//return nil
+		// return nil
 
 		// FIXME: Is this the best logic?
 		c.logger = logrus.New()
-		//c.logger.Out = os.Stderr
+		// c.logger.Out = os.Stderr
 
 	}
 	return c.logger
