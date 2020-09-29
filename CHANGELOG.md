@@ -26,6 +26,36 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.9] - 2020-09-29
+
+### Added
+
+- First (limited) binary release
+  - Built using Go 1.15.2
+  - Windows
+    - x86
+    - x64
+  - Linux
+    - x86
+    - x64
+
+### Changed
+
+- Dependencies
+  - upgrade `actions/checkout`
+    - `v2.3.1` to `v2.3.3`
+  - upgrade `sirupsen/logrus`
+    - `v1.6.0` to `v1.7.0`
+  - upgrade `pelletier/go-toml`
+    - `v1.8.0` to `v1.8.1`
+
+### Fixed
+
+- Miscellaneous linting issues
+  - comment formatting
+  - exitAfterDefer: os.Exit clutters defer
+- Makefile generates checksums with qualified path
+
 ## [v0.7.8] - 2020-08-03
 
 ### Added
@@ -568,7 +598,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.8...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.9...HEAD
+[v0.7.9]: https://github.com/atc0005/elbow/releases/tag/v0.7.9
 [v0.7.8]: https://github.com/atc0005/elbow/releases/tag/v0.7.8
 [v0.7.7]: https://github.com/atc0005/elbow/releases/tag/v0.7.7
 [v0.7.6]: https://github.com/atc0005/elbow/releases/tag/v0.7.6
