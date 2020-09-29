@@ -17,7 +17,7 @@
 package logging
 
 import (
-	//"io/ioutil"
+	// "io/ioutil"
 	"fmt"
 	"testing"
 
@@ -43,20 +43,20 @@ func TestLogBufferFlushShouldSucceed(t *testing.T) {
 
 	logger := logrus.New()
 	// Configure logger to throw everything away
-	//logger.SetOutput(ioutil.Discard)
+	// logger.SetOutput(ioutil.Discard)
 	logger.SetLevel(logrus.TraceLevel)
 
 	type test struct {
 		entryLevel logrus.Level
 		// potentially used for dealing with PanicLevel and FatalLevel?
-		//result     error
+		// result     error
 	}
 
 	tests := []test{
 		// TODO: Need to add coverage for messages at these log levels:
 		//
-		//{entryLevel: logrus.PanicLevel, result: nil},
-		//{entryLevel: logrus.FatalLevel, result: nil},
+		// {entryLevel: logrus.PanicLevel, result: nil},
+		// {entryLevel: logrus.FatalLevel, result: nil},
 		//
 		// Problem: Flushing either of these types results in that immediate
 		// action; FatalLevel forces an exit, PanicLevel forces a panic.

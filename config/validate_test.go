@@ -125,7 +125,7 @@ func TestValidate(t *testing.T) {
 
 	t.Run("FilePattern set to nil", func(t *testing.T) {
 		tmpFilePattern := c.FilePattern
-		//t.Logf("c.FilePattern before setting to nil: %p", c.FilePattern)
+		// t.Logf("c.FilePattern before setting to nil: %p", c.FilePattern)
 		c.FilePattern = nil
 		if err := c.Validate(); err == nil {
 			t.Errorf("Config passed, but should have failed on nil FilePattern: %s", err)
@@ -134,7 +134,7 @@ func TestValidate(t *testing.T) {
 		}
 		// Set back to prior value
 		c.FilePattern = tmpFilePattern
-		//t.Logf("c.FilePattern address after resetting back to original value: %p", c.FilePattern)
+		// t.Logf("c.FilePattern address after resetting back to original value: %p", c.FilePattern)
 
 		if err := c.Validate(); err != nil {
 			t.Errorf("Validation failed for config after restoring FilePattern: %s", err)

@@ -432,12 +432,12 @@ func (c Config) Version() string {
 	versionString := fmt.Sprintf("%s %s\n%s",
 		strings.ToTitle(c.GetAppName()), c.GetAppVersion(), c.GetAppURL())
 
-	//divider := strings.Repeat("-", len(versionString))
+	// divider := strings.Repeat("-", len(versionString))
 
 	// versionBlock := fmt.Sprintf("\n%s\n%s\n%s\n",
 	// 	divider, versionString, divider)
 
-	//return versionBlock
+	// return versionBlock
 
 	return "\n" + versionString + "\n"
 }
