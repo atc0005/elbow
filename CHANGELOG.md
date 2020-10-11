@@ -26,6 +26,33 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.10] - 2020-10-11
+
+### Added
+
+- Binary release
+  - Built using Go 1.15.2
+  - **Statically linked**
+  - Windows
+    - x86
+    - x64
+  - Linux
+    - x86
+    - x64
+
+### Changed
+
+- Dependencies
+  - `actions/setup-node`
+    - `v2.1.1` to `v2.1.2`
+
+- Add `-trimpath` build flag
+
+### Fixed
+
+- Makefile build options do not generate static binaries
+- Makefile generates checksums with qualified path
+
 ## [v0.7.9] - 2020-09-29
 
 ### Added
@@ -598,7 +625,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.9...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.10...HEAD
+[v0.7.10]: https://github.com/atc0005/elbow/releases/tag/v0.7.10
 [v0.7.9]: https://github.com/atc0005/elbow/releases/tag/v0.7.9
 [v0.7.8]: https://github.com/atc0005/elbow/releases/tag/v0.7.8
 [v0.7.7]: https://github.com/atc0005/elbow/releases/tag/v0.7.7
