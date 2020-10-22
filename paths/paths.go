@@ -35,7 +35,7 @@ import (
 type ProcessingResults struct {
 
 	// Number of files eligible for removal. This is before files are excluded
-	// by request per user request.
+	// per user request.
 	EligibleRemove int
 
 	// Number of files successfully removed.
