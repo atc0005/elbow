@@ -54,14 +54,14 @@ func (lb *LogBuffer) Add(r LogRecord) {
 }
 
 // Flush LogRecord entries after applying user-provided logging settings
-func (lb LogBuffer) Flush(logger *logrus.Logger) error {
+func (lb *LogBuffer) Flush(logger *logrus.Logger) error {
 
 	// Check for nil *logrus.Logger before attempting to use it.
 	if logger == nil {
 		return fmt.Errorf("nil logger received by LogBuffer.Flush()")
 	}
 
-	for _, entry := range lb {
+	for _, entry := range *lb {
 
 		switch {
 
@@ -95,9 +95,7 @@ func (lb LogBuffer) Flush(logger *logrus.Logger) error {
 
 	// Empty slice now that we're done processing all items
 	// https://yourbasic.org/golang/clear-slice/
-	// lb = nil
-	// FIXME
-	// ineffectual assignment to `lb` (ineffassign)
+	*lb = nil
 
 	// indicate no errors were encountered
 	return nil
