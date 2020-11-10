@@ -103,7 +103,26 @@ func main() {
 			path, pass, totalPaths)
 
 		log.Debug("Confirm that requested path actually exists")
-		if !paths.PathExists(path, appConfig) {
+		pathExists, pathErr := paths.PathExists(path)
+		if pathErr != nil {
+			// checked at end of application run for summary report
+			problemsEncountered = true
+
+			log.WithFields(logrus.Fields{
+				"ignore_errors": appConfig.GetIgnoreErrors(),
+				"iteration":     pass,
+			}).Error("error:", pathErr)
+
+			if !appConfig.GetIgnoreErrors() {
+				log.WithFields(logrus.Fields{
+					"ignore_errors": appConfig.GetIgnoreErrors(),
+				}).Warn("Error encountered and option to ignore errors not set. Exiting")
+				return
+			}
+			log.Warn("Error encountered, but continuing as requested.")
+		}
+
+		if !pathExists {
 
 			// checked at end of application run for summary report
 			problemsEncountered = true

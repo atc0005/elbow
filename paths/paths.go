@@ -20,6 +20,7 @@
 package paths
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -140,26 +141,29 @@ func CleanPath(files matches.FileMatches, config *config.Config) (PathPruningRes
 }
 
 // PathExists confirms that the specified path exists
-// FIXME: Update this to break reliance on config.Config; use bare args
-func PathExists(path string, config *config.Config) bool {
-
-	log := config.GetLogger()
+func PathExists(path string) (bool, error) {
 
 	// Make sure path isn't empty
 	if strings.TrimSpace(path) == "" {
-		log.Debugf("path is empty string")
-		return false
+		return false, fmt.Errorf("specified path is empty string")
 	}
 
-	// https://gist.github.com/mattes/d13e273314c3b3ade33f
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		log.WithFields(logrus.Fields{
-			"path": path,
-		}).Debug("path found")
-		return true
+	_, statErr := os.Stat(path)
+	if statErr != nil {
+		if !os.IsNotExist(statErr) {
+			// ERROR: another error occurred aside from file not found
+			return false, fmt.Errorf(
+				"error checking path %s: %w",
+				path,
+				statErr,
+			)
+		}
+		// file not found
+		return false, nil
 	}
 
-	return false
+	// file found
+	return true, nil
 
 }
 
