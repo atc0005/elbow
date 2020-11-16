@@ -26,6 +26,26 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.11] - 2020-11-16
+
+### Changed
+
+- Binary release
+  - Built using Go 1.15.5
+  - **Statically linked**
+  - Windows
+    - x86
+    - x64
+  - Linux
+    - x86
+    - x64
+
+### Fixed
+
+- Logic error in PathExists function
+- LogBuffer.Flush method attempt to empty slice
+- Minor doc comment typo
+
 ## [v0.7.10] - 2020-10-11
 
 ### Added
@@ -625,7 +645,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.10...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.11...HEAD
+[v0.7.11]: https://github.com/atc0005/elbow/releases/tag/v0.7.11
 [v0.7.10]: https://github.com/atc0005/elbow/releases/tag/v0.7.10
 [v0.7.9]: https://github.com/atc0005/elbow/releases/tag/v0.7.9
 [v0.7.8]: https://github.com/atc0005/elbow/releases/tag/v0.7.8
