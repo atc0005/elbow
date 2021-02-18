@@ -26,6 +26,6 @@ go 1.13
 require (
 	github.com/alexflint/go-arg v1.3.0
 	github.com/pelletier/go-toml v1.8.1
-	github.com/sirupsen/logrus v1.7.1
+	github.com/sirupsen/logrus v1.8.0
 	github.com/stretchr/testify v1.5.1 // indirect
 )
