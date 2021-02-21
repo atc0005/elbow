@@ -26,6 +26,27 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.12] - 2021-02-21
+
+### Overview
+
+- Dependency updates
+- Built using Go 1.15.8
+
+### Changed
+
+- Swap out GoDoc badge for pkg.go.dev badge
+
+- Dependencies
+  - Built using Go 1.15.8
+    - **Statically linked**
+    - Windows (x86, x64)
+    - Linux (x86, x64)
+  - `sirupsen/logrus`
+    - `v1.7.0` to `v1.8.0`
+  - `actions/setup-node`
+    - `v2.1.2` to `v2.1.4`
+
 ## [v0.7.11] - 2020-11-16
 
 ### Changed
@@ -645,7 +666,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.11...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.12...HEAD
+[v0.7.12]: https://github.com/atc0005/elbow/releases/tag/v0.7.12
 [v0.7.11]: https://github.com/atc0005/elbow/releases/tag/v0.7.11
 [v0.7.10]: https://github.com/atc0005/elbow/releases/tag/v0.7.10
 [v0.7.9]: https://github.com/atc0005/elbow/releases/tag/v0.7.9
