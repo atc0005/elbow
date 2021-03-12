@@ -263,7 +263,7 @@ func TestMergeConfigUsingCompleteConfigObjects(t *testing.T) {
 
 	// Unset environment variables that we just set
 	for _, table := range envVarTables {
-		t.Logf("Unsetting %q\n", table.envVar)
+		t.Logf("Unsetting %q", table.envVar)
 		if err := os.Unsetenv(table.envVar); err != nil {
 			t.Errorf("Unable to unset environment variable: %v", err)
 

@@ -79,12 +79,12 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 
 	if len(config.GetFileExtensions()) == 0 {
 		log.Debug("No extension limits have been set!")
-		log.Debugf("Considering %s safe for removal\n", filename)
+		log.Debugf("Considering %s safe for removal", filename)
 		return true
 	}
 
 	if InList(ext, config.GetFileExtensions()) {
-		log.Debugf("%s has a valid extension for removal\n", filename)
+		log.Debugf("%s has a valid extension for removal", filename)
 		return true
 	}
 
@@ -102,7 +102,7 @@ func HasMatchingFilenamePattern(filename string, config *config.Config) bool {
 
 	if strings.TrimSpace(config.GetFilePattern()) == "" {
 		log.Debug("No FilePattern has been specified!")
-		log.Debugf("Considering %s safe for removal\n", filename)
+		log.Debugf("Considering %s safe for removal", filename)
 		return true
 	}
 

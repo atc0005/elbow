@@ -172,7 +172,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Current baseConfig after NewDefaultConfig() call: %+v\n", baseConfig),
+		Message: fmt.Sprintf("Current baseConfig after NewDefaultConfig() call: %+v", baseConfig),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
@@ -205,7 +205,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Current argsConfig after MustParse() call: %+v\n", argsConfig),
+		Message: fmt.Sprintf("Current argsConfig after MustParse() call: %+v", argsConfig),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
@@ -270,7 +270,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 		logging.Buffer.Add(logging.LogRecord{
 			Level:   logrus.DebugLevel,
-			Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v\n", fileConfig),
+			Message: fmt.Sprintf("Current fileConfig after LoadConfigFile() call: %+v", fileConfig),
 			Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 		})
 
