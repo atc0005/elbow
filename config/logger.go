@@ -37,13 +37,13 @@ func (c *Config) SetLoggerConfig() error {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("Current state of config object: %+v\n", c),
+		Message: fmt.Sprintf("Current state of config object: %+v", c),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("The address of the logger SetLoggerConfig received: %p\n", c.GetLogger()),
+		Message: fmt.Sprintf("The address of the logger SetLoggerConfig received: %p", c.GetLogger()),
 		Fields:  logrus.Fields{"line": logging.GetLineNumber()},
 	})
 
@@ -60,7 +60,7 @@ func (c *Config) SetLoggerConfig() error {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("logger.Out field at start of SetLoggerFormatter(): %p\n", c.GetLogger().Out),
+		Message: fmt.Sprintf("logger.Out field at start of SetLoggerFormatter(): %p", c.GetLogger().Out),
 		Fields: logrus.Fields{
 			"line": logging.GetLineNumber(),
 		},
@@ -72,7 +72,7 @@ func (c *Config) SetLoggerConfig() error {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("logger.Out field after SetLoggerFormatter: %p\n", c.GetLogger().Out),
+		Message: fmt.Sprintf("logger.Out field after SetLoggerFormatter: %p", c.GetLogger().Out),
 		Fields: logrus.Fields{
 			"line": logging.GetLineNumber(),
 		},
@@ -84,7 +84,7 @@ func (c *Config) SetLoggerConfig() error {
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
-		Message: fmt.Sprintf("logger.Out field after SetLoggerConsoleOutput(): %p\n", c.GetLogger().Out),
+		Message: fmt.Sprintf("logger.Out field after SetLoggerConsoleOutput(): %p", c.GetLogger().Out),
 		Fields: logrus.Fields{
 			"line": logging.GetLineNumber(),
 		},
@@ -167,9 +167,9 @@ func (c *Config) SetLoggerConfig() error {
 		Level:   logrus.DebugLevel,
 		Message: "logging object details at end of SetLoggerConfig()",
 		Fields: logrus.Fields{
-			"logger": fmt.Sprintf("%+v\n", c.GetLogger()),
+			"logger": fmt.Sprintf("%+v", c.GetLogger()),
 			// TODO: Re-evaluate potential for field ref on nil pointer
-			"logger_out": fmt.Sprintf("%+v\n", c.GetLogger().Out),
+			"logger_out": fmt.Sprintf("%+v", c.GetLogger().Out),
 			"line":       logging.GetLineNumber(),
 		},
 	})
