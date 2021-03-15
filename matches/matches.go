@@ -68,7 +68,9 @@ func (fm FileMatch) SizeHR() string {
 	return units.ByteCountIEC(fm.Size())
 }
 
-// HasMatchingExtension validates whether a file has the desired extension
+// HasMatchingExtension validates whether a file has the desired extension. If
+// no extensions are specified, the file being evaluated is considered
+// eligible for removal.
 func HasMatchingExtension(filename string, config *config.Config) bool {
 
 	log := config.GetLogger()
@@ -95,7 +97,8 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 }
 
 // HasMatchingFilenamePattern validates whether a filename matches the desired
-// pattern
+// pattern. If no filename pattern is specified, the file being evaluated is
+// considered eligible for removal.
 func HasMatchingFilenamePattern(filename string, config *config.Config) bool {
 
 	log := config.GetLogger()
