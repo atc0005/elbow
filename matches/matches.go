@@ -76,22 +76,30 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 	log := config.GetLogger()
 
 	ext := filepath.Ext(filename)
+	ext = strings.TrimPrefix(ext, ".")
 
+	// handle empty extensions list scenario
 	if len(config.GetFileExtensions()) == 0 {
 		log.Debug("No extension limits have been set!")
 		log.Debugf("Considering %s safe for removal", filename)
 		return true
 	}
 
+	log.Debug("Removing leading dot from specified file extensions for comparison")
+	fileExtensions := make([]string, 0, len(config.GetFileExtensions()))
+	for _, fileExt := range config.GetFileExtensions() {
+		fileExtensions = append(fileExtensions, strings.TrimPrefix(fileExt, "."))
+	}
+
 	log.Debug("Comparing extensions case-insensitively")
-	if InList(ext, config.GetFileExtensions(), true) {
+	if InList(ext, fileExtensions, true) {
 		log.Debugf("%s has a valid extension for removal", filename)
 		return true
 	}
 
 	log.Debug("HasMatchingExtension: returning false for:", filename)
 	log.Debugf("HasMatchingExtension: returning false (%q not in %q)",
-		ext, config.GetFileExtensions())
+		ext, fileExtensions)
 	return false
 }
 
