@@ -26,6 +26,34 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.13] - 2021-03-15
+
+### Overview
+
+- Dependency updates
+- Bug fixes
+- Built using Go 1.16.2
+
+### Changed
+
+- Compare file extensions case-insensitively
+
+- Dependencies
+  - Built using Go 1.16.2
+    - **Statically linked**
+    - Windows (x86, x64)
+    - Linux (x86, x64)
+  - `sirupsen/logrus`
+    - `v1.8.0` to `v1.8.1`
+  - `actions/setup-node`
+    - `v2.1.4` to `v2.1.5`
+
+### Fixed
+
+- Prune unneeded `\n` escape character from log messages
+
+- Compare file extensions without leading dot
+
 ## [v0.7.12] - 2021-02-21
 
 ### Overview
@@ -666,7 +694,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.12...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.13...HEAD
+[v0.7.13]: https://github.com/atc0005/elbow/releases/tag/v0.7.13
 [v0.7.12]: https://github.com/atc0005/elbow/releases/tag/v0.7.12
 [v0.7.11]: https://github.com/atc0005/elbow/releases/tag/v0.7.11
 [v0.7.10]: https://github.com/atc0005/elbow/releases/tag/v0.7.10
