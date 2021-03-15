@@ -75,8 +75,6 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 
 	log := config.GetLogger()
 
-	// NOTE: We do NOT compare extensions insensitively. We can add that
-	// functionality in the future if needed.
 	ext := filepath.Ext(filename)
 
 	if len(config.GetFileExtensions()) == 0 {
@@ -85,7 +83,8 @@ func HasMatchingExtension(filename string, config *config.Config) bool {
 		return true
 	}
 
-	if InList(ext, config.GetFileExtensions()) {
+	log.Debug("Comparing extensions case-insensitively")
+	if InList(ext, config.GetFileExtensions(), true) {
 		log.Debugf("%s has a valid extension for removal", filename)
 		return true
 	}
@@ -193,10 +192,17 @@ func HasMatchingAge(file os.FileInfo, config *config.Config) bool {
 
 }
 
-// InList is a helper function to emulate Python's `if "x"
-// in list:` functionality
-func InList(needle string, haystack []string) bool {
+// InList is a helper function to emulate Python's `if "x" in list:`
+// functionality. The caller can optionally ignore case of compared items.
+func InList(needle string, haystack []string, ignoreCase bool) bool {
 	for _, item := range haystack {
+
+		if ignoreCase {
+			if strings.EqualFold(item, needle) {
+				return true
+			}
+		}
+
 		if item == needle {
 			return true
 		}
