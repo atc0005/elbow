@@ -30,6 +30,56 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// FileAgeThreshold represents the threshold where a file is eligible for
+// removal.
+type FileAgeThreshold struct {
+	daysBack int
+	time     time.Time
+}
+
+// String implements the Stringer interface for display purposes.
+func (ft FileAgeThreshold) String() string {
+	return ft.FormatDisplay()
+}
+
+// FormatDisplay returns the file age threshold in a human friendly time
+// format for display purposes.
+func (ft FileAgeThreshold) FormatDisplay() string {
+	return ft.time.Format(time.RFC1123)
+}
+
+// FormatLog returns the file age threshold in a format intended for use in
+// log messages, often for the purposes of debugging.
+func (ft FileAgeThreshold) FormatLog() string {
+	return ft.time.Format(time.RFC3339)
+}
+
+// DaysBack returns the number of days prior to the current date used as the
+// file age threshold.
+func (ft FileAgeThreshold) DaysBack() int {
+	return ft.daysBack
+}
+
+// Time returns the file age threshold as a time.Time value.
+func (ft FileAgeThreshold) Time() time.Time {
+	return ft.time
+}
+
+// NewFileAgeThreshold is used to create a new instance of FileAgeThreshold.
+func NewFileAgeThreshold(daysOld int) FileAgeThreshold {
+
+	// Flip user specified number of days negative so that we can wind
+	// back that many days from the file modification time. This gives
+	// us our threshold to compare file modification times against.
+	daysBack := -(daysOld)
+	fileAgeThreshold := time.Now().AddDate(0, 0, daysBack)
+
+	return FileAgeThreshold{
+		daysBack: daysBack,
+		time:     fileAgeThreshold,
+	}
+}
+
 // FileMatch represents a superset of statistics (including os.FileInfo) for a
 // file matched by provided search criteria. This allows us to record the
 // original full path while also recording file metadata used in later
@@ -153,34 +203,30 @@ func HasMatchingAge(file os.FileInfo, config *config.Config) bool {
 	// is considered for use with age matching.
 	if config.GetFileAge() > 0 {
 
-		// Flip user specified number of days negative so that we can wind
-		// back that many days from the file modification time. This gives
-		// us our threshold to compare file modification times against.
-		daysBack := -(config.GetFileAge())
-		fileAgeThreshold := now.AddDate(0, 0, daysBack)
+		fileAgeThreshold := NewFileAgeThreshold(config.GetFileAge())
 
 		// Bundle more fields now that we have access to the data
 		contextLogger = contextLogger.WithFields(logrus.Fields{
-			"file_age_threshold": fileAgeThreshold.Format(time.RFC3339),
-			"days_back":          daysBack,
+			"file_age_threshold": fileAgeThreshold.FormatLog(),
+			"days_back":          fileAgeThreshold.DaysBack(),
 		})
 
 		contextLogger.Debug("Before age check")
 
 		switch {
-		case fileModTime.Equal(fileAgeThreshold):
+		case fileModTime.Equal(fileAgeThreshold.Time()):
 			ageCheckResults = true
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
 			}).Debug("HasMatchingAge: file mod time is equal to threshold")
 
-		case fileModTime.Before(fileAgeThreshold):
+		case fileModTime.Before(fileAgeThreshold.Time()):
 			ageCheckResults = true
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
 			}).Debug("HasMatchingAge: file mod time is before threshold")
 
-		case fileModTime.After(fileAgeThreshold):
+		case fileModTime.After(fileAgeThreshold.Time()):
 			ageCheckResults = false
 			contextLogger.WithFields(logrus.Fields{
 				"safe_for_removal": ageCheckResults,
