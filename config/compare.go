@@ -110,6 +110,14 @@ func CompareConfig(got Config, wanted Config, t *testing.T) {
 			got.Paths, wanted.Paths)
 	}
 
+	if !testStringSliceEqual(got.Exclude, wanted.Exclude) {
+		t.Errorf("Exclude: got (%q) does not equal wanted (%q)",
+			got.Exclude, wanted.Exclude)
+	} else {
+		t.Logf("Exclude: got (%q) == wanted (%q)",
+			got.Exclude, wanted.Exclude)
+	}
+
 	if !testStringSliceEqual(got.FileExtensions, wanted.FileExtensions) {
 		t.Errorf("FileExtensions: got (%q) does not equal wanted (%q)",
 			got.FileExtensions, wanted.FileExtensions)

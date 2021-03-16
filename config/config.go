@@ -58,6 +58,7 @@ type FileHandling struct {
 // performs searches in the filesystem
 type Search struct {
 	Paths           []string `toml:"paths" arg:"--paths,env:ELBOW_PATHS" help:"List of comma or space-separated paths to process."`
+	Exclude         []string `toml:"exclude" arg:"--exclude,env:ELBOW_EXCLUDE" help:"List of comma or space-separated paths to exclude from processing."`
 	RecursiveSearch *bool    `toml:"recursive_search" arg:"--recurse,env:ELBOW_RECURSE" help:"Perform recursive search into subdirectories per provided path."`
 }
 
@@ -446,7 +447,30 @@ func (c Config) Version() string {
 // formatting if using the TextFormatter logrus formatter.
 func (c *Config) String() string {
 
-	return fmt.Sprintf("AppName=%q, AppDescription=%q, AppVersion=%q, AppURL=%q, FilePattern=%q, FileExtensions=%q, Paths=%v, RecursiveSearch=%t, FileAge=%d, NumFilesToKeep=%d, KeepOldest=%t, Remove=%t, IgnoreErrors=%t, LogFormat=%q, LogFilePath=%q, ConfigFile=%q, ConsoleOutput=%q, LogLevel=%q, UseSyslog=%t, logger=%v, flagParser=%v,  logFileHandle=%v",
+	return fmt.Sprintf(
+		"AppName=%q, "+
+			"AppDescription=%q, "+
+			"AppVersion=%q, "+
+			"AppURL=%q, "+
+			"FilePattern=%q, "+
+			"FileExtensions=%q, "+
+			"Paths=%v, "+
+			"Excludes=%v,"+
+			"RecursiveSearch=%t, "+
+			"FileAge=%d, "+
+			"NumFilesToKeep=%d, "+
+			"KeepOldest=%t, "+
+			"Remove=%t, "+
+			"IgnoreErrors=%t, "+
+			"LogFormat=%q, "+
+			"LogFilePath=%q, "+
+			"ConfigFile=%q, "+
+			"ConsoleOutput=%q, "+
+			"LogLevel=%q, "+
+			"UseSyslog=%t, "+
+			"logger=%v, "+
+			"flagParser=%v, "+
+			"logFileHandle=%v",
 
 		c.GetAppName(),
 		c.GetAppDescription(),
@@ -455,6 +479,7 @@ func (c *Config) String() string {
 		c.GetFilePattern(),
 		c.GetFileExtensions(),
 		c.GetPaths(),
+		c.GetExclude(),
 		c.GetRecursiveSearch(),
 		c.GetFileAge(),
 		c.GetNumFilesToKeep(),

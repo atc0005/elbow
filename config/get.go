@@ -140,6 +140,15 @@ func (c *Config) GetPaths() []string {
 	return c.Paths
 }
 
+// GetExclude returns the Exclude field if it's non-nil, app default value
+// otherwise.
+func (c *Config) GetExclude() []string {
+	if c == nil || c.Exclude == nil {
+		return nil
+	}
+	return c.Exclude
+}
+
 // GetRecursiveSearch returns the RecursiveSearch field if it's non-nil, zero
 // value otherwise.
 func (c *Config) GetRecursiveSearch() bool {

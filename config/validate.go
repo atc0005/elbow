@@ -61,6 +61,12 @@ func (c Config) Validate() error {
 		return fmt.Errorf("one or more paths not provided")
 	}
 
+	// TODO: Validate Exclude slice
+	//
+	// It is an optional set of values, so how to validate? Is there standard
+	// library support for confirming a filesystem path looks like a
+	// filesystem path?
+
 	// RecursiveSearch is optional
 	if c.RecursiveSearch == nil {
 		return fmt.Errorf("field RecursiveSearch not configured")

@@ -79,6 +79,10 @@ func MergeConfig(destination *Config, source Config) error {
 		destination.Paths = source.Paths
 	}
 
+	if source.Exclude != nil {
+		destination.Exclude = source.Exclude
+	}
+
 	if source.FileExtensions != nil {
 		destination.FileExtensions = source.FileExtensions
 	}

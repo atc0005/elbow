@@ -167,9 +167,9 @@ func PathExists(path string) (bool, error) {
 
 }
 
-// ProcessPath accepts a configuration object and a path to process and
-// returns a slice of FileMatch objects
-func ProcessPath(config *config.Config, path string) (matches.FileMatches, error) {
+// ProcessPath accepts a configuration object, a path to process a list of
+// exclusions and returns a slice of FileMatch objects.
+func ProcessPath(config *config.Config, path string, exclude []string) (matches.FileMatches, error) {
 
 	log := config.GetLogger()
 
@@ -235,6 +235,10 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 				if !matches.HasMatchingAge(info, config) {
 					return nil
 				}
+
+				// check to see if the parent directory for the file is in the
+				// exclusions list *or* if an exact match for the file is in
+				// the exclusions list.
 
 				// If we made it to this point, then we must assume that the file
 				// has met all criteria to be removed by this application.
