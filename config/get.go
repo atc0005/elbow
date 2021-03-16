@@ -24,7 +24,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// GetAppName returns the appName field if it's non-nil, app default value
+// GetAppName returns the AppName field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetAppName() string {
 	if c == nil || c.AppName == "" {
@@ -33,7 +33,7 @@ func (c *Config) GetAppName() string {
 	return c.AppName
 }
 
-// GetAppDescription returns the appDescription field if it's non-nil, app
+// GetAppDescription returns the AppDescription field if it's non-nil, app
 // default value otherwise
 func (c *Config) GetAppDescription() string {
 	if c == nil || c.AppDescription == "" {
@@ -43,7 +43,7 @@ func (c *Config) GetAppDescription() string {
 
 }
 
-// GetAppVersion returns the appVersion field if it's non-nil, app default
+// GetAppVersion returns the AppVersion field if it's non-nil, app default
 // value otherwise
 func (c *Config) GetAppVersion() string {
 	if c == nil || c.AppVersion == "" {
@@ -52,7 +52,7 @@ func (c *Config) GetAppVersion() string {
 	return c.AppVersion
 }
 
-// GetAppURL returns the appURL field if it's non-nil, app default value
+// GetAppURL returns the AppURL field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetAppURL() string {
 	if c == nil || c.AppURL == "" {
@@ -61,7 +61,7 @@ func (c *Config) GetAppURL() string {
 	return c.AppURL
 }
 
-// GetFilePattern returns the filePattern field if it's non-nil, app default
+// GetFilePattern returns the FilePattern field if it's non-nil, app default
 // value otherwise
 func (c *Config) GetFilePattern() string {
 	if c == nil || c.FilePattern == nil {
@@ -70,7 +70,7 @@ func (c *Config) GetFilePattern() string {
 	return *c.FilePattern
 }
 
-// GetFileExtensions returns the fileExtensions field if it's non-nil, zero value
+// GetFileExtensions returns the FileExtensions field if it's non-nil, zero value
 // otherwise.
 // TODO: Double check this one; how should we safely handle returning an
 // empty/zero value?
@@ -86,7 +86,7 @@ func (c *Config) GetFileExtensions() []string {
 	return c.FileExtensions
 }
 
-// GetFileAge returns the fileAge field if it's non-nil, app default value
+// GetFileAge returns the FileAge field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetFileAge() int {
 	if c == nil || c.FileAge == nil {
@@ -95,7 +95,7 @@ func (c *Config) GetFileAge() int {
 	return *c.FileAge
 }
 
-// GetNumFilesToKeep returns the numFilesToKeep field if it's non-nil, zero
+// GetNumFilesToKeep returns the NumFilesToKeep field if it's non-nil, zero
 // value otherwise.
 func (c *Config) GetNumFilesToKeep() int {
 	if c == nil || c.NumFilesToKeep == nil {
@@ -104,7 +104,7 @@ func (c *Config) GetNumFilesToKeep() int {
 	return *c.NumFilesToKeep
 }
 
-// GetKeepOldest returns the keepOldest field if it's non-nil, zero value
+// GetKeepOldest returns the KeepOldest field if it's non-nil, zero value
 // otherwise.
 func (c *Config) GetKeepOldest() bool {
 	if c == nil || c.KeepOldest == nil {
@@ -113,7 +113,7 @@ func (c *Config) GetKeepOldest() bool {
 	return *c.KeepOldest
 }
 
-// GetRemove returns the remove field if it's non-nil, app default value
+// GetRemove returns the Remove field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetRemove() bool {
 	if c == nil || c.Remove == nil {
@@ -122,7 +122,7 @@ func (c *Config) GetRemove() bool {
 	return *c.Remove
 }
 
-// GetIgnoreErrors returns the ignoreErrors field if it's non-nil, zero value
+// GetIgnoreErrors returns the IgnoreErrors field if it's non-nil, zero value
 // otherwise.
 func (c *Config) GetIgnoreErrors() bool {
 	if c == nil || c.IgnoreErrors == nil {
@@ -131,7 +131,7 @@ func (c *Config) GetIgnoreErrors() bool {
 	return *c.IgnoreErrors
 }
 
-// GetPaths returns the paths field if it's non-nil, app default value
+// GetPaths returns the Paths field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetPaths() []string {
 	if c == nil || c.Paths == nil {
@@ -140,7 +140,7 @@ func (c *Config) GetPaths() []string {
 	return c.Paths
 }
 
-// GetRecursiveSearch returns the recursiveSearch field if it's non-nil, zero
+// GetRecursiveSearch returns the RecursiveSearch field if it's non-nil, zero
 // value otherwise.
 func (c *Config) GetRecursiveSearch() bool {
 	if c == nil || c.RecursiveSearch == nil {
@@ -149,7 +149,7 @@ func (c *Config) GetRecursiveSearch() bool {
 	return *c.RecursiveSearch
 }
 
-// GetLogLevel returns the logLevel field if it's non-nil, app default value
+// GetLogLevel returns the LogLevel field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetLogLevel() string {
 	if c == nil || c.LogLevel == nil {
@@ -158,7 +158,7 @@ func (c *Config) GetLogLevel() string {
 	return *c.LogLevel
 }
 
-// GetLogFormat returns the logFormat field if it's non-nil, app default value
+// GetLogFormat returns the LogFormat field if it's non-nil, app default value
 // otherwise
 func (c *Config) GetLogFormat() string {
 	if c == nil || c.LogFormat == nil {
@@ -167,7 +167,7 @@ func (c *Config) GetLogFormat() string {
 	return *c.LogFormat
 }
 
-// GetLogFilePath returns the logFilePath field if it's non-nil, zero value
+// GetLogFilePath returns the LogFilePath field if it's non-nil, zero value
 // otherwise.
 func (c *Config) GetLogFilePath() string {
 	if c == nil || c.LogFilePath == nil {
@@ -176,7 +176,7 @@ func (c *Config) GetLogFilePath() string {
 	return *c.LogFilePath
 }
 
-// GetConsoleOutput returns the consoleOutput field if it's non-nil, zero
+// GetConsoleOutput returns the ConsoleOutput field if it's non-nil, zero
 // value otherwise.
 func (c *Config) GetConsoleOutput() string {
 	if c == nil || c.ConsoleOutput == nil {
@@ -185,7 +185,7 @@ func (c *Config) GetConsoleOutput() string {
 	return *c.ConsoleOutput
 }
 
-// GetUseSyslog returns the useSyslog field if it's non-nil, zero
+// GetUseSyslog returns the UseSyslog field if it's non-nil, zero
 // value otherwise.
 func (c *Config) GetUseSyslog() bool {
 	if c == nil || c.UseSyslog == nil {
@@ -194,7 +194,7 @@ func (c *Config) GetUseSyslog() bool {
 	return *c.UseSyslog
 }
 
-// GetConfigFile returns the configFile field if it's non-nil, zero value
+// GetConfigFile returns the ConfigFile field if it's non-nil, zero value
 // otherwise.
 func (c *Config) GetConfigFile() string {
 	if c == nil || c.ConfigFile == nil {
