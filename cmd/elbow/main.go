@@ -22,6 +22,7 @@ import (
 	"os"
 
 	"github.com/atc0005/elbow/config"
+	"github.com/atc0005/elbow/matches"
 	"github.com/atc0005/elbow/paths"
 	"github.com/atc0005/elbow/units"
 
@@ -79,11 +80,14 @@ func main() {
 		}()
 	}
 
+	fileAgeThreshold := matches.NewFileAgeThreshold(appConfig.GetFileAge())
+
 	log.WithFields(logrus.Fields{
-		"paths":        appConfig.GetPaths(),
-		"file_pattern": appConfig.GetFilePattern(),
-		"extensions":   appConfig.GetFileExtensions(),
-		"file_age":     appConfig.GetFileAge(),
+		"paths":              appConfig.GetPaths(),
+		"file_pattern":       appConfig.GetFilePattern(),
+		"extensions":         appConfig.GetFileExtensions(),
+		"file_age":           appConfig.GetFileAge(),
+		"file_age_threshold": fileAgeThreshold.FormatLog(),
 	}).Info("Starting evaluation of paths list")
 
 	// Used as a global counter/bucket for presentation/logging purposes
@@ -171,11 +175,12 @@ func main() {
 		if len(fileMatches) == 0 {
 
 			log.WithFields(logrus.Fields{
-				"path":         path,
-				"file_pattern": appConfig.GetFilePattern(),
-				"extensions":   appConfig.GetFileExtensions(),
-				"file_age":     appConfig.GetFileAge(),
-				"iteration":    pass,
+				"path":               path,
+				"file_pattern":       appConfig.GetFilePattern(),
+				"extensions":         appConfig.GetFileExtensions(),
+				"file_age":           appConfig.GetFileAge(),
+				"file_age_threshold": fileAgeThreshold.FormatLog(),
+				"iteration":          pass,
 			}).Info("No matches found")
 
 			log.WithFields(logrus.Fields{
@@ -192,12 +197,13 @@ func main() {
 		}
 
 		log.WithFields(logrus.Fields{
-			"path":            path,
-			"file_pattern":    appConfig.GetFilePattern(),
-			"extensions":      appConfig.GetFileExtensions(),
-			"file_age":        appConfig.GetFileAge(),
-			"total_file_size": fileMatches.TotalFileSize(),
-			"iteration":       pass,
+			"path":               path,
+			"file_pattern":       appConfig.GetFilePattern(),
+			"extensions":         appConfig.GetFileExtensions(),
+			"file_age":           appConfig.GetFileAge(),
+			"file_age_threshold": fileAgeThreshold.FormatLog(),
+			"total_file_size":    fileMatches.TotalFileSize(),
+			"iteration":          pass,
 		}).Infof("%d files eligible for removal (%s)",
 			len(fileMatches),
 			fileMatches.TotalFileSizeHR())
