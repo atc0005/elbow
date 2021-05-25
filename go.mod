@@ -24,7 +24,7 @@ module github.com/atc0005/elbow
 go 1.13
 
 require (
-	github.com/alexflint/go-arg v1.4.1
+	github.com/alexflint/go-arg v1.4.2
 	github.com/pelletier/go-toml v1.9.1
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.5.1 // indirect
