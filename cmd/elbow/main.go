@@ -94,7 +94,7 @@ func main() {
 	var appResults paths.ProcessingResults
 
 	var pass int
-	var totalPaths int = len(appConfig.GetPaths())
+	var totalPaths = len(appConfig.GetPaths())
 	for _, path := range appConfig.GetPaths() {
 
 		pass++
