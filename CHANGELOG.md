@@ -26,6 +26,43 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.14] - 2021-07-20
+
+### Overview
+
+- Dependency updates
+- Bug fixes
+- built using Go 1.16.6
+  - Statically linked
+  - Linux (x86, x64)
+
+### Added
+
+- Add "canary" Dockerfile to track stable Go releases, serve as a reminder to
+  generate fresh binaries
+
+### Changed
+
+- Show the date for the specific number of days when using the `--age` flag
+
+- Dependencies
+  - `Go`
+    - `1.16.2` to `1.16.6`
+  - `alexflint/go-arg`
+    - `v1.3.0` to `v1.4.2`
+  - `pelletier/go-toml`
+    - `v1.8.1` to `v1.9.3`
+  - `actions/setup-node`
+    - `v2.1.5` to `v2.2.0`
+    - update `node-version` value to always use latest LTS version instead of
+      hard-coded version
+
+### Fixed
+
+- cmd/elbow/main.go:97:17: ST1023: should omit type int from declaration; it
+  will be inferred from the right-hand side (stylecheck)
+- Fix doc comment field references
+
 ## [v0.7.13] - 2021-03-15
 
 ### Overview
@@ -694,7 +731,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.13...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.14...HEAD
+[v0.7.14]: https://github.com/atc0005/elbow/releases/tag/v0.7.14
 [v0.7.13]: https://github.com/atc0005/elbow/releases/tag/v0.7.13
 [v0.7.12]: https://github.com/atc0005/elbow/releases/tag/v0.7.12
 [v0.7.11]: https://github.com/atc0005/elbow/releases/tag/v0.7.11
