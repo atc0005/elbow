@@ -26,6 +26,24 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.15] - 2021-08-09
+
+### Overview
+
+- Dependency updates
+- built using Go 1.16.7
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.16.6` to `1.16.7`
+  - `actions/setup-node`
+    - updated from `v2.2.0` to `v2.4.0`
+
 ## [v0.7.14] - 2021-07-20
 
 ### Overview
@@ -731,7 +749,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.14...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.15...HEAD
+[v0.7.15]: https://github.com/atc0005/elbow/releases/tag/v0.7.15
 [v0.7.14]: https://github.com/atc0005/elbow/releases/tag/v0.7.14
 [v0.7.13]: https://github.com/atc0005/elbow/releases/tag/v0.7.13
 [v0.7.12]: https://github.com/atc0005/elbow/releases/tag/v0.7.12
