@@ -26,6 +26,35 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.16] - 2021-11-10
+
+### Overview
+
+- Dependency updates
+- built using Go 1.16.10
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.16.7` to `1.16.10`
+  - `pelletier/go-toml`
+    - `v1.9.3` to `v1.9.4`
+  - `actions/checkout`
+    - `v2.3.4` to `v2.4.0`
+  - `actions/setup-node`
+    - `v2.4.0` to `v2.4.1`
+
+### Fixed
+
+- (GH-362) False positive `G307: Deferring unsafe method "Close" on type
+  "*os.File" (gosec)` linting error
+- (GH-350) Build tag format changed between Go 1.16 and 1.17
+- (GH-348) Lock Go version to the latest "oldstable" series
+
 ## [v0.7.15] - 2021-08-09
 
 ### Overview
@@ -749,7 +778,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.15...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.16...HEAD
+[v0.7.16]: https://github.com/atc0005/elbow/releases/tag/v0.7.16
 [v0.7.15]: https://github.com/atc0005/elbow/releases/tag/v0.7.15
 [v0.7.14]: https://github.com/atc0005/elbow/releases/tag/v0.7.14
 [v0.7.13]: https://github.com/atc0005/elbow/releases/tag/v0.7.13
