@@ -16,7 +16,11 @@ Elbow, Elbow grease.
   - [Features](#features)
   - [Changelog](#changelog)
   - [Requirements](#requirements)
-  - [How to install it](#how-to-install-it)
+    - [Building source code](#building-source-code)
+    - [Running](#running)
+  - [Installation](#installation)
+    - [From source](#from-source)
+    - [Using release binaries](#using-release-binaries)
   - [Setup test environment](#setup-test-environment)
   - [Configuration Options](#configuration-options)
     - [Precedence](#precedence)
@@ -35,14 +39,18 @@ Elbow, Elbow grease.
     - [Prune `.war` files from each branch recursively, keep newest 2](#prune-war-files-from-each-branch-recursively-keep-newest-2)
     - [Keep oldest 1, debug logging, ignore errors, use syslog](#keep-oldest-1-debug-logging-ignore-errors-use-syslog)
     - [Log to a file in JSON format](#log-to-a-file-in-json-format)
-  - [References](#references)
   - [License](#license)
+  - [References](#references)
+    - [Flag packages](#flag-packages)
+    - [Configuration object](#configuration-object)
+    - [Sorting files](#sorting-files)
+    - [Path/File Existence](#pathfile-existence)
+    - [Slice management](#slice-management)
 
 ## Project home
 
-See [our GitHub repo](https://github.com/atc0005/elbow) for the latest code,
-to file an issue or submit improvements for review and potential inclusion
-into the project.
+See [our GitHub repo][repo-url] for the latest code, to file an issue or
+submit improvements for review and potential inclusion into the project.
 
 ## Purpose
 
@@ -92,24 +100,36 @@ official release is also provided for further review.
 
 ## Requirements
 
-- Go 1.13+ (for building)
-- Linux (if using Syslog support)
-  - macOS and UNIX systems have not been tested
+The following is a loose guideline. Other combinations of Go and operating
+systems for building and running tools from this repo may work, but have not
+been tested.
+
+### Building source code
+
+- Go
+  - see this project's `go.mod` file for *preferred* version
+  - this project tests against [officially supported Go
+    releases][go-supported-releases]
+    - the most recent stable release (aka, "stable")
+    - the prior, but still supported release (aka, "oldstable")
 - GCC
   - if building with custom options (as the provided `Makefile` does)
 - `make`
   - if using the provided `Makefile`
 
-Tested using:
+### Running
 
-- Go 1.13+
-- Windows 10 Version 1803+
-- Ubuntu Linux 16.04+
+- Windows 10
+- Ubuntu Linux 18.04+
+- Red Hat Enterprise Linux 7+
 
-## How to install it
+## Installation
 
-1. [Download](https://golang.org/dl/) Go
-1. [Install](https://golang.org/doc/install) Go
+### From source
+
+1. [Download][go-docs-download] Go
+1. [Install][go-docs-install] Go
+   - NOTE: Pay special attention to the remarks about `$HOME/.profile`
 1. Clone the repo
    1. `cd /tmp`
    1. `git clone https://github.com/atc0005/elbow`
@@ -133,6 +153,14 @@ Tested using:
 1. Copy the applicable binary to whatever systems needs to run it
    - if using `Makefile`: look in `/tmp/release_assets/elbow/`
    - if using `go build`: look in `/tmp/elbow/`
+
+### Using release binaries
+
+1. Download the [latest
+   release](https://github.com/atc0005/elbow/releases/latest) binaries
+1. Deploy
+   - Place `elbow` in a location of your choice
+     - e.g., `/usr/local/bin/`
 
 ## Setup test environment
 
@@ -436,10 +464,6 @@ Note: Leave off `--remove` to display what *would* be removed.
 ./elbow --paths "/tmp/elbow/path1" "/tmp/elbow/path2" --pattern "reach-masterdev-" --keep 1 --recurse --keep-old --ignore-errors --log-level debug --use-syslog --log-format json --log-file testing-masterdev-build-removals.txt
 ```
 
-## References
-
-See the [docs/references.md](docs/references.md) for details.
-
 ## License
 
 Taken directly from the `LICENSE` and `NOTICE.txt` files:
@@ -461,5 +485,50 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 ```
 
+## References
+
+### Flag packages
+
+The following list of packages were either used or seriously considered at
+some point during the development of this project.
+
+- <https://github.com/jessevdk/go-flags#example>
+- <https://github.com/sirupsen/logrus>
+- <https://github.com/integrii/flaggy>
+
+### Configuration object
+
+- <https://github.com/go-sql-driver/mysql/blob/877a9775f06853f611fb2d4e817d92479242d1cd/dsn.go#L67>
+- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/aws/config.go#L251>
+- <https://github.com/aws/aws-sdk-go/blob/master/aws/config.go>
+- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/awstesting/integration/performance/s3GetObject/config.go#L25>
+- <https://github.com/aws/aws-sdk-go/blob/10878ad0389c5b3069815112ce888b191c8cd325/awstesting/integration/performance/s3GetObject/main.go#L25>
+
+### Sorting files
+
+- <https://stackoverflow.com/questions/46746862/list-files-in-a-directory-sorted-by-creation-time>
+
+### Path/File Existence
+
+- <https://gist.github.com/mattes/d13e273314c3b3ade33f>
+
+### Slice management
+
+- <https://yourbasic.org/golang/delete-element-slice/>
+- <https://stackoverflow.com/questions/37334119/how-to-delete-an-element-from-a-slice-in-golang>
+- <https://github.com/golang/go/wiki/SliceTricks>
+
+<!-- Footnotes here  -->
+
+[repo-url]: <https://github.com/atc0005/check-elbow>  "This project's GitHub repo"
+
+[go-docs-download]: <https://golang.org/dl>  "Download Go"
+
+[go-docs-install]: <https://golang.org/doc/install>  "Install Go"
+
+[go-supported-releases]: <https://go.dev/doc/devel/release#policy> "Go Release Policy"
+
 [screenshot-v0.2.0]: media/elbow_example_text_log_format_2019-09-26.png "Colored text output example screenshot"
 [screenshot-issue32]: media/elbow_example_text_log_format_2019-10-22.png "Colored text output example screenshot"
+
+<!-- []: PLACEHOLDER "DESCRIPTION_HERE" -->
