@@ -26,6 +26,36 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.18] - 2022-03-02
+
+### Overview
+
+- Dependency updates
+- CI / linting improvements
+- built using Go 1.17.7
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.16.12` to `1.17.7`
+    - (GH-371) Update go.mod file, canary Dockerfile to reflect current
+      dependencies
+  - `alexflint/go-arg`
+    - `v1.4.2` to `v1.4.3`
+  - `actions/checkout`
+    - `v2.4.0` to `v3`
+  - `actions/setup-node`
+    - `v2.5.1` to `v3`
+
+- (GH-374) Expand linting GitHub Actions Workflow to include `oldstable`,
+  `unstable` container images
+- (GH-375) Switch Docker image source from Docker Hub to GitHub Container
+  Registry (GHCR)
+
 ## [v0.7.17] - 2021-12-29
 
 ### Overview
@@ -796,7 +826,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.17...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.18...HEAD
+[v0.7.18]: https://github.com/atc0005/elbow/releases/tag/v0.7.18
 [v0.7.17]: https://github.com/atc0005/elbow/releases/tag/v0.7.17
 [v0.7.16]: https://github.com/atc0005/elbow/releases/tag/v0.7.16
 [v0.7.15]: https://github.com/atc0005/elbow/releases/tag/v0.7.15
