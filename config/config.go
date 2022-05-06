@@ -29,7 +29,7 @@ import (
 	"github.com/atc0005/elbow/logging"
 
 	"github.com/alexflint/go-arg"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
 )
 
