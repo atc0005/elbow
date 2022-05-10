@@ -29,7 +29,7 @@ import (
 	"github.com/atc0005/elbow/logging"
 
 	"github.com/alexflint/go-arg"
-	"github.com/pelletier/go-toml"
+	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,11 +76,18 @@ type Logging struct {
 // startup.
 type Config struct {
 
-	// Embed other structs in an effort to better group related settings
-	AppMetadata
-	FileHandling
-	Logging
-	Search
+	// Embed other structs in an effort to better group related settings.
+	// Explicitly name embedded structs using the `toml` struct tag for
+	// pelletier/toml v2 compatibility (which reflects stdlib's encoding/json
+	// behavior).
+	//
+	// See also:
+	// https://github.com/atc0005/elbow/issues/386
+	// https://github.com/pelletier/go-toml/issues/772
+	AppMetadata  `toml:"-"`
+	FileHandling `toml:"filehandling"`
+	Logging      `toml:"logging"`
+	Search       `toml:"search"`
 
 	// Embedded to allow for easier carrying of "handles" between functions
 	// TODO: Confirm that this is both needed and that it doesn't violate
