@@ -26,6 +26,24 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.20] - 2022-05-11
+
+### Overview
+
+- Dependency updates
+- built using Go 1.17.10
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.17.9` to `1.17.10`
+  - `pelletier/go-toml`
+    - `v2.0.1-0.20220509164502-c5ca2c682b57` to `v2.0.1`
+
 ## [v0.7.19] - 2022-05-10
 
 ### Overview
@@ -844,7 +862,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.19...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.20...HEAD
+[v0.7.20]: https://github.com/atc0005/elbow/releases/tag/v0.7.20
 [v0.7.19]: https://github.com/atc0005/elbow/releases/tag/v0.7.19
 [v0.7.18]: https://github.com/atc0005/elbow/releases/tag/v0.7.18
 [v0.7.17]: https://github.com/atc0005/elbow/releases/tag/v0.7.17
