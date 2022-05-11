@@ -20,7 +20,7 @@ go 1.17
 
 require (
 	github.com/alexflint/go-arg v1.4.3
-	github.com/pelletier/go-toml/v2 v2.0.1-0.20220509164502-c5ca2c682b57
+	github.com/pelletier/go-toml/v2 v2.0.1
 	github.com/sirupsen/logrus v1.8.1
 )
 
