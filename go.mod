@@ -16,7 +16,7 @@ module github.com/atc0005/elbow
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-go 1.17
+go 1.19
 
 require (
 	github.com/alexflint/go-arg v1.4.3
