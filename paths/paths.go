@@ -21,7 +21,6 @@ package paths
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -250,23 +249,23 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 
 		// If RecursiveSearch is not enabled, process just the provided StartPath
 		// NOTE: The same cleanPath() function is used in either case, the
-		// difference is in how the FileMatches slice is populated
+		// difference is in how the FileMatches slice is populated.
 
-		// err is already declared earlier at a higher scope, so do not
-		// redeclare here
-		var files []os.FileInfo
-		files, err = ioutil.ReadDir(path)
-
+		files, err := os.ReadDir(path)
 		if err != nil {
 			// TODO: Do we really want to exit early at this point if there are
 			// failures evaluating some of the files?
 			// Is it possible to partially evaluate some of the files?
-			// TODO: Wrap error?
-			log.Errorf("Error from ioutil.ReadDir(): %s", err)
+			//
+			// return nil, fmt.Errorf(
+			// 	"error reading directory %s: %w",
+			// 	path,
+			// 	err,
+			// )
+			log.Errorf("Error reading directory %s: %s", path, err)
 		}
 
-		// Use []os.FileInfo returned from ioutil.ReadDir() to build slice of
-		// FileMatch objects
+		// Build collection of FileMatch objects for later evaluation.
 		for _, file := range files {
 
 			// ignore directories
@@ -274,32 +273,39 @@ func ProcessPath(config *config.Config, path string) (matches.FileMatches, error
 				continue
 			}
 
-			filename := file.Name()
+			fileInfo, err := file.Info()
+			if err != nil {
+				return nil, fmt.Errorf(
+					"file %s renamed or removed since directory read: %w",
+					fileInfo.Name(),
+					err,
+				)
+			}
 
 			// Apply validity checks against filename. If validity fails,
 			// go to the next file in the list.
 
 			// ignore invalid extensions (only applies if user chose one
 			// or more extensions to match against)
-			if !matches.HasMatchingExtension(filename, config) {
+			if !matches.HasMatchingExtension(fileInfo.Name(), config) {
 				continue
 			}
 
 			// ignore invalid filename patterns (only applies if user
 			// specified a filename pattern)
-			if !matches.HasMatchingFilenamePattern(filename, config) {
+			if !matches.HasMatchingFilenamePattern(fileInfo.Name(), config) {
 				continue
 			}
 
 			// ignore non-matching modification age
-			if !matches.HasMatchingAge(file, config) {
+			if !matches.HasMatchingAge(fileInfo, config) {
 				continue
 			}
 
 			// If we made it to this point, then we must assume that the file
 			// has met all criteria to be removed by this application.
 			fileMatch := matches.FileMatch{
-				FileInfo: file,
+				FileInfo: fileInfo,
 				Path:     filepath.Join(path, file.Name()),
 			}
 
