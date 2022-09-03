@@ -77,7 +77,6 @@ func (c *Config) GetFilePattern() string {
 // As an example, the https://github.com/google/go-github package has a
 // `Issue.GetAssignees()` method that returns nil if the `Issue.Assignees`
 // field is nil. This seems to suggest that this is all we really can do here?
-//
 func (c *Config) GetFileExtensions() []string {
 	if c == nil || c.FileExtensions == nil {
 		// FIXME: Isn't the goal to avoid returning nil?

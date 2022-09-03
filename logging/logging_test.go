@@ -17,7 +17,7 @@
 package logging
 
 import (
-	// "io/ioutil"
+	// "io"
 	"fmt"
 	"testing"
 
@@ -43,7 +43,7 @@ func TestLogBufferFlushShouldSucceed(t *testing.T) {
 
 	logger := logrus.New()
 	// Configure logger to throw everything away
-	// logger.SetOutput(ioutil.Discard)
+	// logger.SetOutput(io.Discard)
 	logger.SetLevel(logrus.TraceLevel)
 
 	type test struct {
