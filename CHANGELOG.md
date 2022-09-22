@@ -26,6 +26,35 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.22] - 2022-09-22
+
+### Overview
+
+- Bug fixes
+- Dependency updates
+- GitHub Actions Workflows updates
+- built using Go 1.19.1
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.17.12` to `1.19.1`
+  - `pelletier/go-toml`
+    - `v2.0.2` to `v2.0.5`
+  - `github/codeql-action`
+    - `v2.1.22` to `v2.1.25`
+- (GH-404) Update project to Go 1.19
+- (GH-405) Update Makefile and GitHub Actions Workflows
+
+### Fixed
+
+- (GH-402) Apply linting fixes for Go 1.19 release
+- (GH-403) Add missing cmd doc file
+
 ## [v0.7.21] - 2022-07-22
 
 ### Overview
@@ -887,7 +916,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.21...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.22...HEAD
+[v0.7.22]: https://github.com/atc0005/elbow/releases/tag/v0.7.22
 [v0.7.21]: https://github.com/atc0005/elbow/releases/tag/v0.7.21
 [v0.7.20]: https://github.com/atc0005/elbow/releases/tag/v0.7.20
 [v0.7.19]: https://github.com/atc0005/elbow/releases/tag/v0.7.19
