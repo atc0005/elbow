@@ -1,7 +1,7 @@
 # github.com/alexflint/go-arg v1.4.3
 ## explicit; go 1.13
 github.com/alexflint/go-arg
-# github.com/alexflint/go-scalar v1.1.0
+# github.com/alexflint/go-scalar v1.2.0
 ## explicit; go 1.15
 github.com/alexflint/go-scalar
 # github.com/pelletier/go-toml/v2 v2.0.6
@@ -15,7 +15,7 @@ github.com/pelletier/go-toml/v2/unstable
 ## explicit; go 1.13
 github.com/sirupsen/logrus
 github.com/sirupsen/logrus/hooks/syslog
-# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
+# golang.org/x/sys v0.3.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
