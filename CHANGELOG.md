@@ -26,6 +26,36 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.23] - 2022-12-12
+
+### Overview
+
+- Bug fixes
+- Dependency updates
+- GitHub Actions Workflows updates
+- built using Go 1.19.4
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.19.1` to `1.19.4`
+  - `pelletier/go-toml`
+    - `v2.0.5` to `v2.0.6`
+  - `github.com/alexflint/go-scalar`
+    - `v1.1.0` to `v1.2.0`
+  - `golang.org/x/sys`
+    - `v0.0.0-20220715151400-c0bba94af5f8` to `v0.3.0`
+- (GH-412) Refactor GitHub Actions workflows to import logic
+
+### Fixed
+
+- (GH-417) Fix Makefile Go module base path detection
+- (GH-403) Add missing cmd doc file
+
 ## [v0.7.22] - 2022-09-22
 
 ### Overview
@@ -916,7 +946,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.22...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.23...HEAD
+[v0.7.23]: https://github.com/atc0005/elbow/releases/tag/v0.7.23
 [v0.7.22]: https://github.com/atc0005/elbow/releases/tag/v0.7.22
 [v0.7.21]: https://github.com/atc0005/elbow/releases/tag/v0.7.21
 [v0.7.20]: https://github.com/atc0005/elbow/releases/tag/v0.7.20
