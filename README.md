@@ -7,7 +7,6 @@ Elbow, Elbow grease.
 [![go.mod Go version](https://img.shields.io/github/go-mod/go-version/atc0005/elbow)](https://github.com/atc0005/elbow)
 [![Lint and Build](https://github.com/atc0005/elbow/actions/workflows/lint-and-build.yml/badge.svg)](https://github.com/atc0005/elbow/actions/workflows/lint-and-build.yml)
 [![Project Analysis](https://github.com/atc0005/elbow/actions/workflows/project-analysis.yml/badge.svg)](https://github.com/atc0005/elbow/actions/workflows/project-analysis.yml)
-[![Push Validation](https://github.com/atc0005/elbow/actions/workflows/push-validation.yml/badge.svg)](https://github.com/atc0005/elbow/actions/workflows/push-validation.yml)
 
 - [elbow](#elbow)
   - [Project home](#project-home)
