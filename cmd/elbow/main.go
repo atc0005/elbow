@@ -139,7 +139,6 @@ func main() {
 				log.WithFields(logrus.Fields{
 					"ignore_errors": appConfig.GetIgnoreErrors(),
 				}).Warn("Error encountered, but continuing as requested.")
-				continue
 			} else {
 				log.WithFields(logrus.Fields{
 					"ignore_errors": appConfig.GetIgnoreErrors(),
