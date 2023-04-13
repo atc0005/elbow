@@ -95,7 +95,7 @@ func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel s
 		})
 
 	} else {
-		return fmt.Errorf("unable to connect to syslog socket: %s", err)
+		return fmt.Errorf("unable to connect to syslog socket: %w", err)
 	}
 
 	return nil

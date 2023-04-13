@@ -230,12 +230,12 @@ func NewConfig(appVersion string) (*Config, error) {
 
 		// path not found
 		if _, err := os.Stat(*argsConfig.ConfigFile); os.IsNotExist(err) {
-			return nil, fmt.Errorf("requested config file not found: %v", err)
+			return nil, fmt.Errorf("requested config file not found: %w", err)
 		}
 
 		fh, err := os.Open(*argsConfig.ConfigFile)
 		if err != nil {
-			return nil, fmt.Errorf("unable to open config file: %v", err)
+			return nil, fmt.Errorf("unable to open config file: %w", err)
 		}
 
 		// #nosec G307
@@ -275,7 +275,7 @@ func NewConfig(appVersion string) (*Config, error) {
 			}
 
 			// TODO: Wrap errors and return so they can be unpacked in main()
-			return nil, fmt.Errorf("error loading configuration file: %s", err)
+			return nil, fmt.Errorf("error loading configuration file: %w", err)
 		}
 
 		logging.Buffer.Add(logging.LogRecord{
@@ -373,8 +373,7 @@ func NewConfig(appVersion string) (*Config, error) {
 			// console
 			fmt.Printf("Failed to flush the log buffer: %v", err.Error())
 		}
-		// TODO: Wrap errors and return so they can be unpacked in main()
-		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %s", err)
+		return nil, fmt.Errorf("configuration validation failed after merging argsConfig: %w", err)
 
 	}
 
