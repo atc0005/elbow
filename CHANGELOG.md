@@ -26,6 +26,40 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.7.24] - 2023-04-13
+
+### Overview
+
+- Bug fixes
+- Dependency updates
+- GitHub Actions workflow updates
+- built using Go 1.19.8
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Added
+
+- (GH-422) Add Go Module Validation, Dependency Updates jobs
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.19.4` to `1.19.8`
+  - `pelletier/go-toml`
+    - `v2.0.6` to `v2.0.7`
+  - `golang.org/x/sys`
+    - `v0.3.0` to `v0.7.0`
+- CI
+  - (GH-425) Drop `Push Validation` workflow
+  - (GH-426) Rework workflow scheduling
+  - (GH-428) Remove `Push Validation` workflow status badge
+
+### Fixed
+
+- (GH-432) Update vuln analysis GHAW to use on.push hook
+
 ## [v0.7.23] - 2022-12-12
 
 ### Overview
@@ -946,7 +980,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.23...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.24...HEAD
+[v0.7.24]: https://github.com/atc0005/elbow/releases/tag/v0.7.24
 [v0.7.23]: https://github.com/atc0005/elbow/releases/tag/v0.7.23
 [v0.7.22]: https://github.com/atc0005/elbow/releases/tag/v0.7.22
 [v0.7.21]: https://github.com/atc0005/elbow/releases/tag/v0.7.21
