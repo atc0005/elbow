@@ -35,7 +35,7 @@ const (
 const (
 
 	// DefaultAppName is the default name for this application
-	DefaultAppName string = "Elbow"
+	DefaultAppName string = "elbow"
 
 	// DefaultAppDescription is the description for this application shown in
 	// HelpText output.
@@ -44,7 +44,11 @@ const (
 	// DefaultAppVersion is a placeholder that is used when the application is
 	// compiled without the use of the Makefile (which handles setting the
 	// value via a build tag)
-	DefaultAppVersion string = "dev"
+	//
+	// NOTE: We use an unexported variable that is set via Makefile builds
+	// instead of using a constant.
+	//
+	// DefaultAppVersion string = "dev build"
 
 	// DefaultAppURL is the website where users can learn more about the
 	// application, submit problem reports, etc.

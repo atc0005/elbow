@@ -19,7 +19,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 )
 
 // Validate verifies all struct fields have been provided acceptable values

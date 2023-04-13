@@ -25,8 +25,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/matches"
+	"github.com/atc0005/elbow/internal/config"
+	"github.com/atc0005/elbow/internal/matches"
 	"github.com/sirupsen/logrus"
 )
 

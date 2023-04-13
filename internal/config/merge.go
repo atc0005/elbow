@@ -19,7 +19,7 @@ package config
 import (
 	"fmt"
 
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 	"github.com/sirupsen/logrus"
 )
 

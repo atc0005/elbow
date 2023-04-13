@@ -25,7 +25,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/atc0005/elbow/units"
+	"github.com/atc0005/elbow/internal/units"
 	"github.com/sirupsen/logrus"
 )
 
@@ -73,7 +73,7 @@ func TestNewConfigFlagsOnly(t *testing.T) {
 	}
 
 	// TODO: Flesh this out
-	_, err := NewConfig("x.y.z")
+	_, err := NewConfig()
 	if err != nil {
 		t.Errorf("Error encountered when instantiating configuration: %s", err)
 	} else {

@@ -21,8 +21,8 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/config"
+	"github.com/atc0005/elbow/internal/logging"
 )
 
 func TestMain(t *testing.T) {
@@ -57,7 +57,7 @@ func TestMain(t *testing.T) {
 	}
 
 	// TODO: Flesh this out
-	_, err := config.NewConfig(version)
+	_, err := config.NewConfig()
 	if err != nil {
 		t.Errorf("Error encountered when instantiating configuration: %s", err)
 	} else {

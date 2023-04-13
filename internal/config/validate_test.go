@@ -19,7 +19,7 @@ package config
 import (
 	"testing"
 
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 )
 
 // TODO: Evaluate replacing bare strings with constants (see constants.go)
@@ -33,7 +33,7 @@ func TestValidate(t *testing.T) {
 	// Validate config struct
 	// Set field back to good value
 
-	c := NewDefaultConfig("x.y.z")
+	c := NewDefaultConfig()
 
 	testPaths := []string{"/tmp/elbow/path1"}
 	testFileExtensions := []string{".tmp", ".war"}
