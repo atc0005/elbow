@@ -25,12 +25,16 @@ import (
 	"os"
 	"strings"
 
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 
 	"github.com/alexflint/go-arg"
 	"github.com/pelletier/go-toml/v2"
 	"github.com/sirupsen/logrus"
 )
+
+// version reflects the application version. This is overridden via Makefile
+// for release builds.
+var version = "dev build"
 
 // AppMetadata represents data about this application that may be used in Help
 // output, error messages and potentially log messages (e.g., AppVersion)
@@ -102,7 +106,7 @@ type Config struct {
 
 // NewDefaultConfig returns a newly constructed config object composed of
 // default configuration settings.
-func NewDefaultConfig(appVersion string) Config {
+func NewDefaultConfig() Config {
 
 	// TODO: Is there a better way than creating a "throwaway" config object
 	// just to make use of its methods for retrieving default values?
@@ -129,7 +133,7 @@ func NewDefaultConfig(appVersion string) Config {
 			AppName:        defaultAppName,
 			AppDescription: defaultAppDescription,
 			AppURL:         defaultAppURL,
-			AppVersion:     appVersion,
+			AppVersion:     version,
 		},
 		FileHandling: FileHandling{
 			FilePattern: &defaultFilePattern,
@@ -159,7 +163,7 @@ func NewDefaultConfig(appVersion string) Config {
 
 // NewConfig returns a pointer to a newly configured object representing a
 // collection of user-provided and default settings.
-func NewConfig(appVersion string) (*Config, error) {
+func NewConfig() (*Config, error) {
 
 	// fmt.Printf("os.Args quoted: %q\n", os.Args)
 	// fmt.Printf("os.Args bare: %v\n", os.Args)
@@ -174,7 +178,7 @@ func NewConfig(appVersion string) (*Config, error) {
 
 	// Apply default settings that other configuration sources will be allowed
 	// to (and for a few settings MUST) override
-	baseConfig := NewDefaultConfig(appVersion)
+	baseConfig := NewDefaultConfig()
 
 	logging.Buffer.Add(logging.LogRecord{
 		Level:   logrus.DebugLevel,
@@ -197,7 +201,7 @@ func NewConfig(appVersion string) (*Config, error) {
 	// of those needs.
 	argsConfig := Config{
 		AppMetadata: AppMetadata{
-			AppVersion: appVersion,
+			AppVersion: version,
 		},
 	}
 

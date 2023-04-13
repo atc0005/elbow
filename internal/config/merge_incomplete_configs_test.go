@@ -24,7 +24,7 @@ import (
 	"testing"
 
 	"github.com/alexflint/go-arg"
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 )
 
 // TODO: Evaluate replacing bare strings with constants (see constants.go)
@@ -41,7 +41,7 @@ func TestMergeConfigUsingIncompleteConfigObjects(t *testing.T) {
 
 	// Validation will fail if this is all we do since the default config
 	// doesn't contain any Paths to process.
-	baseConfig := NewDefaultConfig("x.y.z")
+	baseConfig := NewDefaultConfig()
 
 	testBaseConfigPaths := []string{"/tmp/elbow/path1"}
 	baseConfig.Paths = testBaseConfigPaths

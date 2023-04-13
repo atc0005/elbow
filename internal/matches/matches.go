@@ -25,8 +25,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/units"
+	"github.com/atc0005/elbow/internal/config"
+	"github.com/atc0005/elbow/internal/units"
 	"github.com/sirupsen/logrus"
 )
 

@@ -20,7 +20,7 @@ import (
 	"os"
 
 	"github.com/alexflint/go-arg"
-	"github.com/atc0005/elbow/logging"
+	"github.com/atc0005/elbow/internal/logging"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,7 +47,7 @@ func (c *Config) GetAppDescription() string {
 // value otherwise
 func (c *Config) GetAppVersion() string {
 	if c == nil || c.AppVersion == "" {
-		return DefaultAppVersion
+		return version
 	}
 	return c.AppVersion
 }

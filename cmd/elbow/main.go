@@ -21,20 +21,16 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/atc0005/elbow/config"
-	"github.com/atc0005/elbow/matches"
-	"github.com/atc0005/elbow/paths"
-	"github.com/atc0005/elbow/units"
+	"github.com/atc0005/elbow/internal/config"
+	"github.com/atc0005/elbow/internal/matches"
+	"github.com/atc0005/elbow/internal/paths"
+	"github.com/atc0005/elbow/internal/units"
 
 	// Use `log` if we are going to override the default `log`, otherwise
 	// import without an "override" if we want to use the `logrus` name.
 	// https://godoc.org/github.com/sirupsen/logrus
 	"github.com/sirupsen/logrus"
 )
-
-// version represents the version of this application. Set externally during
-// build by our Makefile
-var version = "x.y.z"
 
 func main() {
 
@@ -43,7 +39,7 @@ func main() {
 	problemsEncountered := false
 
 	// If this fails, the application should immediately exit.
-	appConfig, err := config.NewConfig(version)
+	appConfig, err := config.NewConfig()
 	if err != nil {
 		// NOTE: We're not using `log` here as the user-specified
 		// configuration could be too botched to use reliably.
