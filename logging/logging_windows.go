@@ -25,7 +25,7 @@ import (
 
 // EnableSyslogLogging attempts to enable local syslog logging for non-Windows
 // systems. For Windows systems the attempt is skipped.
-func EnableSyslogLogging(logger *logrus.Logger, logBuffer *LogBuffer, logLevel string) error {
+func EnableSyslogLogging(_ *logrus.Logger, logBuffer *LogBuffer, _ string) error {
 
 	logBuffer.Add(LogRecord{
 		// TODO: Not sure what log level is appropriate here. We are already

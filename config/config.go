@@ -416,17 +416,12 @@ func NewConfig(appVersion string) (*Config, error) {
 // LoadConfigFile reads from an io.Reader and unmarshals a configuration file
 // in TOML format into the associated Config struct.
 func (c *Config) LoadConfigFile(fileHandle io.Reader) error {
-
 	configFile, err := io.ReadAll(fileHandle)
 	if err != nil {
 		return err
 	}
 
-	if err := toml.Unmarshal(configFile, c); err != nil {
-		return err
-	}
-
-	return nil
+	return toml.Unmarshal(configFile, c)
 }
 
 // Description provides an overview as part of the application Help output

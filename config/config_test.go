@@ -30,6 +30,7 @@ import (
 )
 
 func GetBaseProjectDir(t *testing.T) string {
+	t.Helper()
 
 	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
 	// TODO: How else to retrieve only the one value that I need? See GH-237.
