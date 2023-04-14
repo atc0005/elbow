@@ -26,6 +26,42 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.0] - 2023-04-14
+
+### Overview
+
+- Add support for generating DEB, RPM packages
+- Build improvements
+- Bug fixes
+- Generated binary changes
+  - filename patterns
+  - compression (~ 66% smaller)
+  - executable metadata
+- built using Go 1.19.8
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Added
+
+- (GH-438) Generate RPM/DEB packages using nFPM
+- (GH-441) Add version details to Windows executables
+
+### Changed
+
+- (GH-443) Switch to semantic versioning (semver) compatible versioning
+  pattern
+- (GH-442) Makefile: Compress binaries & use fixed filenames
+- (GH-439) Makefile: Refresh recipes to add "standard" set, new
+  package-related options
+- (GH-440) Build dev/stable releases using go-ci Docker image
+- (GH-444) Move internal packages to internal path
+
+### Fixed
+
+- (GH-436) Fix various revive linting errors
+- (GH-437) Fix errcheck linting errors
+
 ## [v0.7.24] - 2023-04-13
 
 ### Overview
@@ -980,7 +1016,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.7.24...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.0...HEAD
+[v0.8.0]: https://github.com/atc0005/elbow/releases/tag/v0.8.0
 [v0.7.24]: https://github.com/atc0005/elbow/releases/tag/v0.7.24
 [v0.7.23]: https://github.com/atc0005/elbow/releases/tag/v0.7.23
 [v0.7.22]: https://github.com/atc0005/elbow/releases/tag/v0.7.22
