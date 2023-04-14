@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"errors"
 	"os"
-	"path"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"testing"
@@ -32,13 +32,16 @@ import (
 func GetBaseProjectDir(t *testing.T) string {
 	t.Helper()
 
-	// https://stackoverflow.com/questions/23847003/golang-tests-and-working-directory
-	// TODO: How else to retrieve only the one value that I need? See GH-237.
-	_, filename, _, _ := runtime.Caller(1) // nolint:dogsled
-	// The ".." reflects the path above the current working directory
-	dir := path.Join(path.Dir(filename), "..")
-	return dir
+	// https://stackoverflow.com/questions/48570228/get-the-parent-path
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	// Our project root is two directories up from internal/config.
+	dir := filepath.Join(wd, "../..")
+
+	return dir
 }
 
 // TODO: Lots of variations here
