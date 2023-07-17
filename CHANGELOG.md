@@ -26,6 +26,38 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.1] - 2023-07-17
+
+### Overview
+
+- Bug fixes
+- Dependency updates
+- GitHub Actions workflow updates
+- built using Go 1.19.11
+  - Statically linked
+  - Windows (x86, x64)
+  - Linux (x86, x64)
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.19.8` to `1.19.11`
+  - `atc0005/go-ci`
+    - `go-ci-oldstable-build-v0.10.4` to `go-ci-oldstable-build-v0.11.4`
+  - `sirupsen/logrus`
+    - `v1.9.0` to `v1.9.3`
+  - `pelletier/go-toml`
+    - `v2.0.7` to `v2.0.9`
+  - `golang.org/x/sys`
+    - `v0.7.0` to `v0.10.0`
+- (GH-459) Update vuln analysis GHAW to remove on.push hook
+
+### Fixed
+
+- (GH-456) Disable depguard linter
+- (GH-461) Restore local CodeQL workflow
+
 ## [v0.8.0] - 2023-04-14
 
 ### Overview
@@ -1016,7 +1048,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.1...HEAD
+[v0.8.1]: https://github.com/atc0005/elbow/releases/tag/v0.8.1
 [v0.8.0]: https://github.com/atc0005/elbow/releases/tag/v0.8.0
 [v0.7.24]: https://github.com/atc0005/elbow/releases/tag/v0.7.24
 [v0.7.23]: https://github.com/atc0005/elbow/releases/tag/v0.7.23
