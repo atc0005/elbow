@@ -26,6 +26,25 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.2] - 2023-08-18
+
+### Added
+
+- (GH-470) Add initial automated release notes config
+- (GH-472) Add initial automated release build workflow
+
+### Changed
+
+- Dependencies
+  - `Go`
+    - `1.19.11` to `1.20.7`
+  - `atc0005/go-ci`
+    - `go-ci-oldstable-build-v0.11.4` to `go-ci-oldstable-build-v0.13.4`
+  - `golang.org/x/sys`
+    - `v0.10.0` to `v0.11.0`
+- (GH-474) Update Dependabot config to monitor both branches
+- (GH-492) Update project to Go 1.20 series
+
 ## [v0.8.1] - 2023-07-17
 
 ### Overview
@@ -1048,7 +1067,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.2...HEAD
+[v0.8.2]: https://github.com/atc0005/elbow/releases/tag/v0.8.2
 [v0.8.1]: https://github.com/atc0005/elbow/releases/tag/v0.8.1
 [v0.8.0]: https://github.com/atc0005/elbow/releases/tag/v0.8.0
 [v0.7.24]: https://github.com/atc0005/elbow/releases/tag/v0.7.24
