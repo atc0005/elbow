@@ -26,6 +26,28 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.3] - 2023-11-17
+
+### Changed
+
+#### Dependency Updates
+
+- (GH-535) canary: bump golang from 1.20.10 to 1.20.11 in /dependabot/docker/go
+- (GH-509) canary: bump golang from 1.20.7 to 1.20.8 in /dependabot/docker/go
+- (GH-528) canary: bump golang from 1.20.8 to 1.20.10 in /dependabot/docker/go
+- (GH-537) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.12 to go-ci-oldstable-build-v0.14.1 in /dependabot/docker/builds
+- (GH-497) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.4 to go-ci-oldstable-build-v0.13.5 in /dependabot/docker/builds
+- (GH-500) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.5 to go-ci-oldstable-build-v0.13.6 in /dependabot/docker/builds
+- (GH-502) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.6 to go-ci-oldstable-build-v0.13.7 in /dependabot/docker/builds
+- (GH-510) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.7 to go-ci-oldstable-build-v0.13.8 in /dependabot/docker/builds
+- (GH-517) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.8 to go-ci-oldstable-build-v0.13.9 in /dependabot/docker/builds
+- (GH-529) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.13.9 to go-ci-oldstable-build-v0.13.12 in /dependabot/docker/builds
+- (GH-507) ghaw: bump actions/checkout from 3 to 4
+- (GH-503) go.mod: bump github.com/pelletier/go-toml/v2 from 2.0.9 to 2.1.0
+- (GH-506) go.mod: bump golang.org/x/sys from 0.11.0 to 0.12.0
+- (GH-521) go.mod: bump golang.org/x/sys from 0.12.0 to 0.13.0
+- (GH-534) go.mod: bump golang.org/x/sys from 0.13.0 to 0.14.0
+
 ## [v0.8.2] - 2023-08-18
 
 ### Added
@@ -1067,7 +1089,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.3...HEAD
+[v0.8.3]: https://github.com/atc0005/elbow/releases/tag/v0.8.3
 [v0.8.2]: https://github.com/atc0005/elbow/releases/tag/v0.8.2
 [v0.8.1]: https://github.com/atc0005/elbow/releases/tag/v0.8.1
 [v0.8.0]: https://github.com/atc0005/elbow/releases/tag/v0.8.0
