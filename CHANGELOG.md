@@ -26,6 +26,21 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.4] - 2024-01-19
+
+### Changed
+
+#### Dependency Updates
+
+- (GH-544) canary: bump golang from 1.20.11 to 1.20.12 in /dependabot/docker/go
+- (GH-554) canary: bump golang from 1.20.12 to 1.20.13 in /dependabot/docker/go
+- (GH-547) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.14.1 to go-ci-oldstable-build-v0.14.2 in /dependabot/docker/builds
+- (GH-556) docker: bump atc0005/go-ci from go-ci-oldstable-build-v0.14.2 to go-ci-oldstable-build-v0.14.3 in /dependabot/docker/builds
+- (GH-550) ghaw: bump github/codeql-action from 2 to 3
+- (GH-548) go.mod: bump github.com/pelletier/go-toml/v2 from 2.1.0 to 2.1.1
+- (GH-542) go.mod: bump golang.org/x/sys from 0.14.0 to 0.15.0
+- (GH-553) go.mod: bump golang.org/x/sys from 0.15.0 to 0.16.0
+
 ## [v0.8.3] - 2023-11-17
 
 ### Changed
@@ -1089,7 +1104,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.3...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.4...HEAD
+[v0.8.4]: https://github.com/atc0005/elbow/releases/tag/v0.8.4
 [v0.8.3]: https://github.com/atc0005/elbow/releases/tag/v0.8.3
 [v0.8.2]: https://github.com/atc0005/elbow/releases/tag/v0.8.2
 [v0.8.1]: https://github.com/atc0005/elbow/releases/tag/v0.8.1
