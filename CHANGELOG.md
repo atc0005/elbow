@@ -26,6 +26,21 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.8] - 2024-05-13
+
+### Changed
+
+#### Dependency Updates
+
+- (GH-625) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.20.1 to go-ci-oldstable-build-v0.20.2 in /dependabot/docker/builds
+- (GH-631) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.20.2 to go-ci-oldstable-build-v0.20.3 in /dependabot/docker/builds
+- (GH-633) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.20.3 to go-ci-oldstable-build-v0.20.4 in /dependabot/docker/builds
+- (GH-636) Go Dependency: Bump github.com/alexflint/go-arg from 1.4.3 to 1.5.0
+- (GH-620) Go Dependency: Bump github.com/pelletier/go-toml/v2 from 2.2.0 to 2.2.1
+- (GH-623) Go Dependency: Bump github.com/pelletier/go-toml/v2 from 2.2.1 to 2.2.2
+- (GH-624) Go Dependency: Bump golang.org/x/sys from 0.19.0 to 0.20.0
+- (GH-628) Go Runtime: Bump golang from 1.21.9 to 1.21.10 in /dependabot/docker/go
+
 ## [v0.8.7] - 2024-04-11
 
 ### Changed
@@ -1150,7 +1165,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.7...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.8...HEAD
+[v0.8.8]: https://github.com/atc0005/elbow/releases/tag/v0.8.8
 [v0.8.7]: https://github.com/atc0005/elbow/releases/tag/v0.8.7
 [v0.8.6]: https://github.com/atc0005/elbow/releases/tag/v0.8.6
 [v0.8.5]: https://github.com/atc0005/elbow/releases/tag/v0.8.5
