@@ -177,7 +177,7 @@ func TestLoadConfigFileTemplate(t *testing.T) {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		t.Fatalf(err.Error())
+		t.Fatal(err.Error())
 	}
 	t.Log("Current working directory:", cwd)
 
@@ -192,7 +192,7 @@ func TestLoadConfigFileTemplate(t *testing.T) {
 	} else {
 		cwd, err := os.Getwd()
 		if err != nil {
-			t.Fatalf(err.Error())
+			t.Fatal(err.Error())
 		}
 		t.Log("New working directory:", cwd)
 	}
