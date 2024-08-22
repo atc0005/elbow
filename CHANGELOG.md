@@ -26,6 +26,30 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.11] - 2024-08-22
+
+### Changed
+
+#### Dependency Updates
+
+- (GH-675) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.21.4 to go-ci-oldstable-build-v0.21.5 in /dependabot/docker/builds
+- (GH-677) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.21.5 to go-ci-oldstable-build-v0.21.6 in /dependabot/docker/builds
+- (GH-679) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.21.6 to go-ci-oldstable-build-v0.21.7 in /dependabot/docker/builds
+- (GH-687) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.21.7 to go-ci-oldstable-build-v0.21.8 in /dependabot/docker/builds
+- (GH-694) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.21.8 to go-ci-oldstable-build-v0.21.9 in /dependabot/docker/builds
+- (GH-684) Go Dependency: Bump golang.org/x/sys from 0.22.0 to 0.23.0
+- (GH-689) Go Dependency: Bump golang.org/x/sys from 0.23.0 to 0.24.0
+- (GH-696) Go Runtime: Bump golang from 1.21.12 to 1.22.6 in /dependabot/docker/go
+- (GH-695) Update project to Go 1.22 series
+
+#### Other
+
+- (GH-681) Push `REPO_VERSION` var into containers for builds
+
+### Fixed
+
+- (GH-698) Fix govet linting errors raised by updated linter
+
 ## [v0.8.10] - 2024-07-10
 
 ### Changed
@@ -1195,7 +1219,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.10...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.11...HEAD
+[v0.8.11]: https://github.com/atc0005/elbow/releases/tag/v0.8.11
 [v0.8.10]: https://github.com/atc0005/elbow/releases/tag/v0.8.10
 [v0.8.9]: https://github.com/atc0005/elbow/releases/tag/v0.8.9
 [v0.8.8]: https://github.com/atc0005/elbow/releases/tag/v0.8.8
