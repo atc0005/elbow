@@ -26,6 +26,16 @@ The following types of changes will be recorded in this file:
 
 - placeholder
 
+## [v0.8.14] - 2025-05-16
+
+### Changed
+
+#### Dependency Updates
+
+- (GH-801) Build Image: Bump atc0005/go-ci from go-ci-oldstable-build-v0.22.9 to go-ci-oldstable-build-v0.22.10 in /dependabot/docker/builds
+- (GH-797) Go Dependency: Bump golang.org/x/sys from 0.32.0 to 0.33.0
+- (GH-798) Go Runtime: Bump golang from 1.23.8 to 1.23.9 in /dependabot/docker/go
+
 ## [v0.8.13] - 2025-04-09
 
 ### Changed
@@ -1252,7 +1262,8 @@ This initial prototype supports:
 - Go modules (vs classic GOPATH setup)
 - Brief overview, examples for testing purposes
 
-[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.13...HEAD
+[Unreleased]: https://github.com/atc0005/elbow/compare/v0.8.14...HEAD
+[v0.8.14]: https://github.com/atc0005/elbow/releases/tag/v0.8.14
 [v0.8.13]: https://github.com/atc0005/elbow/releases/tag/v0.8.13
 [v0.8.12]: https://github.com/atc0005/elbow/releases/tag/v0.8.12
 [v0.8.11]: https://github.com/atc0005/elbow/releases/tag/v0.8.11
