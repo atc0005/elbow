@@ -16,7 +16,7 @@ module github.com/atc0005/elbow
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-go 1.23.0
+go 1.26.0
 
 require (
 	github.com/alexflint/go-arg v1.5.1
@@ -26,5 +26,5 @@ require (
 
 require (
 	github.com/alexflint/go-scalar v1.2.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
 )
